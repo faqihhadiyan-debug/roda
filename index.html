@@ -3,73 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consumption - Top Global Edition</title>
+    <title>Predator Bumi - Global Leaderboard</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #050505; color: #eee; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #050505; color: #eee; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; overflow-x: hidden; }
         .container { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 20px rgba(255,0,0,0.2); }
-        .stats-box { background: #000; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #444; }
-        #population { color: #ff4d4d; font-weight: bold; font-size: 1.8rem; }
-        #consumed { color: #00ff00; font-weight: bold; font-size: 1.5rem; }
-        #alertBox { height: 30px; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; }
-        .reward-msg { color: #0f0; } .challenge-msg { color: #fa0; }
         
+        /* Stats Box */
+        .stats-box { background: #000; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #444; position: relative; }
+        #population { color: #ff4d4d; font-weight: bold; font-size: 1.8rem; display: block; margin-top: 5px; }
+        #consumed { color: #00ff00; font-weight: bold; font-size: 1.2rem; }
+        #planetCount { color: #ffd700; font-weight: bold; }
+
+        /* Notification Alert */
+        #alertBox { height: 30px; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .reward-msg { color: #0f0; text-shadow: 0 0 5px #0f0; }
+        .challenge-msg { color: #fa0; text-shadow: 0 0 5px #f00; }
+        
+        /* Main Button */
         #consumeBtn {
             width: 100%; padding: 50px 10px; font-size: 2.2rem; font-weight: bold; color: white;
             background: linear-gradient(135deg, #cc0000, #660000); border: none; border-radius: 20px;
-            cursor: pointer; box-shadow: 0 8px #440000; transition: 0.1s;
+            cursor: pointer; box-shadow: 0 8px #440000; transition: 0.1s; text-transform: uppercase;
         }
         #consumeBtn:active { transform: translateY(4px); box-shadow: 0 4px #220000; }
 
-        .upgrade-card { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid #333; text-align: left; }
-        .small-btn { width: 100%; padding: 10px; margin-top: 8px; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
-        .small-btn:disabled { opacity: 0.3; }
+        /* Upgrade Shop */
+        .upgrade-card { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-top: 15px; border: 1px solid #333; text-align: left; }
+        .small-btn { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; }
+        .small-btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
+        /* Leaderboard */
         .leaderboard { margin-top: 25px; background: #000; padding: 15px; border-radius: 12px; border: 1px solid #ffd700; text-align: left; }
-        .entry { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        .leaderboard h4 { margin: 0 0 10px 0; color: #ffd700; text-align: center; text-transform: uppercase; font-size: 0.9rem; }
+        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
 
+        /* Reset Button */
+        .reset-link { margin-top: 20px; color: #444; font-size: 0.7rem; cursor: pointer; text-decoration: underline; background: none; border: none; }
+
+        /* Modal Win */
         .modal { background: rgba(0,0,0,0.95); position: fixed; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; z-index:1000; }
-        .modal-content { background: #222; padding: 25px; border-radius: 20px; border: 2px solid #ffd700; width: 80%; }
+        .modal-content { background: #222; padding: 25px; border-radius: 20px; border: 2px solid #ffd700; width: 85%; text-align: center; }
+        #playerName { width: 90%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #444; background: #000; color: #fff; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="color:#ff3333; margin:0;">PREDATOR BUMI</h1>
+    <h1 style="color:#ff3333; margin:0; letter-spacing: 2px;">PREDATOR BUMI</h1>
     <div id="alertBox"></div>
     
     <div class="stats-box">
-        <small style="color:#888">SISA POPULASI</small><br>
-        <span id="population">10</span><br>
+        <small style="color:#888; letter-spacing: 1px;">SISA POPULASI MANUSIA</small>
+        <span id="population">8.000.000.000</span>
         <hr style="border:0.1px solid #222; margin: 10px 0;">
-        <small style="color:#888">PLANET TERLAHAP: <span id="planetCount" style="color:#ffd700">0</span></small><br>
-        <span id="consumed">0</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <small style="color:#888;">PLANET: <span id="planetCount">0</span></small>
+            <span id="consumed">0</span>
+        </div>
     </div>
 
     <button id="consumeBtn">MAKAN</button>
 
     <div class="upgrade-card">
-        <strong>TOKO UPGRADE:</strong>
-        <button class="small-btn" id="btnClick">Upgrade Gigi | 💰 <span id="cCost">15</span></button>
-        <button class="small-btn" id="btnAfk">Beli Virus AFK | 💰 <span id="aCost">50</span></button>
+        <strong style="color: #ffd700; font-size: 0.8rem;">🛒 TOKO UPGRADE</strong>
+        <button class="small-btn" id="btnClick">Upgrade Gigi (+<span id="pwrDisp">1</span>) | 💰 <span id="cCost">15</span></button>
+        <button class="small-btn" id="btnAfk">Virus AFK (+<span id="afkDisp">2</span>/s) | 💰 <span id="aCost">50</span></button>
     </div>
 
     <div class="leaderboard">
-        <h4 style="margin:0 0 10px 0; color:#ffd700; text-align:center;">🏆 TOP GLOBAL</h4>
-        <div id="leaderboardList">Memuat peringkat...</div>
+        <h4>🏆 TOP GLOBAL (PLANET CLEARED)</h4>
+        <div id="leaderboardList">Menghubungkan ke server...</div>
     </div>
+
+    <button class="reset-link" id="resetBtn">RESET SEMUA PROGRES (HAPUS MEMORI)</button>
 </div>
 
 <div id="winModal" class="modal">
     <div class="modal-content">
-        <h2 style="color:#ffd700">PLANET HABIS!</h2>
-        <input type="text" id="playerName" placeholder="Nama Anda" maxlength="12" style="width:90%; padding:10px; margin-bottom:15px;">
-        <button class="small-btn" id="submitBtn" style="background:#ffd700; color:#000;">KIRIM SKOR & RESET</button>
+        <h2 style="color:#ffd700; margin:0;">PLANET TELAH HABIS!</h2>
+        <input type="text" id="playerName" placeholder="Nama Predator" maxlength="12">
+        <button class="small-btn" id="submitBtn" style="background:#ffd700; color:#000;">KIRIM SKOR & RESET BUMI</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, orderBy, limit, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -84,85 +103,93 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Data Game
-    let data = JSON.parse(localStorage.getItem('consumptionData')) || {
+    const STORAGE_KEY = 'consumption_v1_live';
+    let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         population: 8000000000,
         consumed: 0,
         clickPower: 1,
         clickCost: 15,
         afkPower: 0,
         afkCost: 50,
-        planetsCleared: 0
+        planetsCleared: 0,
+        multiplier: 1
     };
 
     const updateDisplay = () => {
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
         document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
         document.getElementById('planetCount').innerText = data.planetsCleared;
-        document.getElementById('cCost').innerText = data.clickCost;
-        document.getElementById('aCost').innerText = data.afkCost;
+        document.getElementById('pwrDisp').innerText = data.clickPower;
+        document.getElementById('afkDisp').innerText = data.afkPower + 2;
+        document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
+        document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
         document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
 
         if(data.population <= 0) document.getElementById('winModal').style.display = 'flex';
     };
 
-    const showAlert = (msg, cls) => {
-        const b = document.getElementById('alertBox');
-        b.innerText = msg; b.className = cls;
-        setTimeout(() => b.innerText = "", 3000);
+    const showAlert = (msg, type) => {
+        const box = document.getElementById('alertBox');
+        box.innerText = msg;
+        box.className = type === 'reward' ? 'reward-msg' : 'challenge-msg';
+        setTimeout(() => box.innerText = "", 3000);
     };
 
-    // Fungsi Klik
     document.getElementById('consumeBtn').onclick = () => {
         if(data.population > 0) {
-            data.population -= data.clickPower;
-            data.consumed += data.clickPower;
+            let val = data.clickPower * data.multiplier;
+            data.population -= val;
+            data.consumed += val;
             updateDisplay();
         }
     };
 
-    // Upgrade Klik
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
             data.consumed -= data.clickCost;
             data.clickPower += 1;
-            data.clickCost = Math.floor(data.clickCost * 1.6);
+            data.clickCost = Math.floor(data.clickCost * 1.7);
             updateDisplay();
         }
     };
 
-    // Upgrade AFK
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
             data.consumed -= data.afkCost;
             data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 1.8);
+            data.afkCost = Math.floor(data.afkCost * 1.9);
             updateDisplay();
         }
     };
 
-    // Firebase: Submit Score
+    // FUNGSI RESET DATA (PENTING!)
+    document.getElementById('resetBtn').onclick = () => {
+        if(confirm("Hapus semua progres kamu secara permanen?")) {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+    };
+
     document.getElementById('submitBtn').onclick = async () => {
-        const name = document.getElementById('playerName').value || "Predator";
+        const name = document.getElementById('playerName').value.trim() || "Predator";
         data.planetsCleared += 1;
         try {
             await setDoc(doc(db, "top_global", name), {
                 name: name,
                 planets: data.planetsCleared,
-                score: data.consumed
+                totalConsumed: data.consumed,
+                lastUpdate: new Date()
             }, { merge: true });
-            
             data.population = 8000000000;
+            data.clickPower += 50;
             document.getElementById('winModal').style.display = 'none';
             loadLeaderboard();
             updateDisplay();
-            showAlert("Planet Terhapus! Bonus +50 Power!", "reward");
-            data.clickPower += 50;
-        } catch (e) { alert("Error Firebase. Cek Firestore Rules."); }
+            showAlert("Bumi Di-reset! Bonus +50 Power!", "reward");
+        } catch (e) { alert("Cek Internet!"); }
     };
 
-    // Firebase: Load Leaderboard
     const loadLeaderboard = async () => {
         const list = document.getElementById('leaderboardList');
         try {
@@ -170,30 +197,21 @@
             const querySnapshot = await getDocs(q);
             list.innerHTML = "";
             querySnapshot.forEach((doc) => {
-                const d = doc.data();
-                list.innerHTML += `<div class="entry"><span>${d.name}</span> <span style="color:#ffd700">${d.planets} Planet</span></div>`;
+                const u = doc.data();
+                list.innerHTML += `<div class="entry"><span><b>${u.name}</b></span><span style="color:#ffd700">${u.planets} Planet</span></div>`;
             });
         } catch (e) { list.innerHTML = "Leaderboard Error."; }
     };
 
-    // Auto Loop
     setInterval(() => {
         if(data.afkPower > 0 && data.population > 0) {
-            data.population -= (data.afkPower / 20);
-            data.consumed += (data.afkPower / 20);
+            let flow = (data.afkPower * data.multiplier) / 20;
+            data.population -= flow;
+            data.consumed += flow;
             updateDisplay();
         }
-        localStorage.setItem('consumptionData', JSON.stringify(data));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }, 50);
-
-    // Challenges (Baby Boom)
-    setInterval(() => {
-        if(Math.random() < 0.2 && data.population > 0) {
-            let b = Math.floor(Math.random() * 5000) + 1000;
-            data.population += b;
-            showAlert(`CHALLENGE: Baby Boom +${b}`, "challenge-msg");
-        }
-    }, 20000);
 
     loadLeaderboard();
     updateDisplay();
