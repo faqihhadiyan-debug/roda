@@ -43,22 +43,22 @@
 <body>
 
 <div class="container">
-    <h1 style="color:#ff3333; margin:0;">PREDATOR BUMI</h1>
+    <h1 style="color:#ff3333; margin:0;">PEMAKAN MANUSIA</h1>
     <div id="alertBox"></div>
     
     <div class="stats-box">
-        <small style="color:#888;">POPULASI TERSISA</small>
+        <small style="color:#888;">POPULASI MANUSIA TERSISA</small>
         <span id="population">8.000.000.000</span>
         
         <div class="live-power">
-            <div class="pwr-tag click-text">Gigi: +<span id="statClick">1</span>/Klik</div>
-            <div class="pwr-tag afk-text">Virus: +<span id="statAfk">0</span>/Detik</div>
+            <div class="pwr-tag click-text">UP Gigi: +<span id="statClick">1</span>/Klik</div>
+            <div class="pwr-tag afk-text">UP Virus: +<span id="statAfk">0</span>/Detik</div>
         </div>
         
         <hr style="border:0.1px solid #222; margin: 10px 0;">
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
             <span>SKOR: <b id="consumed" style="color:#0f0">0</b></span>
-            <span>PLANET: <b id="planetCount" style="color:#ffd700">0</b></span>
+            <span>POPULASI HANCUR: <b id="planetCount" style="color:#ffd700">0</b></span>
         </div>
     </div>
 
@@ -80,7 +80,7 @@
 
 <div id="winModal" class="modal">
     <div class="modal-content">
-        <h2 style="color:#ffd700">PLANET HABIS!</h2>
+        <h2 style="color:#ffd700">POPULASI HANCUR</h2>
         <input type="text" id="playerName" placeholder="Nama Anda" maxlength="12">
         <button class="small-btn" id="submitBtn" style="background:#ffd700; color:#000;">KIRIM SKOR</button>
     </div>
@@ -182,7 +182,7 @@
             document.getElementById('winModal').style.display = 'none';
             loadLeaderboard();
             updateDisplay();
-            showAlert("Bumi Reset! +50 Klik Power!", "reward");
+            showAlert("Planet baru🤤! +50 Klik Power!", "reward");
         } catch (e) { alert("Error!"); }
     };
 
