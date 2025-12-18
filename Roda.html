@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumption - Challenges & Rewards</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #050505; color: #eee; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 20px #f003; }
+        .stats-box { background: #000; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #444; }
+        #population { color: #ff4d4d; font-weight: bold; font-size: 1.8rem; }
+        
+        /* NOTIFIKASI CHALLENGE/REWARD */
+        #alertBox { height: 40px; font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; transition: 0.3s; }
+        .reward-msg { color: #00ff00; text-shadow: 0 0 5px #0f0; }
+        .challenge-msg { color: #ffae00; text-shadow: 0 0 5px #f00; }
+
+        #consumeBtn {
+            width: 100%; padding: 50px 10px; font-size: 2.2rem; font-weight: bold; color: white;
+            background: linear-gradient(135deg, #cc0000, #660000); border: none; border-radius: 20px;
+            cursor: pointer; box-shadow: 0 8px #440000; transition: 0.1s;
+        }
+        #consumeBtn:active { transform: translateY(4px); box-shadow: 0 4px #220000; }
+
+        .upgrade-card { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid #333; text-align: left; }
+        .small-btn { width: 100%; padding: 10px; margin-top: 8px; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
+        .small-btn:disabled { opacity: 0.3; }
+        
+        .badge-list { display: flex; gap: 5px; justify-content: center; margin-top: 10px; font-size: 0.7rem; }
+        .badge { background: #333; padding: 2px 8px; border-radius: 10px; border: 1px solid #ffd700; color: #ffd700; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="color:#ff3333; margin:0;">PREDATOR BUMI</h1>
+    <div id="alertBox">Siap berburu...</div>
+    
+    <div class="stats-box">
+        <small>POPULASI</small><br>
+        <span id="population">8.000.000.000</span><br>
+        <small>SKOR: <span id="consumed" style="color:#0f0">0</span></small>
+        <div class="badge-list" id="badgeList"></div>
+    </div>
+
+    <button id="consumeBtn" onclick="consume()">MAKAN</button>
+
+    <div class="upgrade-card">
+        <strong>TOKO UPGRADE:</strong>
+        <button class="small-btn" id="btnClick" onclick="upgradeClick()">Gigi Tajam (+<span id="pwrVal">1</span>) | 💰 <span id="cCost">15</span></button>
+        <button class="small-btn" id="btnAfk" onclick="buyAFK()">Virus AFK (+<span id="afkVal">2</span>/s) | 💰 <span id="aCost">50</span></button>
+    </div>
+
+    <div class="upgrade-card" style="border-color: #ffd700;">
+        <small>Planet Terlahap: <span id="planetCount" style="color:#ffd700">0</span></small>
+    </div>
+</div>
+
+<script>
+    let data = {
+        population: 8000000000,
+        consumed: 0,
+        clickPower: 1,
+        clickCost: 15,
+        afkPower: 0,
+        afkCost: 50,
+        planetsCleared: 0,
+        multiplier: 1
+    };
+
+    function showAlert(msg, type) {
+        const box = document.getElementById('alertBox');
+        box.innerText = msg;
+        box.className = type === 'reward' ? 'reward-msg' : 'challenge-msg';
+        setTimeout(() => { box.innerText = ""; }, 3000);
+    }
+
+    function updateDisplay() {
+        document.getElementById('population').innerText = Math.floor(data.population).toLocaleString('id-ID');
+        document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
+        document.getElementById('planetCount').innerText = data.planetsCleared;
+        document.getElementById('pwrVal').innerText = data.clickPower;
+        document.getElementById('afkVal').innerText = data.afkPower + 2;
+        document.getElementById('cCost').innerText = data.clickCost;
+        document.getElementById('aCost').innerText = data.afkCost;
+
+        document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
+        document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
+
+        if(data.population <= 0) { win(); }
+    }
+
+    function consume() {
+        if(data.population > 0) {
+            let val = data.clickPower * data.multiplier;
+            data.population -= val;
+            data.consumed += val;
+            checkRewards();
+            updateDisplay();
+        }
+    }
+
+    // --- REWARDS LOGIC ---
+    function checkRewards() {
+        // Reward per 1 juta konsumsi
+        if (data.consumed >= 1000000 && data.multiplier === 1) {
+            data.multiplier = 2;
+            showAlert("REWARD: Gluttony Mode! Konsumsi x2!", "reward");
+        }
+    }
+
+    // --- CHALLENGES LOGIC (Berjalan otomatis) ---
+    setInterval(() => {
+        // Challenge 1: Baby Boom (Populasi bertambah)
+        if (Math.random() < 0.3 && data.population > 0) {
+            let born = Math.floor(Math.random() * 5000) + 1000;
+            data.population += born;
+            showAlert(`CHALLENGE: Baby Boom! +${born} Penduduk`, "challenge");
+        }
+
+        // Challenge 2: Wabah Muntah (Kehilangan 1% Skor)
+        if (Math.random() < 0.1 && data.consumed > 1000) {
+            let loss = Math.floor(data.consumed * 0.01);
+            data.consumed -= loss;
+            showAlert(`CHALLENGE: Muntah Massal! -${loss} Skor`, "challenge");
+        }
+    }, 15000); // Cek setiap 15 detik
+
+    function upgradeClick() {
+        if(data.consumed >= data.clickCost) {
+            data.consumed -= data.clickCost;
+            data.clickPower += 1;
+            data.clickCost = Math.floor(data.clickCost * 1.6);
+            updateDisplay();
+        }
+    }
+
+    function buyAFK() {
+        if(data.consumed >= data.afkCost) {
+            data.consumed -= data.afkCost;
+            data.afkPower += 2;
+            data.afkCost = Math.floor(data.afkCost * 1.8);
+            updateDisplay();
+        }
+    }
+
+    function win() {
+        data.planetsCleared += 1;
+        data.population = 8000000000;
+        // Reward setelah tamat planet: Klik Power bertambah permanen
+        data.clickPower += 50; 
+        showAlert("PLANET TAMAT! Bonus +50 Power Klik!", "reward");
+        updateDisplay();
+    }
+
+    // AFK Smooth Loop
+    setInterval(() => {
+        if (data.afkPower > 0 && data.population > 0) {
+            let flow = (data.afkPower * data.multiplier) / 20;
+            data.population -= flow;
+            data.consumed += flow;
+            updateDisplay();
+        }
+    }, 50);
+
+    updateDisplay();
+</script>
+</body>
+</html>
