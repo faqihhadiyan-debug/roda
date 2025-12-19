@@ -108,7 +108,7 @@
 
     <div class="action-card">
         <span class="card-label">🎁 Hadiah & Toko</span>
-        <button class="btn-action" id="dailyBtn" style="background: #1a5e1a; border-color: #0f0;">🎁 BONUS HARIAN (+10.000)</button>
+        <button class="btn-action" id="dailyBtn" style="background: #1a5e1a; border-color: #0f0;">🎁 BONUS HARIAN (+100.000)</button>
         <button class="btn-action" id="btnClick">Upgrade Gigi | 💰 <span id="cCost">15</span></button>
         <button class="btn-action" id="btnAfk">Virus Evolusi | 💰 <span id="aCost">50</span></button>
     </div>
@@ -174,7 +174,7 @@
         const now = Date.now();
         const dailyBtn = document.getElementById('dailyBtn');
         if (now - data.lastDaily > 86400000) {
-            dailyBtn.innerText = "🎁 BONUS HARIAN (+10K)";
+            dailyBtn.innerText = "🎁 BONUS HARIAN (+100K)";
             dailyBtn.disabled = false;
         } else {
             dailyBtn.innerText = "⌛ BONUS SUDAH DIAMBIL";
@@ -192,11 +192,11 @@
     };
 
     document.getElementById('dailyBtn').onclick = () => {
-        data.consumed += 10000;
+        data.consumed += 100000;
         data.lastDaily = Date.now();
         updateDisplay();
         const b = document.getElementById('alertBox');
-        b.innerText = "BONUS 10.000 DITERIMA!";
+        b.innerText = "BONUS 100.000 DITERIMA!";
         b.className = "reward-msg";
         setTimeout(() => b.innerText = "", 3000);
     };
