@@ -3,85 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predator Bumi - Supreme Edition</title>
+    <title>Predator Bumi - Galactic Overlord</title>
     <style>
         :root {
-            --primary: #ff3333;
-            --secondary: #00ff00;
-            --accent: #ffd700;
-            --bg: #0a0a0a;
-            --card: #151515;
+            --primary: #ff3333; /* Merah Predator */
+            --secondary: #00e600; /* Hijau Skor */
+            --accent: #ffd700;   /* Emas Planet/Leaderboard */
+            --bg-dark: #000000;
+            --card-bg: #1a1a1a;
+            --text-light: #eee;
+            --text-dark: #ccc;
         }
 
         body { 
             font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); 
-            color: #eee; 
+            background-color: var(--bg-dark);
+            color: var(--text-light); 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             padding: 20px; 
             margin: 0; 
+            overflow: hidden; /* Penting untuk background */
             user-select: none;
+            position: relative;
+        }
+
+        /* Moving Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/M82_HST_ACS_H-alpha_wide_field.jpg/1280px-M82_HST_ACS_H-alpha_wide_field.jpg') center center / cover; /* Contoh background galaksi */
+            animation: moveBackground 60s linear infinite;
+            z-index: -1;
+            opacity: 0.3; /* Sedikit transparan agar UI terlihat */
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
         }
 
         .container { 
-            background: var(--card); 
+            background: rgba(26, 26, 26, 0.95); /* Sedikit transparan untuk background */
+            backdrop-filter: blur(5px); /* Efek blur pada background */
             padding: 25px; 
             border-radius: 30px; 
             border: 1px solid #333; 
             width: 90%; 
             max-width: 420px; 
             text-align: center; 
-            box-shadow: 0 15px 35px rgba(255,0,0,0.15); 
+            box-shadow: 0 15px 40px rgba(255,0,0,0.25); 
+            position: relative;
+            z-index: 1; /* Agar konten di atas background */
         }
 
-        h1 { font-size: 1.8rem; color: var(--primary); text-shadow: 0 0 15px rgba(255,51,51,0.5); letter-spacing: 3px; margin: 10px 0; }
+        h1 { 
+            font-size: 2rem; 
+            color: var(--primary); 
+            text-shadow: 0 0 15px rgba(255,51,51,0.7);
+            margin: 10px 0 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
 
         /* Stats Card */
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #444; }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.2rem; display: block; transition: 0.1s; }
+        .stats-box { 
+            background: rgba(0,0,0,0.7); 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            border: 1px solid #444;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+        }
+        #population { 
+            color: var(--primary); 
+            font-weight: 900; 
+            font-size: 2.5rem; 
+            display: block; 
+            transition: color 0.2s, transform 0.1s; 
+            text-shadow: 0 0 10px rgba(255,51,51,0.8);
+        }
 
-        .live-power { display: flex; justify-content: space-around; margin-top: 15px; gap: 10px; }
-        .pwr-tag { padding: 6px 12px; border-radius: 10px; background: #111; border: 1px solid #222; font-size: 0.75rem; font-weight: bold; }
+        .live-power { 
+            display: flex; 
+            justify-content: space-around; 
+            margin-top: 15px; 
+            gap: 10px;
+        }
+        .pwr-tag { 
+            padding: 8px 15px; 
+            border-radius: 15px; 
+            background: rgba(30,30,30,0.8); 
+            border: 1px solid #333; 
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-light);
+        }
 
         /* Main Button */
         #consumeBtn {
-            width: 100%; padding: 45px 10px; font-size: 2.5rem; font-weight: 900; color: white;
-            background: linear-gradient(135deg, #ff0000, #800000); border: none; border-radius: 25px;
-            cursor: pointer; box-shadow: 0 10px #400000; transition: 0.05s; margin-bottom: 20px;
+            width: 100%; 
+            padding: 50px 10px; 
+            font-size: 3rem; 
+            font-weight: 900; 
+            color: white;
+            background: linear-gradient(135deg, #ff0000, #b00000); 
+            border: none; 
+            border-radius: 30px;
+            cursor: pointer; 
+            box-shadow: 0 12px #600000, 0 20px 30px rgba(255,0,0,0.4); 
+            transition: 0.05s ease-out; 
+            margin-bottom: 25px;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.6);
+            position: relative; /* Untuk partikel */
+            overflow: hidden; /* Untuk partikel */
         }
-        #consumeBtn:active { transform: translateY(6px); box-shadow: 0 4px #200000; }
+        #consumeBtn:active { 
+            transform: translateY(8px); 
+            box-shadow: 0 4px #300000, 0 10px 15px rgba(255,0,0,0.2); 
+        }
 
-        .action-card { background: #1a1a1a; padding: 15px; border-radius: 18px; margin-top: 15px; border: 1px solid #222; text-align: left; }
-        .card-label { font-size: 0.7rem; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        /* Particle Effect */
+        .particle {
+            position: absolute;
+            background-color: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0);
+            animation: particleExplode 0.8s forwards;
+        }
 
-        .btn-action { width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; background: #252525; color: #fff; border: 1px solid #333; border-radius: 12px; font-weight: bold; }
-        .btn-action:disabled { opacity: 0.3; }
+        @keyframes particleExplode {
+            0% { opacity: 1; transform: scale(0) translate(0, 0); }
+            20% { opacity: 1; transform: scale(1) translate(var(--dx), var(--dy)); }
+            100% { opacity: 0; transform: scale(0) translate(var(--dx), var(--dy)); }
+        }
+
+        /* Action Cards (Upgrade & Bonus) */
+        .action-card { 
+            background: rgba(30,30,30,0.8); 
+            padding: 18px; 
+            border-radius: 20px; 
+            margin-top: 20px; 
+            border: 1px solid #444; 
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .card-label { 
+            font-size: 0.75rem; 
+            color: var(--accent); 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255,215,0,0.3);
+        }
+
+        .btn-action { 
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 12px; 
+            cursor: pointer; 
+            background: #333; 
+            color: #fff; 
+            border: 1px solid #555; 
+            border-radius: 15px; 
+            font-weight: bold; 
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+        .btn-action:disabled { opacity: 0.3; filter: grayscale(1); }
+        .btn-action:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+        #dailyBtn { background: linear-gradient(to right, #008000, #004d00); border-color: #00b300; }
+        #dailyBtn:active:not(:disabled) { background: linear-gradient(to right, #004d00, #003300); }
+        #btnClick { background: linear-gradient(to right, #404040, #202020); border-color: #606060; }
+        #btnAfk { background: linear-gradient(to right, #404040, #202020); border-color: #606060; }
+        #gachaBtn { background: linear-gradient(to right, #a06000, #704000); border-color: #ff9900; }
+
+        /* Leaderboard */
+        .leaderboard { 
+            margin-top: 30px; 
+            background: rgba(0,0,0,0.6); 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 1px solid var(--accent); 
+            text-align: left;
+            box-shadow: 0 0 20px rgba(255,215,0,0.15);
+        }
+        .leaderboard h4 { 
+            font-size: 1rem; 
+            color: var(--accent); 
+            text-align: center; 
+            text-transform: uppercase; 
+            margin-bottom: 15px; 
+            text-shadow: 0 0 8px rgba(255,215,0,0.5);
+        }
+        .entry { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            border-bottom: 1px solid #333; 
+            font-size: 0.95rem; 
+            color: var(--text-dark);
+        }
+        .entry:last-child { border-bottom: none; }
+        .entry b { color: var(--text-light); }
+
+        /* Alerts & Modals */
+        #alertBox { 
+            height: 40px; 
+            font-weight: bold; 
+            font-size: 0.9rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .reward-msg { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+        .challenge-msg { color: #ff9900; text-shadow: 0 0 10px #ff9900; }
+
+        .modal { 
+            background: rgba(0,0,0,0.98); 
+            position: fixed; 
+            top:0; left:0; 
+            width:100%; height:100%; 
+            display:none; 
+            align-items:center; 
+            justify-content:center; 
+            z-index:9999; 
+            backdrop-filter: blur(8px);
+        }
+        .modal-content { 
+            background: rgba(20,20,20,0.95); 
+            padding: 30px; 
+            border-radius: 25px; 
+            border: 2px solid var(--accent); 
+            width: 85%; 
+            max-width: 380px;
+            text-align: center; 
+            box-shadow: 0 0 60px rgba(255,215,0,0.3); 
+        }
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 12px; 
+            background: #000; 
+            color: #fff; 
+            border: 1px solid #444; 
+            margin: 20px 0; 
+            text-align: center; 
+            font-size: 1.1rem; 
+            box-sizing: border-box; 
+        }
 
         /* Welcome Overlay */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .welcome-box { background: #1a1a1a; padding: 30px; border-radius: 25px; border: 2px solid var(--primary); text-align: center; max-width: 400px; }
+        .overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.98); 
+            z-index: 10000; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            backdrop-filter: blur(8px);
+        }
+        .welcome-box { 
+            background: rgba(26,26,26,0.98); 
+            padding: 30px; 
+            border-radius: 25px; 
+            border: 2px solid var(--primary); 
+            text-align: center; 
+            max-width: 400px; 
+            box-shadow: 0 0 40px rgba(255,51,51,0.2);
+        }
+        .welcome-box h2 { 
+            color: var(--primary); 
+            text-shadow: 0 0 10px rgba(255,51,51,0.7);
+            margin-bottom: 20px;
+        }
+        .welcome-box p, .welcome-box ul { color: var(--text-dark); line-height: 1.6; font-size: 0.9rem; }
+        .welcome-box ul { text-align: left; margin: 20px 0 30px 20px; padding: 0; list-style-type: '🩸 '; }
+        .welcome-box li { margin-bottom: 8px; }
+        .welcome-box .btn-action { background: var(--primary); border: none; padding: 18px; color: white; }
 
-        .leaderboard { margin-top: 25px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 18px; border: 1px solid var(--accent); text-align: left; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
-        #alertBox { height: 35px; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
-        .reward-msg { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+        .reset-link { margin-top: 30px; color: #444; font-size: 0.7rem; background: none; border: none; cursor: pointer; text-decoration: underline; }
+
     </style>
 </head>
 <body>
 
 <div id="welcomeOverlay" class="overlay">
     <div class="welcome-box">
-        <h2 style="color: var(--primary); margin-top: 0;">SELAMAT DATANG, PREDATOR!</h2>
-        <p style="line-height: 1.6; color: #ccc;">Dunia sudah terlalu penuh. Tugasmu adalah **menghabiskan 8 Miliar manusia** untuk memenangkan permainan.</p>
-        <ul style="text-align: left; font-size: 0.9rem; color: #aaa;">
-            <li>🔴 Tap <b>MAKAN</b> untuk memangsa manusia.</li>
-            <li>🛒 Gunakan skor untuk <b>Upgrade Gigi</b> agar lebih kuat.</li>
-            <li>🦠 Beli <b>Virus</b> agar manusia berkurang otomatis.</li>
-            <li>🏆 Habiskan satu planet untuk masuk <b>Top Global</b>.</li>
+        <h2>SELAMAT DATANG, PREDATOR GALAKTIK!</h2>
+        <p>Anda adalah entitas kosmik dengan satu tujuan: **menghabisi 8 Miliar manusia** untuk menguasai planet ini.</p>
+        <ul>
+            <li>🔴 Ketuk <b>MAKAN</b> untuk memangsa per individu.</li>
+            <li>🛒 Gunakan skor untuk <b>Upgrade Gigi</b> agar sekali tap lebih mematikan.</li>
+            <li>🦠 Sebarkan <b>Virus AFK</b> agar populasi berkurang otomatis setiap detik.</li>
+            <li>🏆 Selesaikan satu planet untuk masuk ke <b>TOP GLOBAL</b>!</li>
         </ul>
-        <button class="btn-action" onclick="closeWelcome()" style="background: var(--primary); border: none; margin-top: 20px; padding: 18px;">SAYA MENGERTI, MULAI MANGSA!</button>
+        <button class="btn-action" onclick="closeWelcome()">SAYA MENGERTI, MULAI MEMANGSA!</button>
     </div>
 </div>
 
@@ -98,7 +332,7 @@
             <div class="pwr-tag" style="color:#00ccff">VIRUS: <span id="statAfk">0</span>/s</div>
         </div>
         
-        <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.8rem; background: #111; padding: 10px; border-radius: 10px;">
+        <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.8rem; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 10px; border: 1px solid #222;">
             <span>💰 SKOR: <b id="consumed" style="color:var(--secondary)">0</b></span>
             <span>🌍 PLANET: <b id="planetCount" style="color:var(--accent)">0</b></span>
         </div>
@@ -107,15 +341,31 @@
     <button id="consumeBtn">MAKAN</button>
 
     <div class="action-card">
-        <span class="card-label">🎁 Hadiah & Toko</span>
-        <button class="btn-action" id="dailyBtn" style="background: #1a5e1a; border-color: #0f0;">🎁 BONUS HARIAN (+100.000)</button>
+        <span class="card-label">🎁 Hadiah & Keberuntungan</span>
+        <button class="btn-action" id="dailyBtn">🎁 BONUS HARIAN (+10.000)</button>
+        <button class="btn-action" id="gachaBtn">🎲 GACHA KEBERUNTUNGAN (Biaya: 500)</button>
+    </div>
+
+    <div class="action-card">
+        <span class="card-label">🛒 Toko Evolusi Predator</span>
         <button class="btn-action" id="btnClick">Upgrade Gigi | 💰 <span id="cCost">15</span></button>
-        <button class="btn-action" id="btnAfk">Virus Evolusi | 💰 <span id="aCost">50</span></button>
+        <button class="btn-action" id="btnAfk">Virus AFK | 💰 <span id="aCost">50</span></button>
     </div>
 
     <div class="leaderboard">
-        <h4 style="margin:0 0 12px 0; color:var(--accent); text-align: center;">🏆 TOP GLOBAL PREDATOR</h4>
-        <div id="leaderboardList">Menghubungkan...</div>
+        <h4>🏆 TOP GLOBAL PREDATOR</h4>
+        <div id="leaderboardList">Memuat peringkat...</div>
+    </div>
+
+    <button class="reset-link" id="resetBtn">HAPUS SELURUH DATA PROGRES (RESET)</button>
+</div>
+
+<div id="winModal" class="modal">
+    <div class="modal-content">
+        <h2 style="color:var(--accent); margin-top:0;">DUNIA TELAH MUSNAH!</h2>
+        <p style="color:var(--text-dark);">Anda berhasil memusnahkan populasi. Abadikan nama Anda di sejarah galaksi!</p>
+        <input type="text" id="playerName" placeholder="Nama Predator Anda" maxlength="12">
+        <button class="btn-action" id="submitBtn" style="background:var(--accent); color:#000;">SIMPAN SEJARAH & LANJUT</button>
     </div>
 </div>
 
@@ -123,6 +373,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, orderBy, limit, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+    // --- FIREBASE CONFIG (Sesuai milikmu) ---
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
         authDomain: "fruitsmasmaster.firebaseapp.com",
@@ -136,7 +387,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const STORAGE_KEY = 'predator_v4_final';
+    const STORAGE_KEY = 'predator_v5_galactic';
     let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         population: 8000000000,
         consumed: 0,
@@ -149,6 +400,7 @@
         isNewPlayer: true
     };
 
+    // --- WELCOME OVERLAY LOGIC ---
     window.closeWelcome = () => {
         data.isNewPlayer = false;
         document.getElementById('welcomeOverlay').style.display = 'none';
@@ -170,43 +422,74 @@
 
         document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
+        document.getElementById('gachaBtn').disabled = data.consumed < 500;
 
         const now = Date.now();
         const dailyBtn = document.getElementById('dailyBtn');
         if (now - data.lastDaily > 86400000) {
-            dailyBtn.innerText = "🎁 BONUS HARIAN (+100K)";
+            dailyBtn.innerText = "🎁 AMBIL BONUS HARIAN (+10.000)";
             dailyBtn.disabled = false;
         } else {
-            dailyBtn.innerText = "⌛ BONUS SUDAH DIAMBIL";
+            const hoursLeft = Math.ceil((86400000 - (now - data.lastDaily)) / 3600000);
+            dailyBtn.innerText = `⏳ SIAP DALAM ${hoursLeft} JAM`;
             dailyBtn.disabled = true;
+        }
+
+        if(data.population <= 0) {
+            document.getElementById('winModal').style.display = 'flex';
         }
     };
 
-    document.getElementById('consumeBtn').onclick = () => {
+    const showAlert = (msg, cls) => {
+        const b = document.getElementById('alertBox');
+        b.innerText = msg; b.className = cls;
+        setTimeout(() => b.innerText = "", 3000);
+    };
+
+    // --- PARTICLE EFFECT LOGIC ---
+    const consumeBtn = document.getElementById('consumeBtn');
+    consumeBtn.onclick = (e) => {
         if(data.population > 0) {
             data.population -= data.clickPower;
             data.consumed += data.clickPower;
+            
             if (navigator.vibrate) navigator.vibrate(20);
+            
+            // Create particles
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 8 + 4; // 4-12px
+                particle.style.width = particle.style.height = `${size}px`;
+                
+                // Position relative to click
+                const rect = consumeBtn.getBoundingClientRect();
+                const x = e.clientX - rect.left - (size / 2);
+                const y = e.clientY - rect.top - (size / 2);
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+
+                // Random direction
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 20; // 20-70px
+                particle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+                particle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+
+                consumeBtn.appendChild(particle);
+                particle.onanimationend = () => particle.remove();
+            }
             updateDisplay();
         }
     };
 
-    document.getElementById('dailyBtn').onclick = () => {
-        data.consumed += 100000;
-        data.lastDaily = Date.now();
-        updateDisplay();
-        const b = document.getElementById('alertBox');
-        b.innerText = "BONUS 100.000 DITERIMA!";
-        b.className = "reward-msg";
-        setTimeout(() => b.innerText = "", 3000);
-    };
-
+    // Upgrades
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
             data.consumed -= data.clickCost;
             data.clickPower += 1;
             data.clickCost = Math.floor(data.clickCost * 1.8);
             updateDisplay();
+            showAlert("Gigi Predator Diupgrade!", "reward-msg");
         }
     };
 
@@ -216,20 +499,109 @@
             data.afkPower += 2;
             data.afkCost = Math.floor(data.afkCost * 2.0);
             updateDisplay();
+            showAlert("Virus Evolusi Disebarkan!", "reward-msg");
         }
     };
 
+    // Bonus Logics
+    document.getElementById('dailyBtn').onclick = () => {
+        data.consumed += 10000;
+        data.lastDaily = Date.now();
+        updateDisplay();
+        showAlert("🎁 Bonus Harian 10.000 Skor Diklaim!", "reward-msg");
+    };
+
+    document.getElementById('gachaBtn').onclick = () => {
+        if (data.consumed < 500) {
+            showAlert("Skor Kurang Untuk Gacha (500)!", "challenge-msg");
+            return;
+        }
+        data.consumed -= 500;
+        const roll = Math.random();
+        if (roll > 0.9) { data.consumed += 5000; showAlert("🎉 JACKPOT! +5000 Skor!", "reward-msg"); }
+        else if (roll > 0.5) { data.consumed += 1000; showAlert("💰 Beruntung! +1000 Skor!", "reward-msg"); }
+        else { showAlert("❌ Gacha Zonk!", "challenge-msg"); }
+        updateDisplay();
+    };
+
+    // --- LEADERBOARD OPTIMIZED ---
+    let isLeaderboardLoaded = false;
+    const loadLeaderboard = async () => {
+        const list = document.getElementById('leaderboardList');
+        if(isLeaderboardLoaded && data.population > 0) return; // Prevent frequent loading if not needed
+
+        list.innerHTML = "Memuat peringkat..."; // Indicate loading
+        try {
+            const q = query(collection(db, "top_global"), orderBy("planets", "desc"), limit(5));
+            const querySnapshot = await getDocs(q);
+            
+            list.innerHTML = "";
+            if (querySnapshot.empty) {
+                list.innerHTML = "<small style='color:var(--text-dark)'>Belum ada Predator!</small>";
+            } else {
+                querySnapshot.forEach((docSnap) => {
+                    const u = docSnap.data();
+                    list.innerHTML += `<div class="entry"><b>${u.name}</b> <span>${u.planets} Planet</span></div>`;
+                });
+            }
+            isLeaderboardLoaded = true; 
+        } catch (e) { 
+            list.innerHTML = "<small style='color:red'>Server Leaderboard Offline</small>"; 
+        }
+    };
+
+    document.getElementById('submitBtn').onclick = async () => {
+        const name = document.getElementById('playerName').value.trim() || "Anonym";
+        data.planetsCleared += 1;
+        try {
+            await setDoc(doc(db, "top_global", name), { name: name, planets: data.planetsCleared, score: data.consumed }, { merge: true });
+            data.population = 8000000000;
+            data.clickPower += 50; // Bonus Kemenangan
+            document.getElementById('winModal').style.display = 'none';
+            isLeaderboardLoaded = false; // Force reload leaderboard on new win
+            loadLeaderboard();
+            updateDisplay();
+            showAlert("🌍 Planet Baru Menanti! +50 Power!", "reward-msg");
+        } catch (e) { showAlert("Koneksi Server Error!", "challenge-msg"); }
+    };
+
+    document.getElementById('resetBtn').onclick = () => {
+        if(confirm("Hapus seluruh progres selamanya? Aksi ini tidak bisa dibatalkan!")) { 
+            localStorage.removeItem(STORAGE_KEY); 
+            location.reload(); 
+        }
+    };
+
+    // --- GAME LOOP & AUTO-SAVE ---
     setInterval(() => {
         if(data.afkPower > 0 && data.population > 0) {
-            data.population -= (data.afkPower / 20);
-            data.consumed += (data.afkPower / 20);
+            let flow = data.afkPower / 20; // Perhitungan per 50ms
+            data.population -= flow;
+            data.consumed += flow;
             updateDisplay();
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }, 50);
 
-    // Load Leaderboard function remains the same as previous version
+    // --- BABY BOOM CHALLENGE ---
+    setInterval(() => {
+        if(Math.random() < 0.25 && data.population > 0 && data.population < 7000000000) { // 25% chance
+            let born = Math.floor(Math.random() * 8000) + 2000; // 2k-10k
+            data.population += born;
+            showAlert(`👶 BABY BOOM: +${born.toLocaleString()} Manusia`, "challenge-msg");
+        }
+    }, 25000); // Every 25 seconds
+
+    // Initial Load
+    loadLeaderboard();
     updateDisplay();
 </script>
 </body>
 </html>
+```http://googleusercontent.com/generated_image_content/0
+
+
+
+Sekarang game Predator Bumi-mu sudah punya **latar belakang galaksi bergerak, efek partikel klik yang keren,** dan Top Global yang lebih *smooth*. Benar-benar siap jadi "Galactic Overlord", Bro\! 🚀✨
+
+Gimana, ada lagi yang mau ditambahin biar makin gokil?
