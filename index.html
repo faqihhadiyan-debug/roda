@@ -3,86 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predator Bumi - Full Stats</title>
+    <title>Predator Bumi - Supreme Edition</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #050505; color: #eee; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .container { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 20px rgba(255,0,0,0.2); }
-        
-        .stats-box { background: #000; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #444; }
-        #population { color: #ff4d4d; font-weight: bold; font-size: 2rem; display: block; }
-        
-        /* Indikator Baru */
-        .live-power { display: flex; justify-content: space-around; margin-top: 10px; font-size: 0.8rem; font-weight: bold; }
-        .pwr-tag { padding: 4px 10px; border-radius: 8px; background: #111; border: 1px solid #222; }
-        .click-text { color: #00ff00; }
-        .afk-text { color: #00ccff; }
-
-        #alertBox { height: 30px; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
-        .reward-msg { color: #0f0; } .challenge-msg { color: #fa0; }
-        
-        #consumeBtn {
-            width: 100%; padding: 50px 10px; font-size: 2.2rem; font-weight: bold; color: white;
-            background: linear-gradient(135deg, #cc0000, #660000); border: none; border-radius: 20px;
-            cursor: pointer; box-shadow: 0 8px #440000; transition: 0.1s;
+        :root {
+            --primary: #ff3333;
+            --secondary: #00ff00;
+            --accent: #ffd700;
+            --bg: #0a0a0a;
+            --card: #151515;
         }
-        #consumeBtn:active { transform: translateY(4px); box-shadow: 0 4px #220000; }
 
-        .upgrade-card { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-top: 15px; border: 1px solid #333; text-align: left; }
-        .small-btn { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: bold; }
-        .small-btn:disabled { opacity: 0.2; }
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg); 
+            color: #eee; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            margin: 0; 
+            user-select: none;
+        }
 
-        .leaderboard { margin-top: 25px; background: #000; padding: 15px; border-radius: 12px; border: 1px solid #ffd700; text-align: left; }
-        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
-        .reset-link { margin-top: 20px; color: #444; font-size: 0.7rem; cursor: pointer; background: none; border: none; text-decoration: underline; }
+        .container { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 30px; 
+            border: 1px solid #333; 
+            width: 90%; 
+            max-width: 420px; 
+            text-align: center; 
+            box-shadow: 0 15px 35px rgba(255,0,0,0.15); 
+        }
 
-        .modal { background: rgba(0,0,0,0.95); position: fixed; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; z-index:1000; }
-        .modal-content { background: #222; padding: 25px; border-radius: 20px; border: 2px solid #ffd700; width: 85%; text-align: center; }
-        #playerName { width: 90%; padding: 12px; margin: 15px 0; border-radius: 8px; background: #000; color: #fff; border: 1px solid #444; }
+        h1 { 
+            font-size: 1.8rem; 
+            color: var(--primary); 
+            text-shadow: 0 0 15px rgba(255,51,51,0.5);
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+
+        /* Stats Card */
+        .stats-box { 
+            background: #000; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            border: 1px solid #444;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        #population { 
+            color: var(--primary); 
+            font-weight: 900; 
+            font-size: 2.2rem; 
+            display: block; 
+            transition: transform 0.1s;
+        }
+
+        .live-power { 
+            display: flex; 
+            justify-content: space-around; 
+            margin-top: 15px; 
+            gap: 10px;
+        }
+
+        .pwr-tag { 
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            background: #111; 
+            border: 1px solid #222; 
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Main Button */
+        #consumeBtn {
+            width: 100%; 
+            padding: 45px 10px; 
+            font-size: 2.5rem; 
+            font-weight: 900; 
+            color: white;
+            background: linear-gradient(135deg, #ff0000, #800000); 
+            border: none; 
+            border-radius: 25px;
+            cursor: pointer; 
+            box-shadow: 0 10px #400000, 0 15px 25px rgba(255,0,0,0.3); 
+            transition: 0.05s; 
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        #consumeBtn:active { 
+            transform: translateY(6px); 
+            box-shadow: 0 4px #200000; 
+        }
+
+        /* Upgrade & Bonus Cards */
+        .card-label { 
+            display: block; 
+            text-align: left; 
+            font-size: 0.7rem; 
+            color: var(--accent); 
+            font-weight: bold; 
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .action-card { 
+            background: #1a1a1a; 
+            padding: 15px; 
+            border-radius: 18px; 
+            margin-top: 15px; 
+            border: 1px solid #222;
+        }
+
+        .btn-action { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            background: #252525; 
+            color: #fff; 
+            border: 1px solid #333; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            transition: 0.2s;
+        }
+
+        .btn-action:disabled { opacity: 0.3; filter: grayscale(1); }
+        .btn-action:active:not(:disabled) { transform: scale(0.97); }
+
+        #dailyBtn { background: linear-gradient(to right, #1a5e1a, #2d8a2d); border-color: #0f0; }
+        #gachaBtn { background: linear-gradient(to right, #8a5a1a, #b3741d); border-color: #f90; }
+
+        /* Leaderboard */
+        .leaderboard { 
+            margin-top: 25px; 
+            background: rgba(0,0,0,0.4); 
+            padding: 15px; 
+            border-radius: 18px; 
+            border: 1px solid var(--accent); 
+        }
+
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+
+        #alertBox { height: 35px; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .reward-msg { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+        .challenge-msg { color: #ff9900; }
+
+        /* Modal */
+        .modal { background: rgba(0,0,0,0.98); position: fixed; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; z-index:9999; }
+        .modal-content { background: #151515; padding: 30px; border-radius: 30px; border: 2px solid var(--accent); width: 80%; text-align: center; box-shadow: 0 0 50px rgba(255,215,0,0.2); }
+        input { width: 100%; padding: 15px; border-radius: 12px; background: #000; color: #fff; border: 1px solid #444; margin: 20px 0; text-align: center; font-size: 1.1rem; box-sizing: border-box; }
+
+        .reset-link { margin-top: 30px; color: #333; font-size: 0.65rem; background: none; border: none; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="color:#ff3333; margin:0;">PEMAKAN MANUSIA</h1>
+    <h1>PREDATOR BUMI</h1>
     <div id="alertBox"></div>
     
     <div class="stats-box">
-        <small style="color:#888;">POPULASI MANUSIA TERSISA</small>
+        <small style="color:#666; font-weight: bold;">POPULASI TERSISA</small>
         <span id="population">8.000.000.000</span>
         
         <div class="live-power">
-            <div class="pwr-tag click-text">UP Gigi: +<span id="statClick">1</span>/Klik</div>
-            <div class="pwr-tag afk-text">UP Virus: +<span id="statAfk">0</span>/Detik</div>
+            <div class="pwr-tag" style="color:var(--secondary)">GIGI: +<span id="statClick">1</span></div>
+            <div class="pwr-tag" style="color:#00ccff">VIRUS: <span id="statAfk">0</span>/s</div>
         </div>
         
-        <hr style="border:0.1px solid #222; margin: 10px 0;">
-        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-            <span>SKOR: <b id="consumed" style="color:#0f0">0</b></span>
-            <span>POPULASI HANCUR: <b id="planetCount" style="color:#ffd700">0</b></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.8rem; background: #111; padding: 10px; border-radius: 10px;">
+            <span>💰 <b id="consumed" style="color:var(--secondary)">0</b></span>
+            <span>🌍 <b id="planetCount" style="color:var(--accent)">0</b></span>
         </div>
     </div>
 
     <button id="consumeBtn">MAKAN</button>
 
-    <div class="upgrade-card">
-        <strong style="color: #ffd700; font-size: 0.8rem;">🛒 TOKO UPGRADE</strong>
-        <button class="small-btn" id="btnClick">Upgrade Gigi | 💰 <span id="cCost">15</span></button>
-        <button class="small-btn" id="btnAfk">Beli Virus AFK | 💰 <span id="aCost">50</span></button>
+    <div class="action-card">
+        <span class="card-label">🎁 Hadiah & Keberuntungan</span>
+        <button class="btn-action" id="dailyBtn">🎁 BONUS HARIAN (+10.000)</button>
+        <button class="btn-action" id="gachaBtn">🎲 GACHA (500 Skor)</button>
+    </div>
+
+    <div class="action-card">
+        <span class="card-label">🛒 Toko Evolusi</span>
+        <button class="btn-action" id="btnClick">Upgrade Gigi | 💰 <span id="cCost">15</span></button>
+        <button class="btn-action" id="btnAfk">Virus Evolusi | 💰 <span id="aCost">50</span></button>
     </div>
 
     <div class="leaderboard">
-        <h4 style="margin:0 0 10px 0; color:#ffd700; text-align:center; font-size:0.8rem;">🏆 TOP GLOBAL</h4>
-        <div id="leaderboardList">Memuat...</div>
+        <h4 style="margin:0 0 12px 0; color:var(--accent); letter-spacing: 1px;">🏆 TOP GLOBAL PREDATOR</h4>
+        <div id="leaderboardList">Menghubungkan...</div>
     </div>
 
-    <button class="reset-link" id="resetBtn">RESET PROGRES</button>
+    <button class="reset-link" id="resetBtn">HAPUS SELURUH DATA PROGRES</button>
 </div>
 
 <div id="winModal" class="modal">
     <div class="modal-content">
-        <h2 style="color:#ffd700">POPULASI HANCUR</h2>
+        <h2 style="color:var(--accent); margin:0;">DUNIA TELAH MUSNAH</h2>
+        <p style="color:#888; font-size: 0.8rem;">Keabadian menantimu di papan peringkat.</p>
         <input type="text" id="playerName" placeholder="Nama Anda" maxlength="12">
-        <button class="small-btn" id="submitBtn" style="background:#ffd700; color:#000;">KIRIM SKOR</button>
+        <button class="btn-action" id="submitBtn" style="background:var(--accent); color:#000; padding: 18px;">SIMPAN SEJARAH</button>
     </div>
 </div>
 
@@ -90,6 +217,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, orderBy, limit, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+    // --- FIREBASE CONFIG (Sesuai milikmu) ---
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
         authDomain: "fruitsmasmaster.firebaseapp.com",
@@ -103,7 +231,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const STORAGE_KEY = 'consumption_v2_live';
+    const STORAGE_KEY = 'predator_v3_final';
     let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         population: 8000000000,
         consumed: 0,
@@ -111,23 +239,36 @@
         clickCost: 15,
         afkPower: 0,
         afkCost: 50,
-        planetsCleared: 0
+        planetsCleared: 0,
+        lastDaily: 0
     };
 
     const updateDisplay = () => {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
+        const popEl = document.getElementById('population');
+        popEl.innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
         document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
         document.getElementById('planetCount').innerText = data.planetsCleared;
-        
-        // Update Live Stats
         document.getElementById('statClick').innerText = data.clickPower.toLocaleString('id-ID');
         document.getElementById('statAfk').innerText = data.afkPower.toLocaleString('id-ID');
-        
         document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
         document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
 
+        // Update Button State
         document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
+        document.getElementById('gachaBtn').disabled = data.consumed < 500;
+
+        // Daily Bonus Timer
+        const now = Date.now();
+        const dailyBtn = document.getElementById('dailyBtn');
+        if (now - data.lastDaily > 86400000) {
+            dailyBtn.innerText = "🎁 AMBIL BONUS HARIAN (+10K)";
+            dailyBtn.disabled = false;
+        } else {
+            const hoursLeft = Math.ceil((86400000 - (now - data.lastDaily)) / 3600000);
+            dailyBtn.innerText = `⏳ SIAP DALAM ${hoursLeft} JAM`;
+            dailyBtn.disabled = true;
+        }
 
         if(data.population <= 0) document.getElementById('winModal').style.display = 'flex';
     };
@@ -138,20 +279,31 @@
         setTimeout(() => b.innerText = "", 3000);
     };
 
+    // Tombol Makan + Efek Getar
     document.getElementById('consumeBtn').onclick = () => {
         if(data.population > 0) {
             data.population -= data.clickPower;
             data.consumed += data.clickPower;
+            
+            // Efek Vibrasi Android
+            if (navigator.vibrate) navigator.vibrate(20);
+            
+            // Animasi Angka
+            document.getElementById('population').style.transform = "scale(1.02)";
+            setTimeout(() => { document.getElementById('population').style.transform = "scale(1)"; }, 50);
+            
             updateDisplay();
         }
     };
 
+    // Upgrades
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
             data.consumed -= data.clickCost;
             data.clickPower += 1;
-            data.clickCost = Math.floor(data.clickCost * 1.7);
+            data.clickCost = Math.floor(data.clickCost * 1.8);
             updateDisplay();
+            showAlert("Upgrade Berhasil!", "reward");
         }
     };
 
@@ -159,50 +311,66 @@
         if(data.consumed >= data.afkCost) {
             data.consumed -= data.afkCost;
             data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 1.9);
+            data.afkCost = Math.floor(data.afkCost * 2.0);
             updateDisplay();
+            showAlert("Virus Tersebar!", "reward");
         }
     };
 
-    document.getElementById('resetBtn').onclick = () => {
-        if(confirm("Hapus progres?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    // Bonus Logics
+    document.getElementById('dailyBtn').onclick = () => {
+        data.consumed += 10000;
+        data.lastDaily = Date.now();
+        updateDisplay();
+        showAlert("+10.000 Skor Ditambahkan!", "reward");
     };
 
-    document.getElementById('submitBtn').onclick = async () => {
-        const name = document.getElementById('playerName').value.trim() || "Predator";
-        data.planetsCleared += 1;
-        try {
-            await setDoc(doc(db, "top_global", name), {
-                name: name,
-                planets: data.planetsCleared,
-                score: data.consumed
-            }, { merge: true });
-            data.population = 8000000000;
-            data.clickPower += 50;
-            document.getElementById('winModal').style.display = 'none';
-            loadLeaderboard();
-            updateDisplay();
-            showAlert("Planet baru🤤! +50 Klik Power!", "reward");
-        } catch (e) { alert("Error!"); }
+    document.getElementById('gachaBtn').onclick = () => {
+        data.consumed -= 500;
+        const roll = Math.random();
+        if (roll > 0.9) { data.consumed += 5000; showAlert("JACKPOT! +5000", "reward"); }
+        else if (roll > 0.5) { data.consumed += 1000; showAlert("Untung! +1000", "reward"); }
+        else { showAlert("Gagal Gacha!", "challenge-msg"); }
+        updateDisplay();
     };
 
+    // Firebase Leaders
     const loadLeaderboard = async () => {
         const list = document.getElementById('leaderboardList');
         try {
             const q = query(collection(db, "top_global"), orderBy("planets", "desc"), limit(5));
             const querySnapshot = await getDocs(q);
             list.innerHTML = "";
-            querySnapshot.forEach((doc) => {
-                const u = doc.data();
+            querySnapshot.forEach((docSnap) => {
+                const u = docSnap.data();
                 list.innerHTML += `<div class="entry"><b>${u.name}</b> <span>${u.planets} Planet</span></div>`;
             });
-        } catch (e) { list.innerHTML = "Offline"; }
+        } catch (e) { list.innerHTML = "Server Sibuk..."; }
     };
 
+    document.getElementById('submitBtn').onclick = async () => {
+        const name = document.getElementById('playerName').value.trim() || "Anonym";
+        data.planetsCleared += 1;
+        try {
+            await setDoc(doc(db, "top_global", name), { name: name, planets: data.planetsCleared }, { merge: true });
+            data.population = 8000000000;
+            data.clickPower += 50;
+            document.getElementById('winModal').style.display = 'none';
+            loadLeaderboard();
+            updateDisplay();
+        } catch (e) { alert("Error Server!"); }
+    };
+
+    document.getElementById('resetBtn').onclick = () => {
+        if(confirm("Hapus seluruh progres selamanya?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    };
+
+    // Game Loop
     setInterval(() => {
         if(data.afkPower > 0 && data.population > 0) {
-            data.population -= (data.afkPower / 20);
-            data.consumed += (data.afkPower / 20);
+            let flow = data.afkPower / 20;
+            data.population -= flow;
+            data.consumed += flow;
             updateDisplay();
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
