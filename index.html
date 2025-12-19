@@ -12,23 +12,28 @@
             --bg-dark: #000000;
         }
 
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
+        /* Perbaikan Scroll */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: var(--bg-dark);
-            color: #eee; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 15px; 
-            margin: 0; 
-            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: #eee;
             user-select: none;
             touch-action: manipulation;
         }
 
-        /* BG Galaksi Bergerak */
-        body::before {
-            content: '';
+        body {
+            overflow-y: auto; /* Izinkan scroll vertikal */
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* BG Galaksi Fixed (Nggak ikut ke-scroll) */
+        .bg-fixed {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/M82_HST_ACS_H-alpha_wide_field.jpg/1280px-M82_HST_ACS_H-alpha_wide_field.jpg') center center / cover;
@@ -49,11 +54,12 @@
             padding: 20px; 
             border-radius: 25px; 
             border: 1px solid #333; 
-            width: 100%; 
+            width: 90%; 
             max-width: 400px; 
             text-align: center; 
             box-shadow: 0 10px 30px rgba(255,0,0,0.3);
             box-sizing: border-box;
+            margin: 20px 0; /* Jarak atas bawah agar tidak nempel layar */
             z-index: 1;
         }
 
@@ -63,7 +69,7 @@
         .stats-box { background: rgba(0,0,0,0.8); padding: 20px 10px; border-radius: 18px; margin-bottom: 20px; border: 1px solid #444; }
         
         #population { 
-            color: var(--primary); font-weight: 900; font-size: 2.4rem; 
+            color: var(--primary); font-weight: 900; font-size: 2.3rem; 
             display: block; width: 100%; text-align: center;
             text-shadow: 0 0 15px rgba(255,51,51,0.6);
         }
@@ -71,8 +77,8 @@
         .shake { animation: shakeAnim 0.1s ease-in-out; }
         @keyframes shakeAnim {
             0%, 100% { transform: translate(0,0); }
-            25% { transform: translate(2px, -2px); }
-            75% { transform: translate(-2px, 2px); }
+            25% { transform: translate(3px, -3px); }
+            75% { transform: translate(-3px, 3px); }
         }
 
         .live-power { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
@@ -84,6 +90,7 @@
             background: linear-gradient(135deg, #ff0000, #800000); border: none; border-radius: 20px;
             cursor: pointer; box-shadow: 0 10px #400000; margin-bottom: 20px;
             position: relative; overflow: hidden;
+            outline: none;
         }
         #consumeBtn:active { transform: translateY(6px); box-shadow: 0 4px #200000; }
 
@@ -109,17 +116,20 @@
         .reward-msg { color: var(--secondary); }
         .challenge-msg { color: #ff9900; }
 
+        /* Overlay */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .welcome-box { background: #151515; padding: 25px; border-radius: 20px; border: 2px solid var(--primary); text-align: center; }
+        .welcome-box { background: #151515; padding: 25px; border-radius: 20px; border: 2px solid var(--primary); text-align: center; max-width: 350px; }
     </style>
 </head>
 <body>
+
+<div class="bg-fixed"></div>
 
 <div id="welcomeOverlay" class="overlay">
     <div class="welcome-box">
         <h2 style="color: var(--primary);">MISI PREDATOR</h2>
         <p style="font-size: 0.9rem; color: #ccc;">Habiskan 8.000.000.000 populasi manusia.</p>
-        <button class="btn-action" onclick="closeWelcome()" style="background: var(--primary); border: none; padding: 15px;">MULAI</button>
+        <button class="btn-action" onclick="closeWelcome()" style="background: var(--primary); border: none; padding: 15px;">MULAI MANGSA</button>
     </div>
 </div>
 
@@ -150,14 +160,16 @@
 
     <div class="action-card">
         <span class="card-label">🛒 Evolusi</span>
-        <button class="btn-action" id="btnClick">Upgrade Gigi | 🔲 <span id="cCost">15</span></button>
-        <button class="btn-action" id="btnAfk">Virus AFK | 🔳 <span id="aCost">50</span></button>
+        <button class="btn-action" id="btnClick">Upgrade Gigi | 💀 <span id="cCost">15</span></button>
+        <button class="btn-action" id="btnAfk">Virus AFK | 🦠 <span id="aCost">50</span></button>
     </div>
 
     <div class="leaderboard">
         <h4 style="margin:0 0 10px 0; color:var(--accent); text-align: center;">🏆 TOP GLOBAL</h4>
         <div id="leaderboardList">Memuat...</div>
     </div>
+    
+    <p style="font-size: 0.6rem; color: #444; margin-top: 20px;">v.Ultimate - Predator Bumi</p>
 </div>
 
 <script type="module">
@@ -177,7 +189,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const STORAGE_KEY = 'predator_ultimate_v1';
+    const STORAGE_KEY = 'predator_ultimate_final_fix';
     let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15,
         afkPower: 0, afkCost: 50, planetsCleared: 0, lastDaily: 0, isNewPlayer: true
@@ -204,22 +216,20 @@
         else { dailyBtn.innerText = "⌛ DIAMBIL"; dailyBtn.disabled = true; }
     };
 
-    // MAKAN + EFEK LENGKAP
+    // Tombol Makan + Getar + Partikel
     document.getElementById('consumeBtn').onclick = (e) => {
         if(data.population > 0) {
             data.population -= data.clickPower;
             data.consumed += data.clickPower;
 
-            // 1. Getar HP
             if (navigator.vibrate) navigator.vibrate(35);
 
-            // 2. Getar Angka
             const popEl = document.getElementById('population');
             popEl.classList.remove('shake');
             void popEl.offsetWidth;
             popEl.classList.add('shake');
 
-            // 3. Ledakan Partikel
+            // Partikel Ledakan
             for(let i=0; i<6; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
@@ -228,8 +238,8 @@
                 const rect = e.target.getBoundingClientRect();
                 p.style.left = (e.clientX - rect.left) + 'px';
                 p.style.top = (e.clientY - rect.top) + 'px';
-                p.style.setProperty('--dx', (Math.random()*150-75)+'px');
-                p.style.setProperty('--dy', (Math.random()*150-75)+'px');
+                p.style.setProperty('--dx', (Math.random()*160-80)+'px');
+                p.style.setProperty('--dy', (Math.random()*160-80)+'px');
                 e.target.appendChild(p);
                 setTimeout(() => p.remove(), 600);
             }
@@ -239,7 +249,7 @@
 
     document.getElementById('dailyBtn').onclick = () => {
         data.consumed += 10000; data.lastDaily = Date.now(); updateDisplay();
-        const b = document.getElementById('alertBox'); b.innerText = "+10.000 SKOR!"; b.className = "reward-msg";
+        const b = document.getElementById('alertBox'); b.innerText = "BONUS 10.000!"; b.className = "reward-msg";
         setTimeout(() => b.innerText = "", 3000);
     };
 
@@ -257,6 +267,17 @@
     };
 
     setInterval(() => { if(data.afkPower > 0 && data.population > 0) { data.population -= (data.afkPower / 20); data.consumed += (data.afkPower / 20); updateDisplay(); } save(); }, 50);
+    
+    // Baby Boom
+    setInterval(() => {
+        if(Math.random() < 0.2 && data.population > 0 && data.population < 7000000000) {
+            let born = Math.floor(Math.random() * 5000) + 1000;
+            data.population += born;
+            const b = document.getElementById('alertBox'); b.innerText = "👶 BABY BOOM: +" + born; b.className = "challenge-msg";
+            setTimeout(() => b.innerText = "", 3000);
+        }
+    }, 30000);
+
     loadLeaderboard(); updateDisplay();
 </script>
 </body>
