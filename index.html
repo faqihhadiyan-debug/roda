@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Galactic Edition</title>
+    <title>Predator Bumi - Real-time AFK</title>
     <style>
         :root {
             --primary: #ff3333;
@@ -12,98 +12,59 @@
             --bg-dark: #050505;
         }
 
-        /* Reset & Base */
         html, body {
             height: 100%; margin: 0; padding: 0;
             background-color: var(--bg-dark);
             font-family: 'Segoe UI', Roboto, sans-serif;
             color: #eee; user-select: none;
-            overflow-x: hidden;
-            touch-action: manipulation;
+            overflow-x: hidden; touch-action: manipulation;
         }
 
-        /* Background Berjalan (Scrolling Galaxy) */
+        /* Background Galaxy Scrolling */
         .galaxy-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 200%; height: 200%;
+            position: fixed; top: 0; left: 0; width: 200%; height: 200%;
             background: url('https://www.transparenttextures.com/patterns/stardust.png'), 
                         radial-gradient(circle at center, #1a0000 0%, #000000 100%);
-            z-index: -1;
-            animation: moveGalaxy 40s linear infinite;
-            opacity: 0.8;
+            z-index: -1; animation: moveGalaxy 40s linear infinite; opacity: 0.8;
         }
+        @keyframes moveGalaxy { from { transform: translate(0, 0); } to { transform: translate(-50%, -50%); } }
 
-        @keyframes moveGalaxy {
-            from { transform: translate(0, 0); }
-            to { transform: translate(-50%, -50%); }
-        }
-
-        .wrapper {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px; width: 100%; box-sizing: border-box;
-        }
+        .wrapper { display: flex; flex-direction: column; align-items: center; padding: 20px; width: 100%; box-sizing: border-box; }
 
         .container { 
-            background: rgba(15, 15, 15, 0.9);
-            backdrop-filter: blur(10px); padding: 25px; 
-            border-radius: 25px; border: 1px solid #333; 
-            width: 100%; max-width: 400px; text-align: center; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            box-sizing: border-box; z-index: 1;
+            background: rgba(15, 15, 15, 0.9); backdrop-filter: blur(10px); 
+            padding: 25px; border-radius: 25px; border: 1px solid #333; 
+            width: 100%; max-width: 400px; text-align: center; z-index: 1;
         }
 
-        h1 { font-size: 1.8rem; color: var(--primary); text-transform: uppercase; letter-spacing: 3px; margin: 0 0 20px 0; }
-
-        /* Stats & Shake Effect */
-        .stats-box { background: #000; padding: 25px 10px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #222; }
-        
         #population { 
             color: var(--primary); font-weight: 900; font-size: 2.5rem; 
-            display: block; width: 100%; text-align: center;
-            text-shadow: 0 0 20px rgba(255, 51, 51, 0.4);
-            transition: transform 0.05s;
+            display: block; text-shadow: 0 0 20px rgba(255, 51, 51, 0.4);
         }
 
-        /* Animasi Shake Angka */
         .shake { animation: quickShake 0.1s ease-in-out; }
-        @keyframes quickShake {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        @keyframes quickShake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-        .live-power { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-        .pwr-tag { padding: 6px 12px; border-radius: 10px; background: #111; border: 1px solid #333; font-size: 0.8rem; font-weight: bold; }
+        .stats-box { background: #000; padding: 20px 10px; border-radius: 20px; margin: 20px 0; border: 1px solid #222; }
+        .pwr-tag { padding: 6px 12px; border-radius: 10px; background: #111; border: 1px solid #333; font-size: 0.8rem; font-weight: bold; margin: 5px; display: inline-block; }
 
-        /* Button Utama (Tanpa Partikel) */
         #consumeBtn {
-            width: 100%; padding: 50px 10px; font-size: 2.8rem; font-weight: 900; color: white;
+            width: 100%; padding: 45px 10px; font-size: 2.5rem; font-weight: 900; color: white;
             background: linear-gradient(135deg, #cc0000, #660000); border: none; border-radius: 25px;
-            cursor: pointer; box-shadow: 0 8px #440000; margin-bottom: 25px;
-            text-transform: uppercase; outline: none;
+            cursor: pointer; box-shadow: 0 8px #440000; margin-bottom: 20px; outline: none;
         }
         #consumeBtn:active { transform: translateY(4px); box-shadow: 0 4px #220000; }
 
-        /* Upgrade Cards */
         .action-card { background: #111; padding: 15px; border-radius: 18px; margin-top: 15px; border: 1px solid #222; text-align: left; }
-        .card-label { font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: block; }
-        
-        .btn-action { 
-            width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; 
-            background: #222; color: #fff; border: 1px solid #444; 
-            border-radius: 12px; font-weight: bold; font-size: 0.95rem;
-        }
+        .card-label { font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        .btn-action { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 12px; font-weight: bold; }
         .btn-action:disabled { opacity: 0.3; }
-        #dailyBtn { background: #004d00; border-color: #008000; color: #00ff00; }
 
-        /* Leaderboard */
-        .leaderboard { margin-top: 25px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: left;}
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        .leaderboard { margin-top: 25px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 15px; border: 1px solid #333; }
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        .me { color: var(--accent); font-weight: bold; }
 
-        #alertBox { height: 40px; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-        .reward-msg { color: var(--secondary); }
-        .milestone-msg { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        #alertBox { height: 40px; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; color: var(--secondary); }
     </style>
 </head>
 <body>
@@ -112,20 +73,20 @@
 
 <div class="wrapper">
     <div class="container">
-        <h1>PREDATOR BUMI</h1>
+        <h2 style="margin:0; font-size: 1.2rem; color: #666;">PREDATOR ID: <span id="myId" style="color: var(--accent);">...</span></h2>
         
         <div id="alertBox"></div>
         
         <div class="stats-box">
-            <small style="color:#666; letter-spacing: 1px; font-weight: bold;">POPULASI TERSISA</small>
+            <small style="color:#666;">POPULASI TERSISA</small>
             <span id="population">8.000.000.000</span>
             
-            <div class="live-power">
+            <div style="margin-top: 10px;">
                 <div class="pwr-tag" style="color:var(--secondary)">GIGI: +<span id="statClick">1</span></div>
                 <div class="pwr-tag" style="color:#00ccff">VIRUS: <span id="statAfk">0</span>/s</div>
             </div>
             
-            <div style="display: flex; justify-content: space-between; margin-top:20px; font-size:0.85rem; padding-top:15px; border-top: 1px solid #222;">
+            <div style="display: flex; justify-content: space-between; margin-top:15px; font-size:0.8rem; border-top: 1px solid #222; padding-top: 10px;">
                 <span>💰 SKOR: <b id="consumed">0</b></span>
                 <span>🌍 PLANET: <b id="planetCount" style="color:var(--accent)">0</b></span>
             </div>
@@ -134,47 +95,68 @@
         <button id="consumeBtn">MAKAN</button>
 
         <div class="action-card">
-            <span class="card-label">🎁 Hadiah Langit</span>
-            <button class="btn-action" id="dailyBtn">KLAIM 10.000 SKOR HARIAN</button>
-        </div>
-
-        <div class="action-card">
-            <span class="card-label">🛒 Evolusi Predator</span>
+            <span class="card-label">🛒 UPGRADE</span>
             <button class="btn-action" id="btnClick">Upgrade Gigi | 💰 <span id="cCost">15</span></button>
             <button class="btn-action" id="btnAfk">Virus AFK | 💰 <span id="aCost">50</span></button>
         </div>
 
         <div class="leaderboard">
-            <h4 style="margin:0 0 10px 0; color:var(--accent); text-align: center; letter-spacing: 1px;">🏆 TOP GLOBAL</h4>
-            <div id="leaderboardList">Menghubungkan ke Server...</div>
+            <h4 style="margin:0 0 10px 0; color:var(--accent); text-align: center;">🏆 TOP RANK (REAL-TIME)</h4>
+            <div id="leaderboardList">Sinkronisasi...</div>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy, limit, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+    // Konfigurasi Firebase (Gunakan milikmu jika ada)
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
         authDomain: "fruitsmasmaster.firebaseapp.com",
         projectId: "fruitsmasmaster",
         storageBucket: "fruitsmasmaster.firebasestorage.app",
         messagingSenderId: "673530855742",
-        appId: "1:673530855742:web:ac1395bda6c68f764cac6f",
-        measurementId: "G-NQRBD88KHW"
+        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const STORAGE_KEY = 'predator_galactic_v1';
-    let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+    // Identitas Akun (DeviceId)
+    let deviceId = localStorage.getItem('predator_uid');
+    if (!deviceId) {
+        deviceId = 'PDR-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        localStorage.setItem('predator_uid', deviceId);
+    }
+    document.getElementById('myId').innerText = deviceId;
+
+    let data = {
         population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15,
-        afkPower: 0, afkCost: 50, planetsCleared: 0, lastDaily: 0, reward1M: false
+        afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now()
     };
 
-    const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // Sinkronisasi dengan Firebase saat Mulai
+    async function syncOnStart() {
+        const docRef = doc(db, "players", deviceId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const cloudData = docSnap.data();
+            const now = Date.now();
+            // HITUNG AFK REAL-TIME
+            const secondsAway = (now - cloudData.lastUpdate) / 1000;
+            const earned = Math.floor(secondsAway * cloudData.afkPower);
+            
+            data = { ...cloudData, lastUpdate: now };
+            data.consumed += earned;
+            data.population -= earned;
+            
+            if(earned > 0) showAlert(`Selamat Datang Kembali! AFK: +${earned.toLocaleString()}`, "reward-msg");
+        }
+        updateDisplay();
+    }
 
     const updateDisplay = () => {
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
@@ -184,96 +166,76 @@
         document.getElementById('statAfk').innerText = data.afkPower;
         document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
         document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
-
         document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
 
-        const dailyBtn = document.getElementById('dailyBtn');
-        if (Date.now() - data.lastDaily > 86400000) { dailyBtn.disabled = false; dailyBtn.innerText = "KLAIM 10.000 SKOR HARIAN"; }
-        else { dailyBtn.disabled = true; dailyBtn.innerText = "HADIAH SUDAH DIAMBIL"; }
-
-        // Reward Milestone 1 Juta
-        if (data.consumed >= 1000000 && !data.reward1M) {
-            data.consumed += 100000;
-            data.reward1M = true;
-            showAlert("🏆 MILESTONE: +100.000 Skor Bonus!", "milestone-msg");
-            save();
+        // Reset Planet jika habis
+        if (data.population <= 0) {
+            data.planetsCleared += 1;
+            data.population = 8000000000;
+            showAlert("PLANET HABIS! LANJUT KE PLANET BERIKUTNYA!", "reward-msg");
+            pushToCloud();
         }
     };
 
-    const showAlert = (msg, cls) => {
+    const showAlert = (msg) => {
         const b = document.getElementById('alertBox');
-        b.innerText = msg; b.className = cls;
-        setTimeout(() => b.innerText = "", 4000);
+        b.innerText = msg;
+        setTimeout(() => b.innerText = "", 5000);
     };
 
-    // Tombol Makan dengan Shake Angka & Vibrasi
+    async function pushToCloud() {
+        data.lastUpdate = Date.now();
+        await setDoc(doc(db, "players", deviceId), data);
+    }
+
     document.getElementById('consumeBtn').onclick = () => {
-        if(data.population > 0) {
-            data.population -= data.clickPower;
-            data.consumed += data.clickPower;
-            
-            if (navigator.vibrate) navigator.vibrate(40);
-
-            // Efek Shake Angka
-            const popEl = document.getElementById('population');
-            popEl.classList.remove('shake');
-            void popEl.offsetWidth; 
-            popEl.classList.add('shake');
-            
-            updateDisplay();
-        }
-    };
-
-    document.getElementById('dailyBtn').onclick = () => {
-        data.consumed += 10000; data.lastDaily = Date.now(); 
+        data.population -= data.clickPower;
+        data.consumed += data.clickPower;
+        if (navigator.vibrate) navigator.vibrate(40);
+        const popEl = document.getElementById('population');
+        popEl.classList.remove('shake'); void popEl.offsetWidth; popEl.classList.add('shake');
         updateDisplay();
-        showAlert("Bonus 10.000 Berhasil Diklaim!", "reward-msg");
     };
 
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost;
-            data.clickPower += 1;
-            data.clickCost = Math.floor(data.clickCost * 1.8);
-            updateDisplay();
+            data.consumed -= data.clickCost; data.clickPower += 1;
+            data.clickCost = Math.floor(data.clickCost * 1.8); updateDisplay(); pushToCloud();
         }
     };
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost;
-            data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 2.0);
-            updateDisplay();
+            data.consumed -= data.afkCost; data.afkPower += 2;
+            data.afkCost = Math.floor(data.afkCost * 2.0); updateDisplay(); pushToCloud();
         }
     };
 
-    const loadLeaderboard = async () => {
-        try {
-            const q = query(collection(db, "top_global"), orderBy("planets", "desc"), limit(5));
-            const snap = await getDocs(q);
-            const list = document.getElementById('leaderboardList');
-            list.innerHTML = "";
-            if (snap.empty) { list.innerHTML = "<small>Belum ada data</small>"; }
-            snap.forEach(d => {
-                const u = d.data();
-                list.innerHTML += `<div class="entry"><b>${u.name}</b> <span>${u.planets} Planet</span></div>`;
-            });
-        } catch (e) { document.getElementById('leaderboardList').innerHTML = "Server Leaderboard Offline"; }
-    };
+    // Live Leaderboard (OnSnapshot)
+    const q = query(collection(db, "players"), orderBy("planetsCleared", "desc"), orderBy("consumed", "desc"), limit(5));
+    onSnapshot(q, (snap) => {
+        const list = document.getElementById('leaderboardList');
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const p = d.data();
+            const isMe = d.id === deviceId ? "me" : "";
+            list.innerHTML += `<div class="entry ${isMe}"><span>${d.id}</span> <span>${p.planetsCleared} P / ${Math.floor(p.consumed).toLocaleString()}</span></div>`;
+        });
+    });
 
+    // Jalankan AFK & Cloud Save tiap 10 detik
     setInterval(() => {
-        if(data.afkPower > 0 && data.population > 0) {
-            data.population -= (data.afkPower / 20);
-            data.consumed += (data.afkPower / 20);
+        if(data.afkPower > 0) {
+            data.population -= (data.afkPower);
+            data.consumed += (data.afkPower);
             updateDisplay();
         }
-        save();
-    }, 50);
+    }, 1000);
 
-    loadLeaderboard();
-    updateDisplay();
+    setInterval(pushToCloud, 10000);
+
+    syncOnStart();
 </script>
 </body>
 </html>
