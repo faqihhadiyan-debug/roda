@@ -3,80 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Anti Lag</title>
+    <title>Predator Bumi - Main Engine</title>
     <style>
-        :root { --primary: #ff3333; --secondary: #00e600; --accent: #ffd700; --bg-dark: #080808; }
-        html, body { height: 100%; margin: 0; padding: 0; background: var(--bg-dark); font-family: 'Segoe UI', sans-serif; color: #eee; overflow-x: hidden; touch-action: manipulation; }
-        
-        .container { padding: 20px; width: 100%; max-width: 400px; margin: auto; text-align: center; box-sizing: border-box; }
-        
-        #population { color: var(--primary); font-weight: 900; font-size: 2.2rem; display: block; margin: 10px 0; transition: transform 0.1s; }
-        .shake { transform: scale(1.1); } /* Efek simpel agar ringan */
-
-        .stats-box { background: #000; padding: 15px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; }
-        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.5rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #800); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; }
+        :root { --primary: #ff3333; --secondary: #00e600; --accent: #ffd700; --bg: #080808; }
+        body { margin: 0; background: var(--bg); color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; text-align: center; }
+        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 20px 0; }
+        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; }
+        .btn-main { width: 100%; padding: 40px 10px; font-size: 2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 20px; cursor: pointer; box-shadow: 0 6px #400; }
         .btn-main:active { transform: translateY(3px); box-shadow: 0 3px #200; }
-
-        .btn-up { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 10px; font-weight: bold; }
+        .action-card { background: #111; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid #222; text-align: left; }
+        .btn-up { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; font-weight: bold; }
         .btn-up:disabled { opacity: 0.3; }
-
-        .leaderboard { margin-top: 25px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; border: 1px solid #444; }
-        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); background: rgba(255,215,0,0.1); }
+        #status { font-size: 0.7rem; color: #555; margin-bottom: 5px; }
+        .btn-multi { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="font-size: 0.6rem; color: #444; margin-bottom: 10px;">ID: <span id="myId">...</span></div>
-    
+    <div id="status">Koneksi: <span id="connState">Menghubungkan...</span></div>
+    <div style="font-size: 0.6rem; color: #444;">ID: <span id="myId">...</span></div>
+
     <div class="stats-box">
         <small style="color:#666">SISA MANUSIA</small>
         <span id="population">8.000.000.000</span>
         <div style="font-size: 0.8rem; display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;">
-            <span>💰 <b id="consumed">0</b></span>
-            <span>🌍 <b id="planetCount">0</b></span>
+            <span>💰 SKOR: <b id="consumed">0</b></span>
+            <span>🌍 PLANET: <b id="planetCount">0</b></span>
         </div>
     </div>
 
     <button class="btn-main" id="consumeBtn">MAKAN</button>
 
-    <div style="text-align: left; margin-top: 15px;">
-        <small style="color:var(--accent); font-weight: bold;">UPGRADE</small>
-        <button class="btn-up" id="btnClick">GIGI (+1) | 💰 <span id="cCost">15</span></button>
-        <button class="btn-up" id="btnAfk">VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
+    <div class="action-card">
+        <small style="color:var(--accent); font-weight: bold;">EVOLUSI</small>
+        <button class="btn-up" id="btnClick">UPGRADE GIGI | 💰 <span id="cCost">15</span></button>
+        <button class="btn-up" id="btnAfk">VIRUS AFK | 💰 <span id="aCost">50</span></button>
     </div>
 
-    <div class="leaderboard">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span style="font-size: 0.8rem; color: var(--accent); font-weight: bold;">🏆 TOP 5 GLOBAL</span>
-            <span id="refreshLabel" style="font-size: 0.6rem; color: #555;">Update otomatis...</span>
-        </div>
-        <div id="leaderboardList">Memuat data...</div>
-    </div>
+    <button class="btn-up btn-multi" onclick="location.href='multiplayer.html'">⚔️ MODE MULTIPLAYER</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
-        authDomain: "fruitsmasmaster.firebaseapp.com",
-        projectId: "fruitsmasmaster",
-        storageBucket: "fruitsmasmaster.firebasestorage.app",
-        messagingSenderId: "673530855742",
-        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
+        apiKey: "AIzaSyDF7Eg437poCL4J4OShMFtm2N6GQtnu01w",
+        authDomain: "multiplayer-5e98b.firebaseapp.com",
+        projectId: "multiplayer-5e98b",
+        storageBucket: "multiplayer-5e98b.firebasestorage.app",
+        messagingSenderId: "549080338588",
+        appId: "1:549080338588:web:bac83f2ffbc77f47f9dd59",
+        measurementId: "G-3W4V3ZT3NF"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Tetap gunakan deviceId v2 agar konsisten
     let deviceId = localStorage.getItem('pdr_uid_v2') || 'PDR-' + Math.random().toString(36).substr(2, 4).toUpperCase();
     localStorage.setItem('pdr_uid_v2', deviceId);
     document.getElementById('myId').innerText = deviceId;
 
-    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
+    let data = { 
+        population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, 
+        afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() 
+    };
+
+    const playerRef = doc(db, "players", deviceId);
 
     function updateUI() {
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
@@ -86,57 +82,74 @@
         document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
         document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
-
-        if (data.population <= 0) { data.planetsCleared++; data.population = 8000000000; saveCloud(); }
     }
 
-    async function syncData() {
-        const snap = await getDoc(doc(db, "players", deviceId));
-        if (snap.exists()) {
-            const cloud = snap.data();
-            const offlineTime = (Date.now() - cloud.lastUpdate) / 1000;
-            const earned = Math.floor(offlineTime * cloud.afkPower);
-            data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
+    // Fungsi Inisialisasi Data (WAJIB)
+    async function initData() {
+        try {
+            const snap = await getDoc(playerRef);
+            if (snap.exists()) {
+                const cloud = snap.data();
+                const earned = Math.floor(((Date.now() - cloud.lastUpdate) / 1000) * cloud.afkPower);
+                data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
+                document.getElementById('connState').innerText = "Online (Data Loaded)";
+            } else {
+                // Jika user baru, daftarkan ke Firebase
+                await setDoc(playerRef, data);
+                document.getElementById('connState').innerText = "Online (New Account)";
+            }
+        } catch (e) {
+            document.getElementById('connState').innerText = "Offline Mode";
         }
         updateUI();
-        loadLeaderboard();
     }
 
-    async function loadLeaderboard() {
-        const q = query(collection(db, "players"), orderBy("planetsCleared", "desc"), orderBy("consumed", "desc"), limit(5));
-        const snap = await getDocs(q);
-        const list = document.getElementById('leaderboardList');
-        list.innerHTML = "";
-        snap.forEach(d => {
-            const p = d.data();
-            list.innerHTML += `<div class="entry ${d.id === deviceId ? 'me' : ''}"><span>${d.id}</span><span>${p.planetsCleared} P / ${Math.floor(p.consumed).toLocaleString()}</span></div>`;
-        });
-    }
-
-    const saveCloud = () => { data.lastUpdate = Date.now(); setDoc(doc(db, "players", deviceId), data); };
+    // Fungsi Simpan (Gunakan setDoc biar kalau belum ada, dia buat)
+    const saveCloud = async () => {
+        data.lastUpdate = Date.now();
+        try {
+            await setDoc(playerRef, data);
+        } catch (e) { console.error("Save failed"); }
+    };
 
     document.getElementById('consumeBtn').onclick = () => {
-        data.population -= data.clickPower; data.consumed += data.clickPower;
+        data.population -= data.clickPower;
+        data.consumed += data.clickPower;
         if(navigator.vibrate) navigator.vibrate(25);
-        const popEl = document.getElementById('population');
-        popEl.classList.add('shake'); setTimeout(() => popEl.classList.remove('shake'), 50);
         updateUI();
+        if (data.population <= 0) {
+            data.planetsCleared++; data.population = 8000000000;
+            saveCloud();
+        }
     };
 
     document.getElementById('btnClick').onclick = () => {
-        if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.8); updateUI(); saveCloud(); }
+        if(data.consumed >= data.clickCost) {
+            data.consumed -= data.clickCost; data.clickPower++;
+            data.clickCost = Math.floor(data.clickCost * 1.8);
+            updateUI(); saveCloud();
+        }
     };
 
     document.getElementById('btnAfk').onclick = () => {
-        if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 2); updateUI(); saveCloud(); }
+        if(data.consumed >= data.afkCost) {
+            data.consumed -= data.afkCost; data.afkPower += 2;
+            data.afkCost = Math.floor(data.afkCost * 2);
+            updateUI(); saveCloud();
+        }
     };
 
-    // Loop Utama
-    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
-    setInterval(saveCloud, 20000); // Save Cloud tiap 20 detik
-    setInterval(loadLeaderboard, 30000); // Update Leaderboard tiap 30 detik agar gak lag
+    // AFK Loop & Auto-Save
+    setInterval(() => {
+        if(data.afkPower > 0) {
+            data.population -= data.afkPower; data.consumed += data.afkPower;
+            updateUI();
+        }
+    }, 1000);
 
-    syncData();
+    setInterval(saveCloud, 15000); // Save tiap 15 detik
+
+    initData();
 </script>
 </body>
 </html>
