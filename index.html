@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Pro Edition</title>
+    <title>Predator Bumi - Final Edition</title>
     <style>
         :root { --primary: #ff3333; --secondary: #00e600; --accent: #ffd700; --bg: #080808; }
-        body { margin: 0; background: var(--bg); color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        body { margin: 0; background: var(--bg); color: #eee; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; text-align: center; }
         
-        /* Stats Styling */
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px 0; }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; transition: transform 0.05s; }
+        .status-bar { font-size: 0.65rem; color: #555; display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px 0; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
+        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; }
         
-        /* Button */
-        .btn-main { width: 100%; padding: 40px 10px; font-size: 2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 20px; cursor: pointer; box-shadow: 0 6px #400; outline: none; }
+        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; }
         .btn-main:active { transform: translateY(3px); box-shadow: 0 3px #200; }
 
-        /* Upgrade Cards */
         .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid #222; text-align: left; }
-        .btn-up { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; font-weight: bold; }
-        .btn-up:disabled { opacity: 0.3; }
+        .btn-up { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; font-weight: bold; transition: 0.2s; }
+        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-up:not(:disabled):hover { background: #333; border-color: var(--accent); }
 
-        /* Leaderboard Styling */
-        .leaderboard { margin-top: 25px; background: rgba(20,20,20,0.8); padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: left; }
-        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
-        .me { color: var(--accent); font-weight: bold; border-left: 3px solid var(--accent); padding-left: 8px; }
+        .leaderboard { margin-top: 25px; background: rgba(15,15,15,0.9); padding: 15px; border-radius: 15px; border: 1px solid #333; }
+        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
+        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 5px; }
         
-        .status-bar { font-size: 0.65rem; color: #555; display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px; }
         .btn-multi { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
     </style>
 </head>
@@ -36,22 +33,22 @@
 <div class="container">
     <div class="status-bar">
         <span>ID: <b id="myId">...</b></span>
-        <span>STATUS: <b id="connState">Wait...</b></span>
+        <span id="connState">SINKRONISASI...</span>
     </div>
 
     <div class="stats-box">
         <small style="color:#666">SISA MANUSIA</small>
         <span id="population">8.000.000.000</span>
         <div style="font-size: 0.8rem; display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;">
-            <span>💰 SKOR: <b id="consumed">0</b></span>
-            <span>🌍 PLANET: <b id="planetCount">0</b></span>
+            <span>💰 <b id="consumed">0</b></span>
+            <span>🌍 <b id="planetCount">0</b></span>
         </div>
     </div>
 
     <button class="btn-main" id="consumeBtn">MAKAN</button>
 
     <div class="action-card">
-        <small style="color:var(--accent); font-weight: bold;">UPGRADE PREDATOR</small>
+        <small style="color:var(--accent)">UPGRADE EVOLUSI</small>
         <button class="btn-up" id="btnClick">GIGI (+1) | 💰 <span id="cCost">15</span></button>
         <button class="btn-up" id="btnAfk">VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
     </div>
@@ -59,7 +56,7 @@
     <button class="btn-up btn-multi" onclick="location.href='multiplayer.html'">⚔️ MODE MULTIPLAYER</button>
 
     <div class="leaderboard">
-        <h4 style="margin: 0 0 10px 0; color: var(--accent); text-align: center;">🏆 TOP 5 GLOBAL</h4>
+        <h4 style="margin: 0 0 10px 0; color: var(--accent);">🏆 TOP 5 GLOBAL</h4>
         <div id="leaderboardList">Memuat peringkat...</div>
     </div>
 </div>
@@ -74,8 +71,7 @@
         projectId: "multiplayer-5e98b",
         storageBucket: "multiplayer-5e98b.firebasestorage.app",
         messagingSenderId: "549080338588",
-        appId: "1:549080338588:web:bac83f2ffbc77f47f9dd59",
-        measurementId: "G-3W4V3ZT3NF"
+        appId: "1:549080338588:web:bac83f2ffbc77f47f9dd59"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -102,7 +98,23 @@
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
     }
 
-    // Leaderboard System
+    async function initData() {
+        try {
+            const snap = await getDoc(playerRef);
+            if (snap.exists()) {
+                const cloud = snap.data();
+                const earned = Math.floor(((Date.now() - cloud.lastUpdate) / 1000) * (cloud.afkPower || 0));
+                data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
+                document.getElementById('connState').innerText = "ONLINE";
+            } else {
+                await setDoc(playerRef, data);
+                document.getElementById('connState').innerText = "NEW USER";
+            }
+            loadLeaderboard();
+            updateUI();
+        } catch (e) { document.getElementById('connState').innerText = "ERROR"; }
+    }
+
     function loadLeaderboard() {
         const q = query(collection(db, "players"), orderBy("planetsCleared", "desc"), orderBy("consumed", "desc"), limit(5));
         onSnapshot(q, (snap) => {
@@ -110,8 +122,7 @@
             list.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                const isMe = d.id === deviceId ? "me" : "";
-                list.innerHTML += `<div class="entry ${isMe}">
+                list.innerHTML += `<div class="entry ${d.id === deviceId ? 'me' : ''}">
                     <span>${d.id}</span>
                     <span>🌍 ${p.planetsCleared} | 💰 ${Math.floor(p.consumed).toLocaleString()}</span>
                 </div>`;
@@ -119,26 +130,9 @@
         });
     }
 
-    async function initData() {
-        try {
-            const snap = await getDoc(playerRef);
-            if (snap.exists()) {
-                const cloud = snap.data();
-                const earned = Math.floor(((Date.now() - cloud.lastUpdate) / 1000) * cloud.afkPower);
-                data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
-                document.getElementById('connState').innerText = "ONLINE";
-            } else {
-                await setDoc(playerRef, data);
-                document.getElementById('connState').innerText = "NEW ACC";
-            }
-            loadLeaderboard();
-        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
-        updateUI();
-    }
-
     const saveCloud = async () => {
         data.lastUpdate = Date.now();
-        try { await setDoc(playerRef, data); } catch (e) {}
+        try { await setDoc(playerRef, data, { merge: true }); } catch (e) {}
     };
 
     document.getElementById('consumeBtn').onclick = () => {
@@ -146,36 +140,31 @@
         data.consumed += data.clickPower;
         if(navigator.vibrate) navigator.vibrate(25);
         updateUI();
-        if (data.population <= 0) {
-            data.planetsCleared++; data.population = 8000000000;
-            saveCloud();
-        }
+        if (data.population <= 0) { data.planetsCleared++; data.population = 8000000000; saveCloud(); }
     };
 
+    // HARGA BARU (SCALING)
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost; data.clickPower++;
-            data.clickCost = Math.floor(data.clickCost * 1.8);
+            data.consumed -= data.clickCost;
+            data.clickPower++;
+            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
             updateUI(); saveCloud();
         }
     };
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost; data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 2);
+            data.consumed -= data.afkCost;
+            data.afkPower += 2;
+            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
             updateUI(); saveCloud();
         }
     };
 
-    setInterval(() => {
-        if(data.afkPower > 0) {
-            data.population -= data.afkPower; data.consumed += data.afkPower;
-            updateUI();
-        }
-    }, 1000);
+    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
+    setInterval(saveCloud, 10000); // Sinkron tiap 10 detik
 
-    setInterval(saveCloud, 15000);
     initData();
 </script>
 </body>
