@@ -89,70 +89,171 @@
         <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
         <p style="font-size:0.85rem; color:#ccc; line-height:1.6; text-align: left;">
             • <b>GIGIT:</b> Makan populasi untuk koin 💰.<br>
-            • <b>VIRUS:</b> Hasilkan koin otomatis (AFK).<br>
-            • <b>BGM:</b> Musik latar akan mati sesaat tiap kamu klik tombol.<br>
-            • <b>SAVE:</b> Data tersimpan otomatis di Cloud.
+            • <b>SPAM KLIK:</b> Musik latar akan mati total saat kamu sibuk klik.<br>
+            • <b>AFK:</b> Virus otomatis bekerja meski game ditutup.<br>
+            • <b>SAVE:</b> Skor otomatis masuk Leaderboard Global.
         </p>
         <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
     </div>
 </div>
 
-<script>
-    // --- DATA SYSTEM ---
-let muteTimeout; // PENYELAMAT BIAR MUSIK GAK ANCUR
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-function playActionWithMute(sfx) {
-    sfx.currentTime = 0;
-    sfx.play();
-    
-    bgm.muted = true; // Langsung Mute
-    
-    clearTimeout(muteTimeout); // Reset timer tiap kali diklik lagi (Spam protection)
-    
-    // Musik baru nyala lagi kalau lo berhenti klik selama 500ms (0.5 detik)
-    muteTimeout = setTimeout(() => {
-        bgm.muted = false;
-    }, 500);
-}
+    const firebaseConfig = {
+        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
+        authDomain: "fruitsmasmaster.firebaseapp.com",
+        projectId: "fruitsmasmaster",
+        storageBucket: "fruitsmasmaster.firebasestorage.app",
+        messagingSenderId: "673530855742",
+        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
+    };
 
-// --- TOMBOL GIGIT ---
-document.getElementById('consumeBtn').onclick = () => {
-    playActionWithMute(sfxGigit); // Ganti jadi ini
-    data.population -= data.clickPower;
-    data.consumed += data.clickPower;
-    if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
-    if(navigator.vibrate) navigator.vibrate(25);
-    updateUI();
-};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-// --- TOMBOL UPGRADE CLICK ---
-document.getElementById('btnClick').onclick = () => {
-    if(data.consumed >= data.clickCost) {
-        playActionWithMute(sfxUpgrade); // Ganti jadi ini
-        data.consumed -= data.clickCost;
-        data.clickPower++;
-        data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-        updateUI(); save();
+    // --- AUDIO & MUSIC ---
+    const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
+    const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
+    const sfxNav = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    const bgm = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/descent/background%20music.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.5;
+
+    let muteTimeout;
+
+    function playActionWithMute(sfx) {
+        sfx.currentTime = 0;
+        sfx.play();
+        bgm.muted = true; // Musik mati total
+        
+        clearTimeout(muteTimeout); // Anti-ancur pas spam klik
+        muteTimeout = setTimeout(() => {
+            bgm.muted = false; // Nyala lagi setelah jeda 0.5 detik dari klik terakhir
+        }, 500);
     }
-};
 
-// --- TOMBOL UPGRADE AFK ---
-document.getElementById('btnAfk').onclick = () => {
-    if(data.consumed >= data.afkCost) {
-        playActionWithMute(sfxUpgrade); // Ganti jadi ini
-        data.consumed -= data.afkCost;
-        data.afkPower += 2;
-        data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-        updateUI(); save();
+    // Mulai musik pas interaksi pertama
+    document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
+
+    // --- LOGIC GAME ---
+    let deviceId = localStorage.getItem('solo_uid');
+    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
+
+    window.showHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'flex'; };
+    window.closeHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'none'; };
+
+    async function checkIdentity() {
+        if (!deviceId) {
+            let chosenName = prompt("DAFTAR NAMA PREDATOR:");
+            if (!chosenName || chosenName.length < 3) return checkIdentity();
+            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
+            const nameRef = doc(db, "players", chosenName);
+            const nameSnap = await getDoc(nameRef);
+            if (nameSnap.exists()) { alert("Nama sudah dipakai!"); return checkIdentity(); }
+            deviceId = chosenName;
+            localStorage.setItem('solo_uid', deviceId);
+            await setDoc(nameRef, data);
+        }
+        document.getElementById('myId').innerText = deviceId;
+        startGamer();
     }
-};
 
-// --- TOMBOL MULTIPLAYER ---
-document.getElementById('navMulti').onclick = (e) => {
-    e.preventDefault();
-    playActionWithMute(sfxNav); // Ganti jadi ini
-    setTimeout(() => { window.location.href = 'multiplayer.html'; }, 450);
-};
+    function updateUI() {
+        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
+        document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
+        document.getElementById('planetCount').innerText = data.planetsCleared;
+        document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
+        document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
+        document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
+        document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
+    }
+
+    async function startGamer() {
+        const playerRef = doc(db, "players", deviceId);
+        try {
+            const snap = await getDoc(playerRef);
+            if (snap.exists()) {
+                const cloud = snap.data();
+                const now = Date.now();
+                const diff = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
+                const earned = diff * (cloud.afkPower || 0);
+                data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: now };
+            }
+            document.getElementById('connState').innerText = "ONLINE";
+            initLeaderboard();
+            updateUI();
+        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
+    }
+
+    function initLeaderboard() {
+        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
+        onSnapshot(q, (snap) => {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = "";
+            snap.forEach(d => {
+                const p = d.data();
+                list.innerHTML += `<div class="entry ${d.id === deviceId ? 'me' : ''}">
+                    <span>${d.id}</span>
+                    <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
+                </div>`;
+            });
+        });
+    }
+
+    const save = async () => {
+        if (!deviceId) return;
+        data.lastUpdate = Date.now();
+        await setDoc(doc(db, "players", deviceId), data, { merge: true });
+    };
+
+    // --- BUTTON ACTIONS ---
+    document.getElementById('consumeBtn').onclick = () => {
+        playActionWithMute(sfxGigit);
+        data.population -= data.clickPower;
+        data.consumed += data.clickPower;
+        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
+        if(navigator.vibrate) navigator.vibrate(25);
+        updateUI();
+    };
+
+    document.getElementById('btnClick').onclick = () => {
+        if(data.consumed >= data.clickCost) {
+            playActionWithMute(sfxUpgrade);
+            data.consumed -= data.clickCost;
+            data.clickPower++;
+            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
+            updateUI(); save();
+        }
+    };
+
+    document.getElementById('btnAfk').onclick = () => {
+        if(data.consumed >= data.afkCost) {
+            playActionWithMute(sfxUpgrade);
+            data.consumed -= data.afkCost;
+            data.afkPower += 2;
+            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
+            updateUI(); save();
+        }
+    };
+
+    document.getElementById('navMulti').onclick = (e) => {
+        e.preventDefault();
+        playActionWithMute(sfxNav);
+        setTimeout(() => { window.location.href = 'https://multiplayer-rslm.vercel.app/'; }, 450);
+    };
+
+    checkIdentity();
+    setInterval(() => { 
+        if(data.afkPower > 0) { 
+            data.population -= data.afkPower; 
+            data.consumed += data.afkPower; 
+            if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
+            updateUI(); 
+        } 
+    }, 1000);
+    setInterval(save, 15000);
 </script>
 </body>
 </html>
