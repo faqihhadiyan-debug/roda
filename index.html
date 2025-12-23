@@ -136,63 +136,42 @@
         });
     }
 
-    async function syncData() {
-        const playerRef = doc(db, "players", deviceId);
-        try {
-            const snap = await getDoc(playerRef);
-            if (snap.exists()) {
-                const cloud = snap.data();
-                const earned = Math.floor(((Date.now() - cloud.lastUpdate)/1000) * (cloud.afkPower || 0));
-                data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
+        async function checkIdentity() {
+        // Cek apakah ID kosong ATAU masih pakai ID random lama (SOLO-XXX)
+        if (!deviceId || deviceId.startsWith("SOLO-")) {
+            let chosenName = prompt("SISTEM IDENTITAS BARU!\nMasukkan Nama Predator Kamu (Permanen):");
+            
+            if (!chosenName || chosenName.length < 3) {
+                alert("Nama minimal 3 karakter!");
+                return checkIdentity();
             }
-            document.getElementById('connState').innerText = "ONLINE";
-            updateUI();
-        } catch (e) { console.log("Sync Error"); }
+
+            // Bersihkan nama: Uppercase & buang karakter aneh
+            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
+
+            const nameRef = doc(db, "players", chosenName);
+            const nameSnap = await getDoc(nameRef);
+
+            if (nameSnap.exists()) {
+                alert("Nama '" + chosenName + "' sudah ada yang punya. Cari yang lain!");
+                return checkIdentity();
+            } else {
+                // HAPUS DATA LAMA (Opsional: Jika ingin reset skor pemain lama ke nama baru)
+                // if(deviceId) { await deleteDoc(doc(db, "players", deviceId)); }
+
+                deviceId = chosenName;
+                localStorage.setItem('solo_uid', deviceId);
+                
+                // Daftarkan nama baru dengan data saat ini (skor lama tetap terbawa)
+                await setDoc(nameRef, data);
+                alert("Selamat datang, Predator " + deviceId + "!");
+            }
+        }
+        document.getElementById('myId').innerText = deviceId;
+        syncData();
+        initLeaderboard();
     }
 
-    const save = async () => {
-        if (!deviceId) return;
-        data.lastUpdate = Date.now();
-        await setDoc(doc(db, "players", deviceId), data, { merge: true });
-    };
-
-    // --- EVENT HANDLERS ---
-    document.getElementById('consumeBtn').onclick = () => {
-        data.population -= data.clickPower; 
-        data.consumed += data.clickPower;
-        updateUI();
-        if (data.population <= 0) { 
-            data.planetsCleared++; 
-            data.population = 8000000000; 
-            save(); 
-        }
-    };
-
-    document.getElementById('btnClick').onclick = () => {
-        if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost; data.clickPower++;
-            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI(); save();
-        }
-    };
-
-    document.getElementById('btnAfk').onclick = () => {
-        if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost; data.afkPower += 2;
-            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI(); save();
-        }
-    };
-
-    // Jalankan pengecekan nama saat start
-    checkIdentity();
-
-    setInterval(() => { 
-        if(data.afkPower > 0) { 
-            data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); 
-        } 
-    }, 1000);
-    setInterval(save, 5000);
 </script>
 
 </body>
