@@ -28,6 +28,19 @@
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
         .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
+        <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
+
+<div id="modalHelp" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
+            1. <b>GIGIT:</b> Klik tombol merah untuk dapatkan 💰.<br><br>
+            2. <b>AFK CUAN:</b> Virus otomatis kasih koin tiap detik meski lo nggak klik.<br><br>
+            3. <b>PRIVASI:</b> Nama cuma buat leaderboard global. Gak ada data pribadi yang diambil.
+        </p>
+        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">OKE, GAS!</button>
+    </div>
+</div>
         
         /* Tombol Upgrade & Navigasi */
         .btn-up { 
