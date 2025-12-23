@@ -6,8 +6,6 @@
     <title>Predator Bumi - Solo Mode</title>
     <style>
         :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
-        
-        /* Box-sizing: border-box biar border nggak bikin elemen terabas keluar */
         * { box-sizing: border-box; }
 
         body { 
@@ -28,46 +26,30 @@
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
         .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
-        <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
-
-<div id="modalHelp" class="modal-overlay">
-    <div class="modal-box">
-        <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
-            1. <b>GIGIT:</b> Klik tombol merah untuk dapatkan 💰.<br><br>
-            2. <b>AFK CUAN:</b> Virus otomatis kasih koin tiap detik meski lo nggak klik.<br><br>
-            3. <b>PRIVASI:</b> Nama cuma buat leaderboard global. Gak ada data pribadi yang diambil.
-        </p>
-        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">OKE, GAS!</button>
-    </div>
-</div>
         
-        /* Tombol Upgrade & Navigasi */
         .btn-up { 
-            width: 100%; 
-            padding: 14px; 
-            margin-top: 10px; 
-            cursor: pointer; 
-            background: #222; 
-            color: #fff; 
-            border: 2px solid #444; /* Ganti px di sini kalau mau ubah ketebalan border */
-            border-radius: 12px; 
-            font-weight: bold; 
-            font-size: 0.9rem;
-            display: block;
-            text-decoration: none;
-            text-align: center;
+            width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; 
+            background: #222; color: #fff; border: 2px solid #444; 
+            border-radius: 12px; font-weight: bold; font-size: 0.9rem;
+            display: block; text-decoration: none; text-align: center;
         }
         
-        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; border-color: #222; }
-        .btn-up:not(:disabled):hover { border-color: var(--accent); background: #282828; }
-
+        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; }
         .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
 
-        /* Leaderboard */
+        /* Modal Tutorial Style */
+        .modal-overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-box { 
+            background: #111; border: 2px solid var(--primary); padding: 20px; 
+            border-radius: 20px; max-width: 320px; text-align: left; 
+        }
+
         .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
         .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 8px; padding: 5px 10px; }
+        .me { color: var(--accent); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -95,11 +77,26 @@
         <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
     </div>
 
-    <a href="https://multiplayer-rslm.vercel.app/" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
+    <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
+
+    <a href="multiplayer.html" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
 
     <div class="leaderboard">
         <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
-        <div id="leaderboardList">Menghubungkan ke database...</div>
+        <div id="leaderboardList">Memuat...</div>
+    </div>
+</div>
+
+<div id="modalHelp" class="modal-overlay">
+    <div class="modal-box">
+        <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
+            1. <b>GIGIT:</b> Klik tombol merah untuk memakan populasi dan dapatkan 💰.<br><br>
+            2. <b>UPGRADE:</b> Gunakan koin untuk memperkuat gigitan atau membeli virus.<br><br>
+            3. <b>AFK CUAN:</b> Virus akan otomatis memberimu koin setiap detik, bahkan saat kamu sedang tidak klik.<br><br>
+            4. <b>PRIVASI:</b> Game ini aman. Nama yang kamu daftar hanya untuk skor di leaderboard global.
+        </p>
+        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
     </div>
 </div>
 
@@ -120,27 +117,20 @@
     const db = getFirestore(app);
 
     let deviceId = localStorage.getItem('solo_uid');
-    let data = { 
-        population: 8000000000, 
-        consumed: 0, 
-        clickPower: 1, 
-        clickCost: 15, 
-        afkPower: 0, 
-        afkCost: 50, 
-        planetsCleared: 0, 
-        lastUpdate: Date.now() 
-    };
+    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
+
+    // Tentukan fungsi bantuan global agar bisa dipanggil tombol
+    window.showHelp = () => document.getElementById('modalHelp').style.display = 'flex';
+    window.closeHelp = () => document.getElementById('modalHelp').style.display = 'none';
 
     async function checkIdentity() {
         if (!deviceId) {
             let chosenName = prompt("DAFTAR NAMA PREDATOR:");
             if (!chosenName || chosenName.length < 3) return checkIdentity();
             chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-            
             const nameRef = doc(db, "players", chosenName);
             const nameSnap = await getDoc(nameRef);
             if (nameSnap.exists()) { alert("Nama sudah dipakai!"); return checkIdentity(); }
-            
             deviceId = chosenName;
             localStorage.setItem('solo_uid', deviceId);
             await setDoc(nameRef, data);
@@ -166,12 +156,10 @@
             if (snap.exists()) {
                 const cloud = snap.data();
                 const now = Date.now();
-                // Hitung pendapatan offline
                 const diff = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
                 const earned = diff * (cloud.afkPower || 0);
-                
                 data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: now };
-                if(earned > 0) alert("Virus memakan " + earned.toLocaleString() + " penduduk saat kamu pergi!");
+                if(earned > 0) alert("Virus memakan " + earned.toLocaleString() + " penduduk!");
             }
             document.getElementById('connState').innerText = "ONLINE";
             initLeaderboard();
@@ -203,7 +191,7 @@
     document.getElementById('consumeBtn').onclick = () => {
         data.population -= data.clickPower;
         data.consumed += data.clickPower;
-        if (data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
+        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
         if(navigator.vibrate) navigator.vibrate(20);
         updateUI();
     };
@@ -228,7 +216,7 @@
 
     checkIdentity();
     setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); } updateUI(); } }, 1000);
-    setInterval(save, 10000); // Save tiap 10 detik
+    setInterval(save, 10000);
 </script>
 </body>
 </html>
