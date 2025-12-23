@@ -3,33 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Solo Online</title>
+    <title>Predator Bumi - Solo Mode</title>
     <style>
         :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
-        body { margin: 0; background: var(--bg); color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
-        .container { width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; text-align: center; }
+        
+        /* Box-sizing: border-box biar border nggak bikin elemen terabas keluar */
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; background: var(--bg); color: #eee; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            overflow-x: hidden;
+        }
+
+        .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
         
         .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        
         .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,0,0,0.1); }
         #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; display: block; margin: 10px 0; }
         
-        .btn-main { width: 100%; padding: 40px 10px; font-size: 2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s; }
+        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s; }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
         .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
-.btn-up { 
-    width: 100%; 
-    padding: 14px; 
-    margin-top: 10px; 
-    cursor: pointer; 
-    background: #222; 
-    color: #fff; 
-    border: 2px solid #444; /* Tukar angka 2px ni kalau nak border tebal/nipis */
-    border-radius: 12px; 
-    font-weight: bold; 
-    font-size: 0.9rem;
-    box-sizing: border-box; /* WAJIB TAMBAH: Biar butang tak "makan" ruang luar skrin */
-}
+        
+        /* Tombol Upgrade & Navigasi */
+        .btn-up { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            background: #222; 
+            color: #fff; 
+            border: 2px solid #444; /* Ganti px di sini kalau mau ubah ketebalan border */
+            border-radius: 12px; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; border-color: #222; }
+        .btn-up:not(:disabled):hover { border-color: var(--accent); background: #282828; }
+
+        .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
+
+        /* Leaderboard */
+        .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
+        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 8px; padding: 5px 10px; }
     </style>
 </head>
 <body>
@@ -57,17 +82,17 @@
         <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
     </div>
 
-    <a href="https://multiplayer-rslm.vercel.app/" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
+    <a href="multiplayer.html" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
 
     <div class="leaderboard">
-        <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING GLOBAL</h3>
-        <div id="leaderboardList">Memuat peringkat...</div>
+        <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
+        <div id="leaderboardList">Menghubungkan ke database...</div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -101,10 +126,8 @@
             
             const nameRef = doc(db, "players", chosenName);
             const nameSnap = await getDoc(nameRef);
-            if (nameSnap.exists()) {
-                alert("Nama sudah dipakai!");
-                return checkIdentity();
-            }
+            if (nameSnap.exists()) { alert("Nama sudah dipakai!"); return checkIdentity(); }
+            
             deviceId = chosenName;
             localStorage.setItem('solo_uid', deviceId);
             await setDoc(nameRef, data);
@@ -129,13 +152,13 @@
             const snap = await getDoc(playerRef);
             if (snap.exists()) {
                 const cloud = snap.data();
-                // HITUNG HASIL AFK SELAMA OFFLINE
                 const now = Date.now();
-                const diffSeconds = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
-                const offlineEarned = diffSeconds * (cloud.afkPower || 0);
+                // Hitung pendapatan offline
+                const diff = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
+                const earned = diff * (cloud.afkPower || 0);
                 
-                data = { ...cloud, consumed: (cloud.consumed || 0) + offlineEarned, population: (cloud.population || 8000000000) - offlineEarned, lastUpdate: now };
-                if(offlineEarned > 0) alert("Saat kamu pergi, Virus memakan " + offlineEarned.toLocaleString() + " penduduk!");
+                data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: now };
+                if(earned > 0) alert("Virus memakan " + earned.toLocaleString() + " penduduk saat kamu pergi!");
             }
             document.getElementById('connState').innerText = "ONLINE";
             initLeaderboard();
@@ -158,18 +181,16 @@
         });
     }
 
-    const saveToCloud = async () => {
+    const save = async () => {
         if (!deviceId) return;
         data.lastUpdate = Date.now();
-        try {
-            await setDoc(doc(db, "players", deviceId), data, { merge: true });
-        } catch (e) { console.log("Gagal Save"); }
+        await setDoc(doc(db, "players", deviceId), data, { merge: true });
     };
 
     document.getElementById('consumeBtn').onclick = () => {
         data.population -= data.clickPower;
         data.consumed += data.clickPower;
-        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; }
+        if (data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
         if(navigator.vibrate) navigator.vibrate(20);
         updateUI();
     };
@@ -179,7 +200,7 @@
             data.consumed -= data.clickCost;
             data.clickPower++;
             data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI(); saveToCloud();
+            updateUI(); save();
         }
     };
 
@@ -188,23 +209,13 @@
             data.consumed -= data.afkCost;
             data.afkPower += 2;
             data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI(); saveToCloud();
+            updateUI(); save();
         }
     };
 
     checkIdentity();
-
-    // LOOP AFK & AUTO SAVE
-    setInterval(() => { 
-        if(data.afkPower > 0) { 
-            data.population -= data.afkPower; 
-            data.consumed += data.afkPower; 
-            if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; }
-            updateUI(); 
-        } 
-    }, 1000);
-
-    setInterval(saveToCloud, 10000); // Simpan ke Firebase tiap 10 detik agar awet kuota
+    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); } updateUI(); } }, 1000);
+    setInterval(save, 10000); // Save tiap 10 detik
 </script>
 </body>
 </html>
