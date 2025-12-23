@@ -6,9 +6,16 @@
     <title>Predator Bumi - Solo Master</title>
     <style>
         :root { --red: #ff3333; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; overflow: hidden; }
-        
-        .header { padding: 20px; background: linear-gradient(to bottom, #400, #000); border-bottom: 2px solid var(--red); }
+    body { 
+    margin: 0; 
+    background: var(--bg); 
+    color: white; 
+    font-family: 'Segoe UI', sans-serif; 
+    text-align: center; 
+    overflow-x: hidden; /* Mencegah geser kanan-kiri */
+    overflow-y: auto;   /* Biar bisa scroll ke bawah */
+    touch-action: manipulation; /* Mencegah zoom gak sengaja pas klik cepet */
+      } .header { padding: 20px; background: linear-gradient(to bottom, #400, #000); border-bottom: 2px solid var(--red); }
         #popDisplay { font-size: 2.5rem; color: var(--red); font-weight: 900; text-shadow: 0 0 15px red; margin: 5px 0; }
         
         .stats-row { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
