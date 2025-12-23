@@ -209,8 +209,26 @@
     };
 
     checkIdentity();
-    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
-    setInterval(save, 5000); // Save otomatis tiap 5 detik
+    // Fungsi AFK (Berjalan setiap detik)
+setInterval(() => {
+    if (virusPower > 0) {
+        // 1. Kurangi populasi di layar (Visual)
+        population -= virusPower;
+        if (population < 0) population = 0;
+        document.getElementById('popCount').innerText = population.toLocaleString('id-ID');
+
+        // 2. TAMBAHKAN POIN KE KANTONG (Ini yang tadi ketinggalan)
+        score += virusPower; 
+        document.getElementById('scoreCount').innerText = score.toLocaleString('id-ID');
+
+        // 3. Simpan progress terbaru ke LocalStorage biar gak ilang pas di-refresh
+        saveGame();
+
+        // 4. Update ke Firebase juga kalau kamu mau progress AFK sinkron ke multiplayer
+        // updateDoc(globalRef, { population: increment(-virusPower) });
+    }
+}, 1000);
+ // Save otomatis tiap 5 detik
 </script>
 </body>
 </html>
