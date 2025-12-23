@@ -3,257 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Solo Master</title>
+    <title>World Raid - Predator Online</title>
     <style>
-        :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
+        :root { --red: #ff3333; --bg: #050505; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
+        
         body { 
-            margin: 0; background: var(--bg); color: #eee; 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            overflow-x: hidden;
+            margin: 0; background: var(--bg); color: white; 
+            font-family: sans-serif; text-align: center; 
+            overflow: hidden; transition: background 0.2s; 
         }
 
-        .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
+        .header { 
+            background: linear-gradient(to bottom, #500, #000); 
+            padding: 15px; border-bottom: 2px solid var(--red); 
+        }
+
+        #globalPop { 
+            font-size: 2.5rem; color: var(--red); 
+            font-weight: 900; text-shadow: 0 0 10px red; 
+        }
+
+        .stage { 
+            height: 260px; display: flex; align-items: center; 
+            justify-content: center; position: relative; 
+        }
+
+        #targetImg { 
+            width: 180px; height: 180px; border-radius: 50%; 
+            transition: transform 0.05s; z-index: 5; 
+        }
+
+        .btn-attack { 
+            width: 80%; padding: 18px; font-size: 1.5rem; 
+            font-weight: 900; background: var(--red); color: white; 
+            border: none; border-radius: 50px; cursor: pointer; 
+            box-shadow: 0 5px #600; outline: none; transition: 0.1s;
+        }
+        .btn-attack:active { transform: translateY(4px); box-shadow: 0 2px #300; }
         
-        .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; letter-spacing: -1px; }
+        /* RIWAYAT STACK SYSTEM */
+        #attackFeed { 
+            height: 100px; margin: 10px auto; width: 90%; 
+            font-size: 0.8rem; color: #aaa; overflow: hidden; 
+            display: flex; flex-direction: column-reverse; 
+        }
+
+        .feed-entry { 
+            padding: 2px 0; animation: fadeIn 0.2s forwards; 
+            transition: opacity 0.5s ease; 
+        }
+
+        .fade-out { opacity: 0; }
+
+        /* ANIMASI */
+        .shake-hit { animation: shake 0.1s infinite; filter: brightness(1.5) sepia(1); }
+        @keyframes shake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(2px, -2px); } }
         
-        .btn-main { 
-            width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; 
-            background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; 
-            cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s;
-        }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
-
-        .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
+        .earth-explode { animation: explode 1.5s forwards; }
+        @keyframes explode { 0% { transform: scale(1); } 50% { transform: scale(1.5); filter: brightness(10); } 100% { transform: scale(0); opacity: 0; } }
         
-        .btn-up { 
-            width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; 
-            background: #222; color: #fff; border: 2px solid #444; 
-            border-radius: 12px; font-weight: bold; font-size: 0.9rem;
-            display: block; text-decoration: none; text-align: center;
-        }
-        .btn-up:disabled { opacity: 0.3; }
-        .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
+        .dmg-text { position: absolute; color: var(--red); font-weight: 900; animation: float 0.6s forwards; pointer-events: none; }
+        @keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .modal-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+        .btn-back {
+            display: inline-block; margin-top: 10px; color: #777;
+            text-decoration: none; font-size: 0.8rem; border: 1px solid #333;
+            padding: 8px 15px; border-radius: 20px; transition: 0.2s;
         }
-        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; text-align: center; }
-
-        .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; }
+        .btn-back:active { background: #222; color: #fff; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="status-bar">
-        <span>PREDATOR: <b id="myId">---</b></span>
-        <span id="connState">SINKRONISASI...</span>
-    </div>
-
-    <div class="stats-box">
-        <small style="color:#888; letter-spacing: 2px;">POPULASI TERSISA</small>
-        <span id="population">8.000.000.000</span>
-        <div style="font-size: 0.9rem; display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px;">
-            <span>💰 <b id="consumed">0</b></span>
-            <span>🌍 Planet <b id="planetCount">0</b></span>
-        </div>
-    </div>
-
-    <button class="btn-main" id="consumeBtn">GIGIT!</button>
-
-    <div class="action-card">
-        <small style="color:var(--accent); font-weight: bold; display: block; margin-bottom: 5px;">UPGRADE EVOLUSI</small>
-        <button class="btn-up" id="btnClick">🦷 GIGI (+1) | 💰 <span id="cCost">15</span></button>
-        <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
-        <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
-    </div>
-
-    <a href="https://multiplayer-rslm.vercel.app/" class="btn-up btn-nav" id="navMulti">⚔️ MODE MULTIPLAYER</a>
-
-    <div class="leaderboard">
-        <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
-        <div id="leaderboardList">Memuat...</div>
-    </div>
+<div class="header">
+    <div id="globalPop">8.000.000.000</div>
+    <div style="font-size: 0.7rem; color: #777;"><b id="pName">---</b> | Power: <b id="pPower">1</b></div>
 </div>
 
-<div id="modalHelp" class="modal-overlay">
-    <div class="modal-box">
-        <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.6; text-align: left;">
-            • <b>GIGIT:</b> Makan populasi untuk koin 💰.<br>
-            • <b>SPAM KLIK:</b> Musik latar akan mati total saat kamu sibuk klik.<br>
-            • <b>AFK:</b> Virus otomatis bekerja meski game ditutup.<br>
-            • <b>SAVE:</b> Skor otomatis masuk Leaderboard Global.
-        </p>
-        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
-    </div>
+<div class="stage" id="stage">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Earth_Western_Hemisphere_transparent_background.png" id="targetImg">
 </div>
+
+<button class="btn-attack" id="raidBtn">GIGIT!</button>
+<div id="attackFeed"></div>
+
+<a href="https://faqih-roda.vercel.app/" class="btn-back" id="navSolo">← KEMBALI KE SOLO</a>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
-        authDomain: "fruitsmasmaster.firebaseapp.com",
-        projectId: "fruitsmasmaster",
-        storageBucket: "fruitsmasmaster.firebasestorage.app",
-        messagingSenderId: "673530855742",
-        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
+        apiKey: "AIzaSyDF7Eg437poCL4J4OShMFtm2N6GQtnu01w",
+        authDomain: "multiplayer-5e98b.firebaseapp.com",
+        projectId: "multiplayer-5e98b",
+        storageBucket: "multiplayer-5e98b.firebasestorage.app",
+        messagingSenderId: "549080338588",
+        appId: "1:549080338588:web:bac83f2ffbc77f47f9dd59"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- AUDIO & MUSIC ---
-    const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
-    const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
+    // --- AUDIO SYSTEM (EXCLUSIVE MULTIPLAYER) ---
+    const sfxAttack = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
     const sfxNav = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    const bgm = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/descent/background%20music.mp3');
-    bgm.loop = true;
-    bgm.volume = 0.5;
+    const bgmMulti = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/theme_01.mp3');
+    bgmMulti.loop = true;
+    bgmMulti.volume = 0.5;
 
     let muteTimeout;
-
     function playActionWithMute(sfx) {
         sfx.currentTime = 0;
         sfx.play();
-        bgm.muted = true; // Musik mati total
+        bgmMulti.muted = true; 
+        clearTimeout(muteTimeout);
+        muteTimeout = setTimeout(() => { bgmMulti.muted = false; }, 500);
+    }
+
+    document.addEventListener('click', () => { if (bgmMulti.paused) bgmMulti.play(); }, { once: true });
+
+    // --- GAME LOGIC ---
+    const predatorName = localStorage.getItem('solo_uid') || "Predator";
+    const myPower = parseInt(localStorage.getItem('last_power')) || 1;
+    let localLastHit = 0;
+    let isExploding = false;
+
+    document.getElementById('pName').innerText = predatorName;
+    document.getElementById('pPower').innerText = myPower.toLocaleString();
+
+    const globalRef = doc(db, "world", "earth");
+
+    function spawnDmg(dmg) {
+        const t = document.createElement('div');
+        t.className = 'dmg-text'; t.innerText = "-"+dmg.toLocaleString();
+        t.style.left = (40 + Math.random() * 20) + "%"; 
+        t.style.top = "40%";
+        document.getElementById('stage').appendChild(t);
+        setTimeout(() => t.remove(), 600);
+    }
+
+    onSnapshot(globalRef, (snap) => {
+        if(!snap.exists()) return;
+        const d = snap.data();
+        const earthImg = document.getElementById('targetImg');
         
-        clearTimeout(muteTimeout); // Anti-ancur pas spam klik
-        muteTimeout = setTimeout(() => {
-            bgm.muted = false; // Nyala lagi setelah jeda 0.5 detik dari klik terakhir
-        }, 500);
-    }
+        document.getElementById('globalPop').innerText = d.population.toLocaleString('id-ID');
 
-    // Mulai musik pas interaksi pertama
-    document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
+        if (d.last_hit && d.last_hit !== localLastHit) {
+            localLastHit = d.last_hit;
+            earthImg.classList.add('shake-hit');
+            document.body.style.backgroundColor = "#300";
+            spawnDmg(d.last_dmg || 0);
+            
+            // FEED RIWAYAT TUMPukan (STACK)
+            if(d.last_name) {
+                const feed = document.getElementById('attackFeed');
+                const newEntry = document.createElement('div');
+                newEntry.className = 'feed-entry';
+                newEntry.innerHTML = `💀 <b>${d.last_name}</b> menggigit!`;
+                feed.appendChild(newEntry);
 
-    // --- LOGIC GAME ---
-    let deviceId = localStorage.getItem('solo_uid');
-    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
-
-    window.showHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'flex'; };
-    window.closeHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'none'; };
-
-    async function checkIdentity() {
-        if (!deviceId) {
-            let chosenName = prompt("DAFTAR NAMA PREDATOR:");
-            if (!chosenName || chosenName.length < 3) return checkIdentity();
-            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-            const nameRef = doc(db, "players", chosenName);
-            const nameSnap = await getDoc(nameRef);
-            if (nameSnap.exists()) { alert("Nama sudah dipakai!"); return checkIdentity(); }
-            deviceId = chosenName;
-            localStorage.setItem('solo_uid', deviceId);
-            await setDoc(nameRef, data);
-        }
-        document.getElementById('myId').innerText = deviceId;
-        startGamer();
-    }
-
-    function updateUI() {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
-        document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
-        document.getElementById('planetCount').innerText = data.planetsCleared;
-        document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
-        document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
-        document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
-        document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
-    }
-
-    async function startGamer() {
-        const playerRef = doc(db, "players", deviceId);
-        try {
-            const snap = await getDoc(playerRef);
-            if (snap.exists()) {
-                const cloud = snap.data();
-                const now = Date.now();
-                const diff = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
-                const earned = diff * (cloud.afkPower || 0);
-                data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: now };
+                // Hilangkan baris ini saja setelah 3 detik
+                setTimeout(() => {
+                    newEntry.classList.add('fade-out');
+                    setTimeout(() => newEntry.remove(), 500);
+                }, 3000);
             }
-            document.getElementById('connState').innerText = "ONLINE";
-            initLeaderboard();
-            updateUI();
-        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
-    }
 
-    function initLeaderboard() {
-        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('leaderboardList');
-            list.innerHTML = "";
-            snap.forEach(d => {
-                const p = d.data();
-                list.innerHTML += `<div class="entry ${d.id === deviceId ? 'me' : ''}">
-                    <span>${d.id}</span>
-                    <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
-                </div>`;
-            });
-        });
-    }
+            setTimeout(() => {
+                earthImg.classList.remove('shake-hit');
+                document.body.style.backgroundColor = "#050505";
+            }, 100);
+        }
 
-    const save = async () => {
-        if (!deviceId) return;
-        data.lastUpdate = Date.now();
-        await setDoc(doc(db, "players", deviceId), data, { merge: true });
-    };
+        if (d.population <= 0 && !isExploding) {
+            isExploding = true;
+            earthImg.classList.add('earth-explode');
+            document.body.style.backgroundColor = "white";
+            setTimeout(() => {
+                updateDoc(globalRef, { 
+                    population: 8000000000, 
+                    last_hit: 0, last_name: "", last_dmg: 0 
+                });
+                earthImg.classList.remove('earth-explode');
+                document.body.style.backgroundColor = "#050505";
+                isExploding = false;
+            }, 2000);
+        }
+    });
 
-    // --- BUTTON ACTIONS ---
-    document.getElementById('consumeBtn').onclick = () => {
-        playActionWithMute(sfxGigit);
-        data.population -= data.clickPower;
-        data.consumed += data.clickPower;
-        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
+    document.getElementById('raidBtn').onclick = async () => {
+        if (isExploding) return;
+        playActionWithMute(sfxAttack);
         if(navigator.vibrate) navigator.vibrate(25);
-        updateUI();
+        
+        try {
+            await updateDoc(globalRef, { 
+                population: increment(-myPower),
+                last_hit: Date.now(),
+                last_dmg: myPower,
+                last_name: predatorName
+            });
+            // Self-cleaning jejak nama di database setelah 5 detik
+            setTimeout(() => { updateDoc(globalRef, { last_name: "" }); }, 5000);
+        } catch (e) { console.error("Koneksi sibuk!"); }
     };
 
-    document.getElementById('btnClick').onclick = () => {
-        if(data.consumed >= data.clickCost) {
-            playActionWithMute(sfxUpgrade);
-            data.consumed -= data.clickCost;
-            data.clickPower++;
-            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI(); save();
-        }
-    };
-
-    document.getElementById('btnAfk').onclick = () => {
-        if(data.consumed >= data.afkCost) {
-            playActionWithMute(sfxUpgrade);
-            data.consumed -= data.afkCost;
-            data.afkPower += 2;
-            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI(); save();
-        }
-    };
-
-    document.getElementById('navMulti').onclick = (e) => {
+    // NAVIGASI KE VERCEL
+    document.getElementById('navSolo').onclick = (e) => {
         e.preventDefault();
         playActionWithMute(sfxNav);
-        setTimeout(() => { window.location.href = 'https://multiplayer-rslm.vercel.app/'; }, 450);
+        setTimeout(() => { 
+            window.location.href = 'https://faqih-roda.vercel.app/'; 
+        }, 400);
     };
-
-    checkIdentity();
-    setInterval(() => { 
-        if(data.afkPower > 0) { 
-            data.population -= data.afkPower; 
-            data.consumed += data.afkPower; 
-            if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
-            updateUI(); 
-        } 
-    }, 1000);
-    setInterval(save, 15000);
 </script>
+
 </body>
 </html>
