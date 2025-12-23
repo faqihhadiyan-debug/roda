@@ -44,7 +44,25 @@
             <span>🌍 Planet <b id="planetCount">0</b></span>
         </div>
     </div>
+<div style="margin-bottom: 10px;">
+    <button onclick="document.getElementById('modalHelp').style.display='flex'" style="background:none; border:1px solid #444; color:#888; border-radius:15px; padding:5px 15px; font-size:0.7rem; cursor:pointer;">❓ CARA MAIN & INFO</button>
+</div>
 
+<div id="modalHelp" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
+    <div style="background:#111; border:2px solid #ff3333; border-radius:20px; padding:20px; max-width:350px; text-align:left;">
+        <h2 style="color:#ff3333; margin-top:0;">📖 Manual Predator</h2>
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
+            <b>1. TUJUAN:</b> Habiskan populasi bumi dengan cara klik (GIGIT) atau gunakan virus (AFK).<br><br>
+            <b>2. UPGRADE:</b> Gunakan poin yang kamu dapat untuk beli Gigi lebih tajam atau Virus yang otomatis memakan populasi.<br><br>
+            <b>3. MULTIPLAYER:</b> Masuk ke World Raid untuk menyerang bumi bersama pemain lain secara Real-Time!<br><br>
+            <b>4. PRIVASI:</b> Game ini tidak meminta email/password. Nama yang kamu masukkan hanya untuk identitas di Leaderboard.
+        </p>
+        <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+        <p style="font-size:0.7rem; color:#666;">Dibuat dengan 🔥 oleh Faqih. Data disimpan di Google Firebase.</p>
+        <button onclick="document.getElementById('modalHelp').style.display='none'" style="width:100%; padding:10px; background:#ff3333; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI!</button>
+    </div>
+</div>
+    
     <button class="btn-main" id="consumeBtn">GIGIT!</button>
 
     <div class="action-card">
