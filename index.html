@@ -6,11 +6,11 @@
     <title>Predator Bumi - Solo Online</title>
     <style>
         :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
-        * { box-sizing: border-box; } /* Biar border nggak terabas keluar */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
             margin: 0; background: var(--bg); color: #eee; 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
             overflow-x: hidden;
         }
@@ -18,8 +18,8 @@
         .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
         
         .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; display: block; margin: 10px 0; }
+        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
+        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; letter-spacing: -1px; }
         
         .btn-main { 
             width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; 
@@ -28,6 +28,8 @@
         }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
+        .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
+        
         .btn-up { 
             width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; 
             background: #222; color: #fff; border: 2px solid #444; 
@@ -37,16 +39,15 @@
         .btn-up:disabled { opacity: 0.3; }
         .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
 
-        /* Modal Style */
         .modal-overlay { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
         }
-        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; text-align: left; }
+        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; }
 
         .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
         .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 8px; padding: 5px; }
+        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); padding: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -68,14 +69,14 @@
 
     <button class="btn-main" id="consumeBtn">GIGIT!</button>
 
-    <div style="background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222;">
-        <small style="color:var(--accent); font-weight: bold; display: block; text-align: left; margin-bottom: 5px;">UPGRADE EVOLUSI</small>
+    <div class="action-card">
+        <small style="color:var(--accent); font-weight: bold; display: block; margin-bottom: 5px;">UPGRADE EVOLUSI</small>
         <button class="btn-up" id="btnClick">⚙️ GIGI (+1) | 💰 <span id="cCost">15</span></button>
         <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
         <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
     </div>
 
-    <a href="multiplayer.html" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
+    <a href="https://multiplayer-rslm.vercel.app/" class="btn-up btn-nav" id="navMulti">⚔️ MODE MULTIPLAYER</a>
 
     <div class="leaderboard">
         <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
@@ -86,12 +87,13 @@
 <div id="modalHelp" class="modal-overlay">
     <div class="modal-box">
         <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
-            1. <b>GIGIT:</b> Klik tombol merah untuk makan populasi.<br><br>
-            2. <b>AFK CUAN:</b> Virus otomatis bekerja meski kamu tidak klik.<br><br>
-            3. <b>PRIVASI:</b> Nama hanya untuk leaderboard global. Aman!
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.6;">
+            • <b>GIGIT:</b> Makan populasi untuk koin 💰.<br>
+            • <b>VIRUS:</b> Hasilkan koin otomatis (AFK).<br>
+            • <b>MUSIK:</b> Klik layar untuk mulai musik latar.<br>
+            • <b>SAVE:</b> Data tersimpan otomatis di Cloud.
         </p>
-        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
+        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">GAS!</button>
     </div>
 </div>
 
@@ -111,15 +113,29 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- SOUND EFFECTS ---
-    const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3'); // Suara Crunch
-    const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'); // Suara Ding
+    // --- SOUND & MUSIC SYSTEM ---
+    const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
+    const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
+    const sfxNav = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    const bgm = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/descent/background%20music.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.4;
 
+    function playAction(sfx) {
+        sfx.currentTime = 0;
+        sfx.play();
+        bgm.volume = 0.1; // Ducking effect
+        setTimeout(() => { bgm.volume = 0.4; }, 600);
+    }
+
+    document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
+
+    // --- DATA SYSTEM ---
     let deviceId = localStorage.getItem('solo_uid');
     let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
 
-    window.showHelp = () => document.getElementById('modalHelp').style.display = 'flex';
-    window.closeHelp = () => document.getElementById('modalHelp').style.display = 'none';
+    window.showHelp = () => { sfxNav.play(); document.getElementById('modalHelp').style.display = 'flex'; };
+    window.closeHelp = () => { sfxNav.play(); document.getElementById('modalHelp').style.display = 'none'; };
 
     async function checkIdentity() {
         if (!deviceId) {
@@ -157,7 +173,6 @@
                 const diff = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
                 const earned = diff * (cloud.afkPower || 0);
                 data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: now };
-                if(earned > 0) alert("Virus memakan " + earned.toLocaleString() + " penduduk!");
             }
             document.getElementById('connState').innerText = "ONLINE";
             initLeaderboard();
@@ -186,18 +201,19 @@
         await setDoc(doc(db, "players", deviceId), data, { merge: true });
     };
 
+    // --- CONTROLS ---
     document.getElementById('consumeBtn').onclick = () => {
-        sfxGigit.currentTime = 0; sfxGigit.play(); // PLAY SOUND CRUNCH
+        playAction(sfxGigit);
         data.population -= data.clickPower;
         data.consumed += data.clickPower;
         if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
-        if(navigator.vibrate) navigator.vibrate(20);
+        if(navigator.vibrate) navigator.vibrate(25);
         updateUI();
     };
 
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            sfxUpgrade.play(); // PLAY SOUND UPGRADE
+            playAction(sfxUpgrade);
             data.consumed -= data.clickCost;
             data.clickPower++;
             data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
@@ -207,12 +223,18 @@
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            sfxUpgrade.play(); // PLAY SOUND UPGRADE
+            playAction(sfxUpgrade);
             data.consumed -= data.afkCost;
             data.afkPower += 2;
             data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
             updateUI(); save();
         }
+    };
+
+    document.getElementById('navMulti').onclick = (e) => {
+        e.preventDefault();
+        sfxNav.play();
+        setTimeout(() => { window.location.href = 'multiplayer.html'; }, 400);
     };
 
     checkIdentity();
@@ -224,7 +246,7 @@
             updateUI(); 
         } 
     }, 1000);
-    setInterval(save, 10000);
+    setInterval(save, 15000);
 </script>
 </body>
 </html>
