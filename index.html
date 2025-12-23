@@ -150,8 +150,7 @@ function playActionWithMute(sfx) {
 }
 
 
-    document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
-
+   
     // --- GAME LOGIC ---
     let deviceId = localStorage.getItem('solo_uid');
     let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
