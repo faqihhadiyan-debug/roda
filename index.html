@@ -3,232 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Solo Mode</title>
+    <title>Predator Bumi - Solo & Upgrade</title>
     <style>
-        :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
-        body { margin: 0; background: var(--bg); color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; text-align: center; }
+        :root { --red: #ff4444; --bg: #0a0a0a; }
+        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; text-align: center; overflow-x: hidden; }
         
-        .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,0,0,0.1); }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; display: block; margin: 10px 0; }
+        /* Stats & Header */
+        .header { padding: 20px; background: linear-gradient(to bottom, #300, #000); border-bottom: 1px solid var(--red); }
+        .stats-container { display: flex; justify-content: space-around; margin: 15px 0; font-weight: bold; }
+        .stat-box { background: #1a1a1a; padding: 10px; border-radius: 10px; width: 40%; border: 1px solid #333; }
+        .stat-box small { font-size: 0.6rem; color: #888; display: block; margin-bottom: 5px; }
         
-        .btn-main { width: 100%; padding: 50px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s; }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
+        /* Bumi & Animation */
+        .earth-container { height: 250px; display: flex; align-items: center; justify-content: center; position: relative; }
+        #earthImg { width: 180px; transition: transform 0.05s; z-index: 2; }
+        
+        .dmg-text { position: absolute; color: var(--red); font-weight: 900; animation: float 0.6s forwards; pointer-events: none; z-index: 10; }
+        @keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
 
-        .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
-        .btn-up { width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 12px; font-weight: bold; font-size: 0.9rem; }
-        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; }
-        .btn-up:not(:disabled):hover { border-color: var(--accent); background: #282828; }
+        .shake { animation: shakeAnim 0.1s infinite; }
+        @keyframes shakeAnim { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(2px,-2px); } }
 
-        .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
-        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 8px; padding: 10px; margin: 2px 0; }
+        /* Buttons & Upgrades */
+        .btn-main { width: 80%; padding: 15px; font-size: 1.2rem; font-weight: 900; background: var(--red); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px #600; margin-bottom: 20px; }
+        .btn-main:active { transform: translateY(2px); box-shadow: 0 2px #200; }
         
-        .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
+        .upgrade-section { padding: 10px; background: #111; border-radius: 20px 20px 0 0; min-height: 200px; }
+        .upgrade-card { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px; margin: 8px; border-radius: 12px; border-left: 4px solid var(--red); }
+        .up-info b { display: block; font-size: 0.9rem; }
+        .up-info small { font-size: 0.7rem; color: #888; }
+        .btn-buy { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+        .btn-buy:disabled { opacity: 0.3; }
+
+        /* Modal Tutorial */
+        #modalHelp { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+        .modal-content { background:#111; border:1px solid var(--red); padding:20px; border-radius:15px; max-width:300px; text-align:left; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="status-bar">
-        <span>PREDATOR: <b id="myId">---</b></span>
-        <span id="connState">SINKRONISASI...</span>
+<div class="header">
+    <small>POPULASI TERSISA</small>
+    <h1 id="popDisplay" style="margin:5px 0; color:var(--red); font-size:2.2rem;">8.000.000.000</h1>
+    <div class="stats-container">
+        <div class="stat-box"><small>KANTONG POIN</small>💰 <span id="scoreDisplay">0</span></div>
+        <div class="stat-box"><small>POWER GIGI</small>🦷 <span id="powerDisplay">1</span></div>
     </div>
-
-    <div class="stats-box">
-        <small style="color:#888; letter-spacing: 2px;">POPULASI TERSISA</small>
-        <span id="population">8.000.000.000</span>
-        <div style="font-size: 0.9rem; display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px;">
-            <span>💰 <b id="consumed">0</b></span>
-            <span>🌍 Planet <b id="planetCount">0</b></span>
-        </div>
-    </div>
-<div style="margin-bottom: 10px;">
-    <button onclick="document.getElementById('modalHelp').style.display='flex'" style="background:none; border:1px solid #444; color:#888; border-radius:15px; padding:5px 15px; font-size:0.7rem; cursor:pointer;">❓ CARA MAIN & INFO</button>
 </div>
 
-<div id="modalHelp" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
-    <div style="background:#111; border:2px solid #ff3333; border-radius:20px; padding:20px; max-width:350px; text-align:left;">
-        <h2 style="color:#ff3333; margin-top:0;">📖 Manual Predator</h2>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
-            <b>1. TUJUAN:</b> Habiskan populasi bumi dengan cara klik (GIGIT) atau gunakan virus (AFK).<br><br>
-            <b>2. UPGRADE:</b> Gunakan poin yang kamu dapat untuk beli Gigi lebih tajam atau Virus yang otomatis memakan populasi.<br><br>
-            <b>3. MULTIPLAYER:</b> Masuk ke World Raid untuk menyerang bumi bersama pemain lain secara Real-Time!<br><br>
-            <b>4. PRIVASI:</b> Game ini tidak meminta email/password. Nama yang kamu masukkan hanya untuk identitas di Leaderboard.
+<div class="earth-container" id="stage">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Earth_Western_Hemisphere_transparent_background.png" id="earthImg">
+</div>
+
+<button class="btn-main" id="btnHit">GIGIT BUMI!</button>
+
+<div style="margin-bottom: 15px;">
+    <button onclick="document.getElementById('modalHelp').style.display='flex'" style="background:none; border:1px solid #333; color:#555; padding:5px 15px; border-radius:20px; font-size:0.7rem;">CARA MAIN & INFO</button>
+</div>
+
+<div class="upgrade-section">
+    <div class="upgrade-card">
+        <div class="up-info"><b>🦷 Gigi Predator</b><small>Tambah power gigitan (+1)</small></div>
+        <button class="btn-buy" id="buyGigi">Beli: 50</button>
+    </div>
+    <div class="upgrade-card">
+        <div class="up-info"><b>🦠 Virus AFK</b><small>Makan otomatis (+1/detik)</small></div>
+        <button class="btn-buy" id="buyVirus">Beli: 100</button>
+    </div>
+    <div style="padding: 20px;">
+        <a href="multiplayer.html" style="color:var(--red); text-decoration:none; font-weight:bold; font-size:0.9rem;">🌍 MASUK WORLD RAID (MULTIPLAYER) →</a>
+    </div>
+</div>
+
+<div id="modalHelp">
+    <div class="modal-content">
+        <h3>📖 Cara Main</h3>
+        <p style="font-size:0.8rem; color:#aaa; line-height:1.4;">
+            1. Klik tombol <b>GIGIT</b> untuk makan penduduk secara manual.<br>
+            2. <b>POIN</b> akan bertambah setiap kali penduduk berkurang.<br>
+            3. Gunakan poin untuk <b>UPGRADE</b> Gigi (Manual) atau Virus (AFK).<br>
+            4. Virus akan tetap bekerja memberimu poin selama web ini terbuka.<br><br>
+            <i>*Game ini hanya menyimpan nama untuk leaderboard. Aman!</i>
         </p>
-        <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-        <p style="font-size:0.7rem; color:#666;">Dibuat dengan 🔥 oleh Faqih. Data disimpan di Google Firebase.</p>
-        <button onclick="document.getElementById('modalHelp').style.display='none'" style="width:100%; padding:10px; background:#ff3333; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI!</button>
-    </div>
-</div>
-    
-    <button class="btn-main" id="consumeBtn">GIGIT!</button>
-
-    <div class="action-card">
-        <small style="color:var(--accent); font-weight: bold;">UPGRADE EVOLUSI</small>
-        <button class="btn-up" id="btnClick">⚙️ GIGI (+1) | 💰 <span id="cCost">15</span></button>
-        <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
-    </div>
-
-    <button class="btn-up btn-nav" onclick="location.href='https://multiplayer-rslm.vercel.app/'">⚔️ MODE MULTIPLAYER</button>
-
-    <div class="leaderboard">
-        <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
-        <div id="leaderboardList">Menghubungkan ke database...</div>
+        <button onclick="document.getElementById('modalHelp').style.display='none'" style="width:100%; padding:10px; background:var(--red); color:white; border:none; border-radius:8px; font-weight:bold;">Siaapp!</button>
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+<script>
+    // Inisialisasi Data dari LocalStorage
+    let pop = parseInt(localStorage.getItem('pop')) || 8000000000;
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    let power = parseInt(localStorage.getItem('power')) || 1;
+    let virus = parseInt(localStorage.getItem('virus')) || 0;
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
-        authDomain: "fruitsmasmaster.firebaseapp.com",
-        projectId: "fruitsmasmaster",
-        storageBucket: "fruitsmasmaster.firebasestorage.app",
-        messagingSenderId: "673530855742",
-        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let deviceId = localStorage.getItem('solo_uid');
-    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
-
-    // --- SISTEM PENDAFTARAN NAMA ---
-    async function checkIdentity() {
-        if (!deviceId || deviceId.startsWith("SOLO-")) {
-            let chosenName = prompt("DAFTAR NAMA PREDATOR\n(Nama ini akan muncul di Leaderboard):");
-            
-            if (!chosenName || chosenName.length < 3) {
-                alert("Nama minimal 3 huruf!");
-                return checkIdentity();
-            }
-
-            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-            const nameRef = doc(db, "players", chosenName);
-            const nameSnap = await getDoc(nameRef);
-
-            if (nameSnap.exists()) {
-                alert("Nama '" + chosenName + "' sudah dipakai orang lain!");
-                return checkIdentity();
-            } else {
-                deviceId = chosenName;
-                localStorage.setItem('solo_uid', deviceId);
-                await setDoc(nameRef, data);
-                alert("Selamat Berburu, " + deviceId + "!");
-            }
-        }
-        document.getElementById('myId').innerText = deviceId;
-        startGamer();
-    }
+    const popDisplay = document.getElementById('popDisplay');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const powerDisplay = document.getElementById('powerDisplay');
+    const earthImg = document.getElementById('earthImg');
 
     function updateUI() {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
-        document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
-        document.getElementById('planetCount').innerText = data.planetsCleared;
-        document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
-        document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
-        document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
-        document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
+        popDisplay.innerText = pop.toLocaleString('id-ID');
+        scoreDisplay.innerText = score.toLocaleString('id-ID');
+        powerDisplay.innerText = power.toLocaleString('id-ID');
+        
+        document.getElementById('buyGigi').innerText = "Beli: " + (power * 50);
+        document.getElementById('buyVirus').innerText = "Beli: " + ((virus + 1) * 100);
+        
+        document.getElementById('buyGigi').disabled = score < (power * 50);
+        document.getElementById('buyVirus').disabled = score < ((virus + 1) * 100);
     }
 
-    function initLeaderboard() {
-        // Urutkan berdasarkan Planet tertinggi, lalu Koin terbanyak
-        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('leaderboardList');
-            list.innerHTML = "";
-            snap.forEach(d => {
-                const p = d.data();
-                const isMe = d.id === deviceId;
-                list.innerHTML += `
-                    <div class="entry ${isMe ? 'me' : ''}">
-                        <span>${d.id}</span>
-                        <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
-                    </div>`;
-            });
-        });
+    function saveGame() {
+        localStorage.setItem('pop', pop);
+        localStorage.setItem('score', score);
+        localStorage.setItem('power', power);
+        localStorage.setItem('virus', virus);
+        localStorage.setItem('last_power', power); // Buat multiplayer
     }
 
-    async function startGamer() {
-        const playerRef = doc(db, "players", deviceId);
-        try {
-            const snap = await getDoc(playerRef);
-            if (snap.exists()) {
-                const cloud = snap.data();
-                const earned = Math.floor(((Date.now() - cloud.lastUpdate)/1000) * (cloud.afkPower || 0));
-                data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: Date.now() };
-            }
-            document.getElementById('connState').innerText = "ONLINE";
-            initLeaderboard();
-            updateUI();
-        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
+    function spawnDmg(val) {
+        const d = document.createElement('div');
+        d.className = 'dmg-text'; d.innerText = "-"+val;
+        d.style.left = (window.innerWidth/2 + (Math.random()*40-20)) + "px";
+        d.style.top = "40%";
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 600);
     }
 
-    const save = async () => {
-        if (!deviceId) return;
-        data.lastUpdate = Date.now();
-        await setDoc(doc(db, "players", deviceId), data, { merge: true });
-    };
-
-    // --- GAMEPLAY ---
-    document.getElementById('consumeBtn').onclick = () => {
-        data.population -= data.clickPower;
-        data.consumed += data.clickPower;
-        if(navigator.vibrate) navigator.vibrate(20);
+    // GIGIT MANUAL
+    document.getElementById('btnHit').onclick = () => {
+        pop -= power;
+        score += power; // Tambah poin
+        spawnDmg(power);
+        
+        earthImg.classList.add('shake');
+        setTimeout(() => earthImg.classList.remove('shake'), 100);
+        
         updateUI();
-        if (data.population <= 0) {
-            data.planetsCleared++;
-            data.population = 8000000000;
-            save();
-        }
-    };
-
-    document.getElementById('btnClick').onclick = () => {
-        if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost;
-            data.clickPower++;
-            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI();
-            save();
-        }
-    };
-
-    document.getElementById('btnAfk').onclick = () => {
-        if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost;
-            data.afkPower += 2;
-            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI();
-            save();
-        }
-    };
-
-    checkIdentity();
-    // Fungsi AFK (Berjalan setiap detik)
-setInterval(() => {
-    if (virusPower > 0) {
-        // 1. Kurangi populasi di layar (Visual)
-        population -= virusPower;
-        if (population < 0) population = 0;
-        document.getElementById('popCount').innerText = population.toLocaleString('id-ID');
-
-        // 2. TAMBAHKAN POIN KE KANTONG (Ini yang tadi ketinggalan)
-        score += virusPower; 
-        document.getElementById('scoreCount').innerText = score.toLocaleString('id-ID');
-
-        // 3. Simpan progress terbaru ke LocalStorage biar gak ilang pas di-refresh
         saveGame();
+    };
 
-        // 4. Update ke Firebase juga kalau kamu mau progress AFK sinkron ke multiplayer
-        // updateDoc(globalRef, { population: increment(-virusPower) });
-    }
-}, 1000);
- // Save otomatis tiap 5 detik
+    // LOGIKA AFK (VIRUS) - INI YANG BIKIN CUAN PAS AFK!
+    setInterval(() => {
+        if (virus > 0 && pop > 0) {
+            pop -= virus;
+            score += virus; // <--- POIN MASUK DISINI PAS AFK
+            if (pop < 0) pop = 0;
+            
+            updateUI();
+            saveGame();
+        }
+    }, 1000);
+
+    // UPGRADE GIGI
+    document.getElementById('buyGigi').onclick = () => {
+        let cost = power * 50;
+        if (score >= cost) {
+            score -= cost;
+            power++;
+            updateUI();
+            saveGame();
+        }
+    };
+
+    // UPGRADE VIRUS
+    document.getElementById('buyVirus').onclick = () => {
+        let cost = (virus + 1) * 100;
+        if (score >= cost) {
+            score -= cost;
+            virus++;
+            updateUI();
+            saveGame();
+        }
+    };
+
+    updateUI();
 </script>
+
 </body>
 </html>
