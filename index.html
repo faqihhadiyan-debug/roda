@@ -124,6 +124,7 @@
     let muteTimeout;
 
     function playActionWithMute(sfx) {
+        sfx.volume = 0.5
         sfx.currentTime = 0;
         sfx.play();
         bgm.muted = true; // Musik mati total
