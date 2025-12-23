@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Solo Online</title>
+    <title>Predator Bumi - Solo Master</title>
     <style>
         :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -43,11 +43,11 @@
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
         }
-        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; }
+        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; text-align: center; }
 
         .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
         .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); padding: 5px; border-radius: 5px; }
+        .me { color: var(--accent); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -87,13 +87,13 @@
 <div id="modalHelp" class="modal-overlay">
     <div class="modal-box">
         <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.6;">
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.6; text-align: left;">
             • <b>GIGIT:</b> Makan populasi untuk koin 💰.<br>
             • <b>VIRUS:</b> Hasilkan koin otomatis (AFK).<br>
-            • <b>MUSIK:</b> Klik layar untuk mulai musik latar.<br>
+            • <b>BGM:</b> Musik latar akan mati sesaat tiap kamu klik tombol.<br>
             • <b>SAVE:</b> Data tersimpan otomatis di Cloud.
         </p>
-        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">GAS!</button>
+        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
     </div>
 </div>
 
@@ -113,29 +113,35 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- SOUND & MUSIC SYSTEM ---
+    // --- SOUND & BGM SYSTEM ---
     const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
     const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
     const sfxNav = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
     const bgm = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/descent/background%20music.mp3');
     bgm.loop = true;
-    bgm.volume = 0.4;
+    bgm.volume = 0.5;
 
-    function playAction(sfx) {
+    // Fungsi baru: Mute musik total saat ada aksi
+    function playActionWithMute(sfx) {
         sfx.currentTime = 0;
         sfx.play();
-        bgm.volume = 0.1; // Ducking effect
-        setTimeout(() => { bgm.volume = 0.4; }, 600);
+        
+        bgm.muted = true; // MATIKAN MUSIK TOTAL
+        
+        // Nyalakan lagi setelah 400ms (sesuai durasi sfx)
+        setTimeout(() => {
+            bgm.muted = false;
+        }, 400);
     }
 
     document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
 
-    // --- DATA SYSTEM ---
+    // --- GAME LOGIC ---
     let deviceId = localStorage.getItem('solo_uid');
     let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
 
-    window.showHelp = () => { sfxNav.play(); document.getElementById('modalHelp').style.display = 'flex'; };
-    window.closeHelp = () => { sfxNav.play(); document.getElementById('modalHelp').style.display = 'none'; };
+    window.showHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'flex'; };
+    window.closeHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'none'; };
 
     async function checkIdentity() {
         if (!deviceId) {
@@ -201,9 +207,9 @@
         await setDoc(doc(db, "players", deviceId), data, { merge: true });
     };
 
-    // --- CONTROLS ---
+    // --- EVENT HANDLERS ---
     document.getElementById('consumeBtn').onclick = () => {
-        playAction(sfxGigit);
+        playActionWithMute(sfxGigit); // MUSIK ILANG PAS GIGIT
         data.population -= data.clickPower;
         data.consumed += data.clickPower;
         if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
@@ -213,7 +219,7 @@
 
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            playAction(sfxUpgrade);
+            playActionWithMute(sfxUpgrade); // MUSIK ILANG PAS UPGRADE
             data.consumed -= data.clickCost;
             data.clickPower++;
             data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
@@ -223,7 +229,7 @@
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            playAction(sfxUpgrade);
+            playActionWithMute(sfxUpgrade);
             data.consumed -= data.afkCost;
             data.afkPower += 2;
             data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
@@ -233,8 +239,8 @@
 
     document.getElementById('navMulti').onclick = (e) => {
         e.preventDefault();
-        sfxNav.play();
-        setTimeout(() => { window.location.href = 'multiplayer.html'; }, 400);
+        playActionWithMute(sfxNav); // MUSIK ILANG PAS PINDAH MODE
+        setTimeout(() => { window.location.href = 'https://multiplayer-rslm.vercel.app/'; }, 450);
     };
 
     checkIdentity();
