@@ -58,9 +58,9 @@
     </div>
 </div>
 
-<<script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, where } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -74,12 +74,41 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let deviceId = localStorage.getItem('solo_uid') || 'SOLO-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-    localStorage.setItem('solo_uid', deviceId);
-    document.getElementById('myId').innerText = deviceId;
-
+    let deviceId = localStorage.getItem('solo_uid');
     let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
-    const playerRef = doc(db, "players", deviceId);
+
+    // --- FUNGSI INPUT NAMA (BARU) ---
+    async function checkIdentity() {
+        if (!deviceId) {
+            let chosenName = prompt("Masukkan Nama Predator Kamu (Sekali untuk selamanya):");
+            
+            if (!chosenName || chosenName.length < 3) {
+                alert("Nama terlalu pendek!");
+                return checkIdentity();
+            }
+
+            // Bersihkan nama dari spasi/karakter aneh biar aman jadi ID
+            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
+
+            // Cek apakah nama sudah ada di database
+            const nameRef = doc(db, "players", chosenName);
+            const nameSnap = await getDoc(nameRef);
+
+            if (nameSnap.exists()) {
+                alert("Nama sudah dipakai predator lain! Cari nama lain.");
+                return checkIdentity();
+            } else {
+                deviceId = chosenName;
+                localStorage.setItem('solo_uid', deviceId);
+                // Buat data awal di database
+                await setDoc(nameRef, data);
+                alert("Identitas Terdaftar: " + deviceId);
+            }
+        }
+        document.getElementById('myId').innerText = deviceId;
+        syncData();
+        initLeaderboard();
+    }
 
     function updateUI() {
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
@@ -91,61 +120,43 @@
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
     }
 
-    // LEADERBOARD REAL-TIME (DIBUAT LEBIH SIMPEL BIAR GAK BUG)
     function initLeaderboard() {
-        // Kita urutkan berdasarkan 'consumed' saja dulu agar tidak butuh Index rumit
         const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
-        
         onSnapshot(q, (snap) => {
             const list = document.getElementById('leaderboardList');
             list.innerHTML = "";
-            
-            if (snap.empty) {
-                list.innerHTML = "Belum ada pemain lain.";
-                return;
-            }
-
             snap.forEach(d => {
                 const p = d.data();
-                const isMe = d.id === deviceId;
                 list.innerHTML += `
-                    <div class="entry ${isMe ? 'me' : ''}">
+                    <div class="entry ${d.id === deviceId ? 'me' : ''}">
                         <span>${d.id}</span>
                         <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
                     </div>`;
             });
-            console.log("Leaderboard updated!");
-        }, (err) => {
-            console.error("Gagal real-time:", err);
-            // Jika error karena Index, link-nya akan muncul di Console (F12)
         });
     }
 
     async function syncData() {
+        const playerRef = doc(db, "players", deviceId);
         try {
             const snap = await getDoc(playerRef);
             if (snap.exists()) {
                 const cloud = snap.data();
                 const earned = Math.floor(((Date.now() - cloud.lastUpdate)/1000) * (cloud.afkPower || 0));
                 data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
-            } else { 
-                await setDoc(playerRef, data); 
             }
             document.getElementById('connState').innerText = "ONLINE";
             updateUI();
-        } catch (e) { 
-            document.getElementById('connState').innerText = "OFFLINE"; 
-        }
+        } catch (e) { console.log("Sync Error"); }
     }
 
-    // Fungsi Save yang langsung nembak ke server
-    const save = async () => { 
-        data.lastUpdate = Date.now(); 
-        try {
-            await setDoc(playerRef, data, { merge: true });
-        } catch(e) { console.log("Save error"); }
+    const save = async () => {
+        if (!deviceId) return;
+        data.lastUpdate = Date.now();
+        await setDoc(doc(db, "players", deviceId), data, { merge: true });
     };
 
+    // --- EVENT HANDLERS ---
     document.getElementById('consumeBtn').onclick = () => {
         data.population -= data.clickPower; 
         data.consumed += data.clickPower;
@@ -159,39 +170,29 @@
 
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost; 
-            data.clickPower++;
+            data.consumed -= data.clickCost; data.clickPower++;
             data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI(); 
-            save();
+            updateUI(); save();
         }
     };
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost; 
-            data.afkPower += 2;
+            data.consumed -= data.afkCost; data.afkPower += 2;
             data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI(); 
-            save();
+            updateUI(); save();
         }
     };
 
-    // Jalankan Leaderboard & Sync
-    syncData();
-    initLeaderboard();
+    // Jalankan pengecekan nama saat start
+    checkIdentity();
 
-    // Loop
     setInterval(() => { 
         if(data.afkPower > 0) { 
-            data.population -= data.afkPower; 
-            data.consumed += data.afkPower; 
-            updateUI(); 
+            data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); 
         } 
     }, 1000);
-    
-    // Simpan tiap 5 detik biar leaderboard cepet update
-    setInterval(save, 5000); 
+    setInterval(save, 5000);
 </script>
 
 </body>
