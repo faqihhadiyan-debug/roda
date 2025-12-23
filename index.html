@@ -6,44 +6,43 @@
     <title>Predator Bumi - Solo Master</title>
     <style>
         :root { --red: #ff3333; --bg: #050505; }
-    body { 
-    margin: 0; 
-    background: var(--bg); 
-    color: white; 
-    font-family: 'Segoe UI', sans-serif; 
-    text-align: center; 
-    overflow-x: hidden; /* Mencegah geser kanan-kiri */
-    overflow-y: auto;   /* Biar bisa scroll ke bawah */
-    touch-action: manipulation; /* Mencegah zoom gak sengaja pas klik cepet */
-      } .header { padding: 20px; background: linear-gradient(to bottom, #400, #000); border-bottom: 2px solid var(--red); }
+        body { 
+            margin: 0; background: var(--bg); color: white; 
+            font-family: 'Segoe UI', sans-serif; text-align: center; 
+            overflow-x: hidden; overflow-y: auto; touch-action: manipulation;
+        }
+        
+        .header { padding: 20px; background: linear-gradient(to bottom, #400, #000); border-bottom: 2px solid var(--red); position: sticky; top: 0; z-index: 100; }
         #popDisplay { font-size: 2.5rem; color: var(--red); font-weight: 900; text-shadow: 0 0 15px red; margin: 5px 0; }
         
-        .stats-row { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
-        .stat-card { background: #111; padding: 10px; border-radius: 12px; border: 1px solid #333; min-width: 100px; }
-        .stat-card small { font-size: 0.65rem; color: #888; display: block; }
-        .stat-card b { font-size: 1.1rem; color: #fff; }
+        .stats-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .stat-card { background: #111; padding: 8px; border-radius: 12px; border: 1px solid #333; min-width: 90px; }
+        .stat-card small { font-size: 0.6rem; color: #888; display: block; }
+        .stat-card b { font-size: 1rem; }
 
-        .stage { height: 260px; display: flex; align-items: center; justify-content: center; position: relative; }
-        #earthImg { width: 180px; height: 180px; border-radius: 50%; transition: transform 0.05s; }
+        .stage { height: 240px; display: flex; align-items: center; justify-content: center; position: relative; }
+        #earthImg { width: 170px; height: 170px; border-radius: 50%; transition: transform 0.05s; }
         
-        .btn-hit { width: 85%; max-width: 320px; padding: 18px; font-size: 1.5rem; font-weight: 900; background: var(--red); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 5px #600; margin: 15px 0; }
+        .btn-hit { width: 85%; max-width: 320px; padding: 18px; font-size: 1.4rem; font-weight: 900; background: var(--red); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 5px #600; margin: 20px 0; }
         .btn-hit:active { transform: translateY(3px); box-shadow: 0 2px #200; }
 
-        .up-container { background: #111; border-radius: 20px 20px 0 0; padding: 15px; height: 300px; overflow-y: auto; }
-        .up-card { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px; margin-bottom: 10px; border-radius: 15px; border-left: 4px solid var(--red); }
-        .up-text { text-align: left; }
-        .up-text b { font-size: 0.9rem; display: block; }
-        .up-text small { font-size: 0.75rem; color: #888; }
+        .content-area { background: #111; border-radius: 25px 25px 0 0; padding: 20px; padding-bottom: 60px; }
+        
+        /* Leaderboard Style */
+        .lb-box { background: #1a1a1a; border-radius: 15px; border: 1px solid #444; margin-bottom: 20px; overflow: hidden; }
+        .lb-title { background: #222; padding: 10px; font-size: 0.8rem; font-weight: bold; color: gold; border-bottom: 1px solid #333; }
+        .lb-row { display: flex; justify-content: space-between; padding: 8px 15px; font-size: 0.85rem; border-bottom: 1px solid #222; }
+        .lb-row:last-child { border: none; }
+        
+        .up-card { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 15px; margin-bottom: 12px; border-radius: 15px; border-left: 4px solid var(--red); text-align: left; }
         .btn-buy { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
         .btn-buy:disabled { opacity: 0.3; }
 
-        /* Animasi */
-        .shake { animation: shake-anim 0.1s infinite; filter: brightness(1.2) sepia(0.5); }
+        .shake { animation: shake-anim 0.1s infinite; filter: brightness(1.3); }
         @keyframes shake-anim { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(2px,-2px); } }
-        .dmg-text { position: absolute; color: var(--red); font-weight: 900; font-size: 1.5rem; pointer-events: none; animation: float-up 0.6s forwards; z-index: 100; text-shadow: 2px 2px 0 black; }
+        .dmg-text { position: absolute; color: var(--red); font-weight: 900; font-size: 1.5rem; pointer-events: none; animation: float-up 0.6s forwards; z-index: 100; }
         @keyframes float-up { 0% { opacity:1; transform:translateY(0); } 100% { opacity:0; transform:translateY(-100px); } }
 
-        /* Modal */
         #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; }
         .modal-box { background:#111; border:2px solid var(--red); padding:20px; border-radius:20px; max-width:300px; text-align:left; }
     </style>
@@ -51,74 +50,81 @@
 <body>
 
 <div class="header">
-    <small style="letter-spacing: 2px;">POPULASI BUMI</small>
+    <small>POPULASI BUMI</small>
     <div id="popDisplay">8.000.000.000</div>
     <div class="stats-row">
-        <div class="stat-card"><small>KANTONG 💰</small><b id="scoreDisplay">0</b></div>
+        <div class="stat-card"><small>POIN 💰</small><b id="scoreDisplay">0</b></div>
         <div class="stat-card"><small>GIGI 🦷</small><b id="powerDisplay">1</b></div>
+        <div class="stat-card"><small>VIRUS 🦠</small><b id="virusDisplay">0</b></div>
     </div>
 </div>
 
-<div class="stage">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Earth_Western_Hemisphere_transparent_background.png" id="earthImg">
-</div>
+<div class="stage"><img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Earth_Western_Hemisphere_transparent_background.png" id="earthImg"></div>
 
 <button class="btn-hit" id="btnHit">GIGIT SEKARANG!</button>
 
-<div style="margin-bottom: 10px;">
-    <button onclick="openModal()" style="background:none; border:1px solid #444; color:#888; border-radius:15px; padding:5px 15px; font-size:0.7rem;">❓ CARA MAIN & INFO</button>
-</div>
+<div class="content-area">
+    <div class="lb-box">
+        <div class="lb-title">🏆 REKOR TERBAIKMU</div>
+        <div id="lbList">
+            <div style="padding:10px; color:#555; font-size:0.7rem;">Belum ada rekor.</div>
+        </div>
+    </div>
 
-<div class="up-container">
     <div class="up-card">
-        <div class="up-text"><b>Gigi Taring 🦷</b><small>Gigitan manual +1</small></div>
-        <button class="btn-buy" id="buyPower">Beli: 50</button>
+        <div><b>Gigi Predator 🦷</b><br><small>Manual +1</small></div>
+        <button class="btn-buy" id="buyPower">Beli</button>
     </div>
     <div class="up-card">
-        <div class="up-text"><b>Virus Global 🦠</b><small>Makan otomatis +1/detik</small></div>
-        <button class="btn-buy" id="buyVirus">Beli: 100</button>
+        <div><b>Virus Global 🦠</b><br><small>AFK +1/detik</small></div>
+        <button class="btn-buy" id="buyVirus">Beli</button>
     </div>
-    <div style="padding:15px;">
-        <a href="multiplayer.html" style="color:var(--red); text-decoration:none; font-weight:bold; font-size:0.85rem;">🌍 SERANG BARENG TEMAN (MULTIPLAYER) →</a>
+
+    <div style="margin: 20px 0;">
+        <button onclick="document.getElementById('modal').style.display='flex'" style="background:none; border:1px solid #444; color:#888; border-radius:15px; padding:8px 20px; font-size:0.8rem;">❓ INFO & CARA MAIN</button>
     </div>
+    
+    <a href="multiplayer.html" style="color:var(--red); text-decoration:none; font-weight:bold; font-size:0.9rem;">🌍 MODE WORLD RAID (ONLINE) →</a>
 </div>
 
 <div id="modal">
     <div class="modal-box">
-        <h3 style="color:var(--red); margin-top:0;">📖 Manual Predator</h3>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
-            - Klik <b>GIGIT</b> untuk makan populasi.<br>
-            - Setiap gigitan menghasilkan <b>POIN</b>.<br>
-            - Gunakan poin untuk upgrade <b>Gigi</b> atau <b>Virus</b>.<br>
-            - <b>Virus</b> otomatis menghasilkan poin tiap detik (AFK Cuan).<br><br>
-            <i>Web ini aman, hanya menyimpan skor di HP kamu!</i>
-        </p>
-        <button onclick="closeModal()" style="width:100%; padding:10px; background:var(--red); color:white; border:none; border-radius:10px; font-weight:bold;">Siaapp!</button>
+        <h3 style="color:var(--red); margin-top:0;">📖 Panduan</h3>
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">Gunakan poin hasil gigitan untuk upgrade. Virus bekerja otomatis (AFK). Rekor poin tertinggimu akan tercatat di leaderboard!</p>
+        <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; padding:10px; background:var(--red); color:white; border:none; border-radius:10px; font-weight:bold;">GAS!</button>
     </div>
 </div>
 
 <script>
-    // Inisialisasi Data
     let pop = parseInt(localStorage.getItem('pop')) || 8000000000;
     let score = parseInt(localStorage.getItem('score')) || 0;
     let power = parseInt(localStorage.getItem('power')) || 1;
     let virus = parseInt(localStorage.getItem('virus')) || 0;
-
-    const popEl = document.getElementById('popDisplay');
-    const scoreEl = document.getElementById('scoreDisplay');
-    const powerEl = document.getElementById('powerDisplay');
-    const earthImg = document.getElementById('earthImg');
+    let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
 
     function updateUI() {
-        popEl.innerText = pop.toLocaleString('id-ID');
-        scoreEl.innerText = score.toLocaleString('id-ID');
-        powerEl.innerText = power.toLocaleString('id-ID');
+        document.getElementById('popDisplay').innerText = pop.toLocaleString('id-ID');
+        document.getElementById('scoreDisplay').innerText = score.toLocaleString('id-ID');
+        document.getElementById('powerDisplay').innerText = power.toLocaleString('id-ID');
+        document.getElementById('virusDisplay').innerText = virus.toLocaleString('id-ID');
         
         document.getElementById('buyPower').innerText = "Beli: " + (power * 50);
         document.getElementById('buyVirus').innerText = "Beli: " + ((virus + 1) * 100);
-        
         document.getElementById('buyPower').disabled = score < (power * 50);
         document.getElementById('buyVirus').disabled = score < ((virus + 1) * 100);
+        
+        renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+        const lbList = document.getElementById('lbList');
+        if (highScores.length === 0) return;
+        lbList.innerHTML = highScores.map((s, i) => `
+            <div class="lb-row">
+                <span>#${i+1} Predator</span>
+                <span style="color:gold;">💰 ${s.toLocaleString()}</span>
+            </div>
+        `).join('');
     }
 
     function save() {
@@ -126,70 +132,52 @@
         localStorage.setItem('score', score);
         localStorage.setItem('power', power);
         localStorage.setItem('virus', virus);
-        localStorage.setItem('last_power', power); // Sync ke Multiplayer
+        localStorage.setItem('last_power', power);
+        
+        // Update Rekor
+        if (!highScores.includes(score) && score > 0) {
+            highScores.push(score);
+            highScores.sort((a,b) => b-a);
+            highScores = highScores.slice(0, 5);
+            localStorage.setItem('highScores', JSON.stringify(highScores));
+        }
     }
 
-    function spawnDmg(val) {
-        const t = document.createElement('div');
-        t.className = 'dmg-text'; t.innerText = "-"+val;
-        t.style.left = (window.innerWidth/2 + (Math.random()*60-30)) + "px";
-        t.style.top = "40%";
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 600);
-    }
-
-    // GIGIT MANUAL
     document.getElementById('btnHit').onclick = () => {
         if (pop <= 0) return;
-        pop -= power;
-        score += power;
-        spawnDmg(power);
+        pop -= power; score += power;
+        const t = document.createElement('div');
+        t.className = 'dmg-text'; t.innerText = "-"+power;
+        t.style.left = (window.innerWidth/2 + (Math.random()*60-30)) + "px";
+        t.style.top = "40%"; document.body.appendChild(t);
+        setTimeout(() => t.remove(), 600);
         
-        earthImg.classList.add('shake');
+        const img = document.getElementById('earthImg');
+        img.classList.add('shake');
         if(navigator.vibrate) navigator.vibrate(30);
-        setTimeout(() => earthImg.classList.remove('shake'), 100);
-        
-        updateUI();
-        save();
+        setTimeout(() => img.classList.remove('shake'), 100);
+        updateUI(); save();
     };
 
-    // VIRUS AFK LOGIC (Cuan Berjalan)
     setInterval(() => {
         if (virus > 0 && pop > 0) {
-            pop -= virus;
-            score += virus; // <--- INI BIAR KANTONG NAMBAH PAS AFK
+            pop -= virus; score += virus;
             if (pop < 0) pop = 0;
-            updateUI();
-            save();
+            updateUI(); save();
         }
     }, 1000);
 
-    // UPGRADE
     document.getElementById('buyPower').onclick = () => {
         let cost = power * 50;
-        if (score >= cost) {
-            score -= cost;
-            power++;
-            updateUI();
-            save();
-        }
+        if (score >= cost) { score -= cost; power++; updateUI(); save(); }
     };
 
     document.getElementById('buyVirus').onclick = () => {
         let cost = (virus + 1) * 100;
-        if (score >= cost) {
-            score -= cost;
-            virus++;
-            updateUI();
-            save();
-        }
+        if (score >= cost) { score -= cost; virus++; updateUI(); save(); }
     };
-
-    function openModal() { document.getElementById('modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     updateUI();
 </script>
-
 </body>
 </html>
