@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Solo Mode</title>
+    <title>Predator Bumi - Solo Online</title>
     <style>
         :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; } /* Biar border nggak terabas keluar */
 
         body { 
             margin: 0; background: var(--bg); color: #eee; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
             overflow-x: hidden;
         }
@@ -18,38 +18,35 @@
         .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
         
         .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,0,0,0.1); }
+        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; }
         #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; display: block; margin: 10px 0; }
         
-        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s; }
+        .btn-main { 
+            width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; 
+            background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; 
+            cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s;
+        }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
-        .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
-        
         .btn-up { 
             width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; 
             background: #222; color: #fff; border: 2px solid #444; 
             border-radius: 12px; font-weight: bold; font-size: 0.9rem;
             display: block; text-decoration: none; text-align: center;
         }
-        
-        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-up:disabled { opacity: 0.3; }
         .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
 
-        /* Modal Tutorial Style */
+        /* Modal Style */
         .modal-overlay { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+            background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
         }
-        .modal-box { 
-            background: #111; border: 2px solid var(--primary); padding: 20px; 
-            border-radius: 20px; max-width: 320px; text-align: left; 
-        }
+        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; text-align: left; }
 
         .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
         .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; }
+        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 8px; padding: 5px; }
     </style>
 </head>
 <body>
@@ -71,15 +68,14 @@
 
     <button class="btn-main" id="consumeBtn">GIGIT!</button>
 
-    <div class="action-card">
-        <small style="color:var(--accent); font-weight: bold;">UPGRADE EVOLUSI</small>
+    <div style="background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222;">
+        <small style="color:var(--accent); font-weight: bold; display: block; text-align: left; margin-bottom: 5px;">UPGRADE EVOLUSI</small>
         <button class="btn-up" id="btnClick">⚙️ GIGI (+1) | 💰 <span id="cCost">15</span></button>
         <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
+        <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
     </div>
 
-    <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
-
-    <a href="https://multiplayer-rslm.vercel.app/" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
+    <a href="multiplayer.html" class="btn-up btn-nav">⚔️ MODE MULTIPLAYER</a>
 
     <div class="leaderboard">
         <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
@@ -91,10 +87,9 @@
     <div class="modal-box">
         <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
         <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
-            1. <b>GIGIT:</b> Klik tombol merah untuk memakan populasi dan dapatkan 💰.<br><br>
-            2. <b>UPGRADE:</b> Gunakan koin untuk memperkuat gigitan atau membeli virus.<br><br>
-            3. <b>AFK CUAN:</b> Virus akan otomatis memberimu koin setiap detik, bahkan saat kamu sedang tidak klik.<br><br>
-            4. <b>PRIVASI:</b> Game ini aman. Nama yang kamu daftar hanya untuk skor di leaderboard global.
+            1. <b>GIGIT:</b> Klik tombol merah untuk makan populasi.<br><br>
+            2. <b>AFK CUAN:</b> Virus otomatis bekerja meski kamu tidak klik.<br><br>
+            3. <b>PRIVASI:</b> Nama hanya untuk leaderboard global. Aman!
         </p>
         <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
     </div>
@@ -116,10 +111,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- SOUND EFFECTS ---
+    const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3'); // Suara Crunch
+    const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'); // Suara Ding
+
     let deviceId = localStorage.getItem('solo_uid');
     let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
 
-    // Tentukan fungsi bantuan global agar bisa dipanggil tombol
     window.showHelp = () => document.getElementById('modalHelp').style.display = 'flex';
     window.closeHelp = () => document.getElementById('modalHelp').style.display = 'none';
 
@@ -189,6 +187,7 @@
     };
 
     document.getElementById('consumeBtn').onclick = () => {
+        sfxGigit.currentTime = 0; sfxGigit.play(); // PLAY SOUND CRUNCH
         data.population -= data.clickPower;
         data.consumed += data.clickPower;
         if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
@@ -198,6 +197,7 @@
 
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
+            sfxUpgrade.play(); // PLAY SOUND UPGRADE
             data.consumed -= data.clickCost;
             data.clickPower++;
             data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
@@ -207,6 +207,7 @@
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
+            sfxUpgrade.play(); // PLAY SOUND UPGRADE
             data.consumed -= data.afkCost;
             data.afkPower += 2;
             data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
@@ -215,7 +216,14 @@
     };
 
     checkIdentity();
-    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); } updateUI(); } }, 1000);
+    setInterval(() => { 
+        if(data.afkPower > 0) { 
+            data.population -= data.afkPower; 
+            data.consumed += data.afkPower; 
+            if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
+            updateUI(); 
+        } 
+    }, 1000);
     setInterval(save, 10000);
 </script>
 </body>
