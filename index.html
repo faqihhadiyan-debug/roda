@@ -3,127 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - Solo & Upgrade</title>
-<style>
-    /* ... (Style lama tetap ada) ... */
-    
-    .leaderboard-container { 
-        background: #111; margin: 15px auto; width: 90%; max-width: 380px; 
-        border-radius: 15px; border: 1px solid #444; overflow: hidden;
-    }
-    .lb-header { background: #222; padding: 8px; font-size: 0.8rem; font-weight: bold; color: gold; }
-    .lb-list { padding: 5px; font-size: 0.85rem; }
-    .lb-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid #222; }
-    .lb-row:last-child { border: none; }
-    .lb-rank { color: #888; width: 25px; }
-    .lb-name { flex-grow: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .lb-dmg { color: #ff4444; font-weight: bold; }
-</style>
+    <title>Predator Bumi - Solo Master</title>
+    <style>
+        :root { --red: #ff3333; --bg: #050505; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; overflow: hidden; }
+        
+        .header { padding: 20px; background: linear-gradient(to bottom, #400, #000); border-bottom: 2px solid var(--red); }
+        #popDisplay { font-size: 2.5rem; color: var(--red); font-weight: 900; text-shadow: 0 0 15px red; margin: 5px 0; }
+        
+        .stats-row { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+        .stat-card { background: #111; padding: 10px; border-radius: 12px; border: 1px solid #333; min-width: 100px; }
+        .stat-card small { font-size: 0.65rem; color: #888; display: block; }
+        .stat-card b { font-size: 1.1rem; color: #fff; }
 
-<div class="leaderboard-container">
-    <div class="lb-header">🏆 TOP 5 PREDATOR DUNIA</div>
-    <div id="lbList" class="lb-list">
-        <div style="padding:10px; color:#555;">Memuat peringkat...</div>
+        .stage { height: 260px; display: flex; align-items: center; justify-content: center; position: relative; }
+        #earthImg { width: 180px; height: 180px; border-radius: 50%; transition: transform 0.05s; }
+        
+        .btn-hit { width: 85%; max-width: 320px; padding: 18px; font-size: 1.5rem; font-weight: 900; background: var(--red); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 5px #600; margin: 15px 0; }
+        .btn-hit:active { transform: translateY(3px); box-shadow: 0 2px #200; }
+
+        .up-container { background: #111; border-radius: 20px 20px 0 0; padding: 15px; height: 300px; overflow-y: auto; }
+        .up-card { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px; margin-bottom: 10px; border-radius: 15px; border-left: 4px solid var(--red); }
+        .up-text { text-align: left; }
+        .up-text b { font-size: 0.9rem; display: block; }
+        .up-text small { font-size: 0.75rem; color: #888; }
+        .btn-buy { background: #333; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+        .btn-buy:disabled { opacity: 0.3; }
+
+        /* Animasi */
+        .shake { animation: shake-anim 0.1s infinite; filter: brightness(1.2) sepia(0.5); }
+        @keyframes shake-anim { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(2px,-2px); } }
+        .dmg-text { position: absolute; color: var(--red); font-weight: 900; font-size: 1.5rem; pointer-events: none; animation: float-up 0.6s forwards; z-index: 100; text-shadow: 2px 2px 0 black; }
+        @keyframes float-up { 0% { opacity:1; transform:translateY(0); } 100% { opacity:0; transform:translateY(-100px); } }
+
+        /* Modal */
+        #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; }
+        .modal-box { background:#111; border:2px solid var(--red); padding:20px; border-radius:20px; max-width:300px; text-align:left; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <small style="letter-spacing: 2px;">POPULASI BUMI</small>
+    <div id="popDisplay">8.000.000.000</div>
+    <div class="stats-row">
+        <div class="stat-card"><small>KANTONG 💰</small><b id="scoreDisplay">0</b></div>
+        <div class="stat-card"><small>GIGI 🦷</small><b id="powerDisplay">1</b></div>
     </div>
 </div>
 
-<script type="module">
-    // ... (Import Firebase tetap sama) ...
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+<div class="stage">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/22/Earth_Western_Hemisphere_transparent_background.png" id="earthImg">
+</div>
 
-    // ... (Config tetap sama) ...
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+<button class="btn-hit" id="btnHit">GIGIT SEKARANG!</button>
 
-    const predatorName = localStorage.getItem('solo_uid') || "Predator";
-    const myPower = parseInt(localStorage.getItem('last_power')) || 1;
-    const globalRef = doc(db, "world", "earth");
-    let isExploding = false;
-    let localLastHit = 0;
+<div style="margin-bottom: 10px;">
+    <button onclick="openModal()" style="background:none; border:1px solid #444; color:#888; border-radius:15px; padding:5px 15px; font-size:0.7rem;">❓ CARA MAIN & INFO</button>
+</div>
 
-    // Tampilkan Nama & Power
-    document.getElementById('pName').innerText = predatorName;
-    document.getElementById('pPower').innerText = myPower.toLocaleString();
+<div class="up-container">
+    <div class="up-card">
+        <div class="up-text"><b>Gigi Taring 🦷</b><small>Gigitan manual +1</small></div>
+        <button class="btn-buy" id="buyPower">Beli: 50</button>
+    </div>
+    <div class="up-card">
+        <div class="up-text"><b>Virus Global 🦠</b><small>Makan otomatis +1/detik</small></div>
+        <button class="btn-buy" id="buyVirus">Beli: 100</button>
+    </div>
+    <div style="padding:15px;">
+        <a href="multiplayer.html" style="color:var(--red); text-decoration:none; font-weight:bold; font-size:0.85rem;">🌍 SERANG BARENG TEMAN (MULTIPLAYER) →</a>
+    </div>
+</div>
 
-    onSnapshot(globalRef, (snap) => {
-        if(!snap.exists()) return;
-        const d = snap.data();
+<div id="modal">
+    <div class="modal-box">
+        <h3 style="color:var(--red); margin-top:0;">📖 Manual Predator</h3>
+        <p style="font-size:0.85rem; color:#ccc; line-height:1.5;">
+            - Klik <b>GIGIT</b> untuk makan populasi.<br>
+            - Setiap gigitan menghasilkan <b>POIN</b>.<br>
+            - Gunakan poin untuk upgrade <b>Gigi</b> atau <b>Virus</b>.<br>
+            - <b>Virus</b> otomatis menghasilkan poin tiap detik (AFK Cuan).<br><br>
+            <i>Web ini aman, hanya menyimpan skor di HP kamu!</i>
+        </p>
+        <button onclick="closeModal()" style="width:100%; padding:10px; background:var(--red); color:white; border:none; border-radius:10px; font-weight:bold;">Siaapp!</button>
+    </div>
+</div>
+
+<script>
+    // Inisialisasi Data
+    let pop = parseInt(localStorage.getItem('pop')) || 8000000000;
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    let power = parseInt(localStorage.getItem('power')) || 1;
+    let virus = parseInt(localStorage.getItem('virus')) || 0;
+
+    const popEl = document.getElementById('popDisplay');
+    const scoreEl = document.getElementById('scoreDisplay');
+    const powerEl = document.getElementById('powerDisplay');
+    const earthImg = document.getElementById('earthImg');
+
+    function updateUI() {
+        popEl.innerText = pop.toLocaleString('id-ID');
+        scoreEl.innerText = score.toLocaleString('id-ID');
+        powerEl.innerText = power.toLocaleString('id-ID');
         
-        // 1. Update Populasi & Hit Animasi
-        document.getElementById('globalPop').innerText = d.population.toLocaleString('id-ID');
-        if (d.last_hit && d.last_hit !== localLastHit) {
-            localLastHit = d.last_hit;
-            // ... (Animasi shake & spawnDmg tetap sama) ...
-        }
-
-        // 2. UPDATE LEADERBOARD (Real-time & Irit)
-        const lbList = document.getElementById('lbList');
-        if (d.leaderboard) {
-            // Urutkan dari damage paling besar & ambil 5 teratas
-            const sortedLB = d.leaderboard.sort((a, b) => b.totalDmg - a.totalDmg).slice(0, 5);
-            lbList.innerHTML = sortedLB.map((player, index) => `
-                <div class="lb-row">
-                    <span class="lb-rank">#${index + 1}</span>
-                    <span class="lb-name">${player.name}</span>
-                    <span class="lb-dmg">${player.totalDmg.toLocaleString()}</span>
-                </div>
-            `).join('');
-        }
+        document.getElementById('buyPower').innerText = "Beli: " + (power * 50);
+        document.getElementById('buyVirus').innerText = "Beli: " + ((virus + 1) * 100);
         
-        // 3. Logic Ledakan Reset ... (Tetap sama)
-    });
+        document.getElementById('buyPower').disabled = score < (power * 50);
+        document.getElementById('buyVirus').disabled = score < ((virus + 1) * 100);
+    }
 
-    document.getElementById('raidBtn').onclick = async () => {
-        if (isExploding) return;
+    function save() {
+        localStorage.setItem('pop', pop);
+        localStorage.setItem('score', score);
+        localStorage.setItem('power', power);
+        localStorage.setItem('virus', virus);
+        localStorage.setItem('last_power', power); // Sync ke Multiplayer
+    }
 
-        // Ambil data terbaru dulu untuk update leaderboard array
-        // (Atau pake trik update array di database biar gak nambah read)
-        try {
-            // Kita pake logic: Cek apakah nama kita sudah ada di array d.leaderboard
-            // Karena updateDoc array itu agak tricky, cara paling irit buat lo:
-            // Simpan total damage lokal dulu atau biarkan server-side (tapi ini tier gratis)
-            
-            // Cara Gampang: Update stat hit aja, Leaderboard biar urusan arrayUnion
-            // Tapi karena kita mau "Hemat", kita update total damage per user di dokumen earth
-            
-            // Logic: Kita kirim hit, lalu di database kita update object dalam array
-            // Untuk pemula, paling gampang adalah nambahin field baru di dokumen earth:
-            // "stats_NamaUser": totalDamage
-            
-            await updateDoc(globalRef, { 
-                population: increment(-myPower),
-                last_hit: Date.now(),
-                last_dmg: myPower,
-                last_name: predatorName
-            });
+    function spawnDmg(val) {
+        const t = document.createElement('div');
+        t.className = 'dmg-text'; t.innerText = "-"+val;
+        t.style.left = (window.innerWidth/2 + (Math.random()*60-30)) + "px";
+        t.style.top = "40%";
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 600);
+    }
 
-            // Update Leaderboard: Kita akalin pake penambahan damage ke array
-            // (Catatan: Ini butuh logic d.leaderboard di onSnapshot tadi buat update balik)
-            updateLeaderboardData(predatorName, myPower);
-
-        } catch (e) { console.log(e); }
+    // GIGIT MANUAL
+    document.getElementById('btnHit').onclick = () => {
+        if (pop <= 0) return;
+        pop -= power;
+        score += power;
+        spawnDmg(power);
+        
+        earthImg.classList.add('shake');
+        if(navigator.vibrate) navigator.vibrate(30);
+        setTimeout(() => earthImg.classList.remove('shake'), 100);
+        
+        updateUI();
+        save();
     };
 
-    async function updateLeaderboardData(name, dmg) {
-        // Ambil data saat ini
-        const earthSnap = await getDoc(globalRef); // Butuh import getDoc
-        if (earthSnap.exists()) {
-            let lb = earthSnap.data().leaderboard || [];
-            const userIdx = lb.findIndex(u => u.name === name);
-            
-            if (userIdx > -1) {
-                lb[userIdx].totalDmg += dmg;
-            } else {
-                lb.push({ name: name, totalDmg: dmg });
-            }
-            
-            // Update balik ke Firebase
-            await updateDoc(globalRef, { leaderboard: lb });
+    // VIRUS AFK LOGIC (Cuan Berjalan)
+    setInterval(() => {
+        if (virus > 0 && pop > 0) {
+            pop -= virus;
+            score += virus; // <--- INI BIAR KANTONG NAMBAH PAS AFK
+            if (pop < 0) pop = 0;
+            updateUI();
+            save();
         }
-    }
-</script>
+    }, 1000);
 
+    // UPGRADE
+    document.getElementById('buyPower').onclick = () => {
+        let cost = power * 50;
+        if (score >= cost) {
+            score -= cost;
+            power++;
+            updateUI();
+            save();
+        }
+    };
+
+    document.getElementById('buyVirus').onclick = () => {
+        let cost = (virus + 1) * 100;
+        if (score >= cost) {
+            score -= cost;
+            virus++;
+            updateUI();
+            save();
+        }
+    };
+
+    function openModal() { document.getElementById('modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    updateUI();
+</script>
 
 </body>
 </html>
