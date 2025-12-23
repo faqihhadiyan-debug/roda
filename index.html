@@ -3,64 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - SOLO</title>
+    <title>Predator Bumi - Solo Mode</title>
     <style>
         :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
-        body { margin: 0; background: var(--bg); color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        body { margin: 0; background: var(--bg); color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; text-align: center; }
         
-        .status-bar { font-size: 0.65rem; color: #555; display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px; }
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #222; margin: 15px 0; }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; }
+        .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255,0,0,0.1); }
+        #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; display: block; margin: 10px 0; }
         
-        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; }
-        .btn-main:active { transform: translateY(3px); box-shadow: 0 3px #200; }
+        .btn-main { width: 100%; padding: 50px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s; }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
-        .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid #222; text-align: left; }
-        .btn-up { width: 100%; padding: 12px; margin-top: 8px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; font-weight: bold; }
-        .btn-up:disabled { opacity: 0.3; }
+        .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
+        .btn-up { width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; background: #222; color: #fff; border: 1px solid #444; border-radius: 12px; font-weight: bold; font-size: 0.9rem; }
+        .btn-up:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-up:not(:disabled):hover { border-color: var(--accent); background: #282828; }
 
-        .leaderboard { margin-top: 25px; background: rgba(15,15,15,0.9); padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: left; }
-        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; border-left: 3px solid var(--accent); padding-left: 8px; }
+        .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        .me { color: var(--accent); font-weight: bold; background: rgba(255,215,0,0.05); border-radius: 8px; padding: 10px; margin: 2px 0; }
+        
+        .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="status-bar">
-        <span>ID: <b id="myId">...</b></span>
-        <span id="connState">MENGHUBUNGKAN...</span>
+        <span>PREDATOR: <b id="myId">---</b></span>
+        <span id="connState">SINKRONISASI...</span>
     </div>
 
     <div class="stats-box">
-        <small style="color:#666">SISA MANUSIA</small>
+        <small style="color:#888; letter-spacing: 2px;">POPULASI TERSISA</small>
         <span id="population">8.000.000.000</span>
-        <div style="font-size: 0.8rem; display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;">
+        <div style="font-size: 0.9rem; display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px;">
             <span>💰 <b id="consumed">0</b></span>
-            <span>🌍 <b id="planetCount">0</b></span>
+            <span>🌍 Planet <b id="planetCount">0</b></span>
         </div>
     </div>
 
-    <button class="btn-main" id="consumeBtn">MAKAN</button>
+    <button class="btn-main" id="consumeBtn">GIGIT!</button>
 
     <div class="action-card">
-        <small style="color:var(--accent)">UPGRADE SOLO</small>
-        <button class="btn-up" id="btnClick">GIGI (+1) | 💰 <span id="cCost">15</span></button>
-        <button class="btn-up" id="btnAfk">VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
+        <small style="color:var(--accent); font-weight: bold;">UPGRADE EVOLUSI</small>
+        <button class="btn-up" id="btnClick">⚙️ GIGI (+1) | 💰 <span id="cCost">15</span></button>
+        <button class="btn-up" id="btnAfk">🧪 VIRUS (+2/s) | 💰 <span id="aCost">50</span></button>
     </div>
 
-    <button class="btn-up" style="background:#004d00; border-color:#0f0;" onclick="location.href='multiplayer.html'">⚔️ MODE MULTIPLAYER</button>
+    <button class="btn-up btn-nav" onclick="location.href='multiplayer.html'">⚔️ MODE MULTIPLAYER</button>
 
     <div class="leaderboard">
-        <h4 style="margin: 0 0 10px 0; color: var(--accent); text-align: center;">🏆 GLOBAL LEADERBOARD</h4>
-        <div id="leaderboardList">Memuat data...</div>
+        <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
+        <div id="leaderboardList">Menghubungkan ke database...</div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, where } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -77,37 +80,32 @@
     let deviceId = localStorage.getItem('solo_uid');
     let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
 
-    // --- FUNGSI INPUT NAMA (BARU) ---
+    // --- SISTEM PENDAFTARAN NAMA ---
     async function checkIdentity() {
-        if (!deviceId) {
-            let chosenName = prompt("Masukkan Nama Predator Kamu (Sekali untuk selamanya):");
+        if (!deviceId || deviceId.startsWith("SOLO-")) {
+            let chosenName = prompt("DAFTAR NAMA PREDATOR\n(Nama ini akan muncul di Leaderboard):");
             
             if (!chosenName || chosenName.length < 3) {
-                alert("Nama terlalu pendek!");
+                alert("Nama minimal 3 huruf!");
                 return checkIdentity();
             }
 
-            // Bersihkan nama dari spasi/karakter aneh biar aman jadi ID
             chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-
-            // Cek apakah nama sudah ada di database
             const nameRef = doc(db, "players", chosenName);
             const nameSnap = await getDoc(nameRef);
 
             if (nameSnap.exists()) {
-                alert("Nama sudah dipakai predator lain! Cari nama lain.");
+                alert("Nama '" + chosenName + "' sudah dipakai orang lain!");
                 return checkIdentity();
             } else {
                 deviceId = chosenName;
                 localStorage.setItem('solo_uid', deviceId);
-                // Buat data awal di database
                 await setDoc(nameRef, data);
-                alert("Identitas Terdaftar: " + deviceId);
+                alert("Selamat Berburu, " + deviceId + "!");
             }
         }
         document.getElementById('myId').innerText = deviceId;
-        syncData();
-        initLeaderboard();
+        startGamer();
     }
 
     function updateUI() {
@@ -121,14 +119,16 @@
     }
 
     function initLeaderboard() {
+        // Urutkan berdasarkan Planet tertinggi, lalu Koin terbanyak
         const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
         onSnapshot(q, (snap) => {
             const list = document.getElementById('leaderboardList');
             list.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
+                const isMe = d.id === deviceId;
                 list.innerHTML += `
-                    <div class="entry ${d.id === deviceId ? 'me' : ''}">
+                    <div class="entry ${isMe ? 'me' : ''}">
                         <span>${d.id}</span>
                         <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
                     </div>`;
@@ -136,43 +136,63 @@
         });
     }
 
-        async function checkIdentity() {
-        // Cek apakah ID kosong ATAU masih pakai ID random lama (SOLO-XXX)
-        if (!deviceId || deviceId.startsWith("SOLO-")) {
-            let chosenName = prompt("SISTEM IDENTITAS BARU!\nMasukkan Nama Predator Kamu (Permanen):");
-            
-            if (!chosenName || chosenName.length < 3) {
-                alert("Nama minimal 3 karakter!");
-                return checkIdentity();
+    async function startGamer() {
+        const playerRef = doc(db, "players", deviceId);
+        try {
+            const snap = await getDoc(playerRef);
+            if (snap.exists()) {
+                const cloud = snap.data();
+                const earned = Math.floor(((Date.now() - cloud.lastUpdate)/1000) * (cloud.afkPower || 0));
+                data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: Date.now() };
             }
-
-            // Bersihkan nama: Uppercase & buang karakter aneh
-            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-
-            const nameRef = doc(db, "players", chosenName);
-            const nameSnap = await getDoc(nameRef);
-
-            if (nameSnap.exists()) {
-                alert("Nama '" + chosenName + "' sudah ada yang punya. Cari yang lain!");
-                return checkIdentity();
-            } else {
-                // HAPUS DATA LAMA (Opsional: Jika ingin reset skor pemain lama ke nama baru)
-                // if(deviceId) { await deleteDoc(doc(db, "players", deviceId)); }
-
-                deviceId = chosenName;
-                localStorage.setItem('solo_uid', deviceId);
-                
-                // Daftarkan nama baru dengan data saat ini (skor lama tetap terbawa)
-                await setDoc(nameRef, data);
-                alert("Selamat datang, Predator " + deviceId + "!");
-            }
-        }
-        document.getElementById('myId').innerText = deviceId;
-        syncData();
-        initLeaderboard();
+            document.getElementById('connState').innerText = "ONLINE";
+            initLeaderboard();
+            updateUI();
+        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
     }
 
-</script>
+    const save = async () => {
+        if (!deviceId) return;
+        data.lastUpdate = Date.now();
+        await setDoc(doc(db, "players", deviceId), data, { merge: true });
+    };
 
+    // --- GAMEPLAY ---
+    document.getElementById('consumeBtn').onclick = () => {
+        data.population -= data.clickPower;
+        data.consumed += data.clickPower;
+        if(navigator.vibrate) navigator.vibrate(20);
+        updateUI();
+        if (data.population <= 0) {
+            data.planetsCleared++;
+            data.population = 8000000000;
+            save();
+        }
+    };
+
+    document.getElementById('btnClick').onclick = () => {
+        if(data.consumed >= data.clickCost) {
+            data.consumed -= data.clickCost;
+            data.clickPower++;
+            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
+            updateUI();
+            save();
+        }
+    };
+
+    document.getElementById('btnAfk').onclick = () => {
+        if(data.consumed >= data.afkCost) {
+            data.consumed -= data.afkCost;
+            data.afkPower += 2;
+            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
+            updateUI();
+            save();
+        }
+    };
+
+    checkIdentity();
+    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
+    setInterval(save, 5000); // Save otomatis tiap 5 detik
+</script>
 </body>
 </html>
