@@ -58,11 +58,10 @@
     </div>
 </div>
 
-<script type="module">
+<<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-    // PAKAI FIREBASE FRUITSMASMASTER UNTUK SOLO
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
         authDomain: "fruitsmasmaster.firebaseapp.com",
@@ -92,17 +91,34 @@
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
     }
 
-    // Leaderboard yang beneran ngambil semua pemain di koleksi 'players'
+    // LEADERBOARD REAL-TIME (DIBUAT LEBIH SIMPEL BIAR GAK BUG)
     function initLeaderboard() {
-        const q = query(collection(db, "players"), orderBy("planetsCleared", "desc"), orderBy("consumed", "desc"), limit(5));
+        // Kita urutkan berdasarkan 'consumed' saja dulu agar tidak butuh Index rumit
+        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
+        
         onSnapshot(q, (snap) => {
             const list = document.getElementById('leaderboardList');
             list.innerHTML = "";
+            
+            if (snap.empty) {
+                list.innerHTML = "Belum ada pemain lain.";
+                return;
+            }
+
             snap.forEach(d => {
                 const p = d.data();
-                list.innerHTML += `<div class="entry ${d.id === deviceId ? 'me' : ''}"><span>${d.id}</span><span>🌍 ${p.planetsCleared} | 💰 ${Math.floor(p.consumed).toLocaleString()}</span></div>`;
+                const isMe = d.id === deviceId;
+                list.innerHTML += `
+                    <div class="entry ${isMe ? 'me' : ''}">
+                        <span>${d.id}</span>
+                        <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
+                    </div>`;
             });
-        }, (err) => { console.error("Leaderboard Error:", err); });
+            console.log("Leaderboard updated!");
+        }, (err) => {
+            console.error("Gagal real-time:", err);
+            // Jika error karena Index, link-nya akan muncul di Console (F12)
+        });
     }
 
     async function syncData() {
@@ -112,41 +128,71 @@
                 const cloud = snap.data();
                 const earned = Math.floor(((Date.now() - cloud.lastUpdate)/1000) * (cloud.afkPower || 0));
                 data = { ...cloud, consumed: cloud.consumed + earned, population: cloud.population - earned, lastUpdate: Date.now() };
-            } else { await setDoc(playerRef, data); }
+            } else { 
+                await setDoc(playerRef, data); 
+            }
             document.getElementById('connState').innerText = "ONLINE";
-            initLeaderboard();
             updateUI();
-        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
+        } catch (e) { 
+            document.getElementById('connState').innerText = "OFFLINE"; 
+        }
     }
 
-    const save = () => { data.lastUpdate = Date.now(); setDoc(playerRef, data, { merge: true }); };
+    // Fungsi Save yang langsung nembak ke server
+    const save = async () => { 
+        data.lastUpdate = Date.now(); 
+        try {
+            await setDoc(playerRef, data, { merge: true });
+        } catch(e) { console.log("Save error"); }
+    };
 
     document.getElementById('consumeBtn').onclick = () => {
-        data.population -= data.clickPower; data.consumed += data.clickPower;
-        if(navigator.vibrate) navigator.vibrate(25);
+        data.population -= data.clickPower; 
+        data.consumed += data.clickPower;
         updateUI();
-        if (data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
+        if (data.population <= 0) { 
+            data.planetsCleared++; 
+            data.population = 8000000000; 
+            save(); 
+        }
     };
 
     document.getElementById('btnClick').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost; data.clickPower++;
+            data.consumed -= data.clickCost; 
+            data.clickPower++;
             data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI(); save();
+            updateUI(); 
+            save();
         }
     };
 
     document.getElementById('btnAfk').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost; data.afkPower += 2;
+            data.consumed -= data.afkCost; 
+            data.afkPower += 2;
             data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI(); save();
+            updateUI(); 
+            save();
         }
     };
 
-    setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
-    setInterval(save, 10000); 
+    // Jalankan Leaderboard & Sync
     syncData();
+    initLeaderboard();
+
+    // Loop
+    setInterval(() => { 
+        if(data.afkPower > 0) { 
+            data.population -= data.afkPower; 
+            data.consumed += data.afkPower; 
+            updateUI(); 
+        } 
+    }, 1000);
+    
+    // Simpan tiap 5 detik biar leaderboard cepet update
+    setInterval(save, 5000); 
 </script>
+
 </body>
 </html>
