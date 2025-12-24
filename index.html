@@ -45,9 +45,13 @@
         }
         .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; text-align: center; }
 
-        .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
-        .me { color: var(--accent); font-weight: bold; }
+        /* --- LEADERBOARD STYLE UPDATE --- */
+        .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; text-align: left;}
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; align-items: center;}
+        .dot-online { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 5px #00ff00; }
+        .dot-offline { width: 8px; height: 8px; background: #444; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .me { color: var(--accent) !important; font-weight: bold; }
+        .btn-show { width: 100%; background: none; border: 1px dashed #444; color: #666; padding: 8px; margin-top: 10px; border-radius: 10px; cursor: pointer; font-size: 0.7rem;}
     </style>
 </head>
 <body>
@@ -79,8 +83,10 @@
     <a href="https://multiplayer-rslm.vercel.app/" class="btn-up btn-nav" id="navMulti">⚔️ MODE MULTIPLAYER</a>
 
     <div class="leaderboard">
-        <h3 style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem;">🏆 RANKING PREDATOR</h3>
+        <h3 id="rankTitle" style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem; cursor: pointer; user-select: none;">🏆 RANKING PREDATOR</h3>
         <div id="leaderboardList">Memuat...</div>
+        <div id="extraPlayers" style="display: none;"></div>
+        <button id="toggleRanks" class="btn-show" style="display: none;">Lihat Peringkat Lainnya ▼</button>
     </div>
 </div>
 
@@ -91,7 +97,8 @@
             • <b>GIGIT:</b> Makan populasi untuk koin 💰.<br>
             • <b>SPAM KLIK:</b> Musik latar akan mati total saat kamu sibuk klik.<br>
             • <b>AFK:</b> Virus otomatis bekerja meski game ditutup.<br>
-            • <b>SAVE:</b> Skor otomatis masuk Leaderboard Global.
+            • <b>ONLINE:</b> Titik hijau menandakan pemain sedang aktif.<br>
+            • <b>ADMIN:</b> Klik judul ranking 5x untuk menu hapus.
         </p>
         <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
     </div>
@@ -99,7 +106,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -124,18 +131,17 @@
     let muteTimeout;
 
     function playActionWithMute(sfx) {
-        sfx.volume = 0.5
+        sfx.volume = 0.5;
         sfx.currentTime = 0;
         sfx.play();
-        bgm.muted = true; // Musik mati total
+        bgm.muted = true; 
         
-        clearTimeout(muteTimeout); // Anti-ancur pas spam klik
+        clearTimeout(muteTimeout); 
         muteTimeout = setTimeout(() => {
-            bgm.muted = false; // Nyala lagi setelah jeda 0.5 detik dari klik terakhir
+            bgm.muted = false; 
         }, 500);
     }
 
-    // Mulai musik pas interaksi pertama
     document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
 
     // --- LOGIC GAME ---
@@ -185,23 +191,69 @@
             document.getElementById('connState').innerText = "ONLINE";
             initLeaderboard();
             updateUI();
+            
+            // Update status online tiap 20 detik
+            setInterval(() => {
+                updateDoc(playerRef, { lastActive: Date.now() }).catch(() => {});
+            }, 20000);
+
         } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
     }
 
+    // --- LEADERBOARD DENGAN FITUR TAMBAHAN ---
     function initLeaderboard() {
-        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(5));
+        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(30));
         onSnapshot(q, (snap) => {
-            const list = document.getElementById('leaderboardList');
-            list.innerHTML = "";
+            const list5 = document.getElementById('leaderboardList');
+            const listExtra = document.getElementById('extraPlayers');
+            const btn = document.getElementById('toggleRanks');
+            let html5 = "";
+            let htmlExtra = "";
+            let count = 0;
+            const now = Date.now();
+
             snap.forEach(d => {
+                count++;
                 const p = d.data();
-                list.innerHTML += `<div class="entry ${d.id === deviceId ? 'me' : ''}">
-                    <span>${d.id}</span>
+                const isOn = p.lastActive && (now - p.lastActive) < 60000;
+                const dot = `<span class="${isOn ? 'dot-online' : 'dot-offline'}"></span>`;
+                
+                const entry = `<div class="entry ${d.id === deviceId ? 'me' : ''}">
+                    <div style="display:flex; align-items:center;">${dot} ${count}. ${d.id}</div>
                     <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
                 </div>`;
+
+                if (count <= 5) html5 += entry;
+                else htmlExtra += entry;
             });
+
+            list5.innerHTML = html5;
+            listExtra.innerHTML = htmlExtra;
+            btn.style.display = count > 5 ? "block" : "none";
         });
     }
+
+    // Toggle Sembunyikan Peringkat
+    document.getElementById('toggleRanks').onclick = function() {
+        const ex = document.getElementById('extraPlayers');
+        const isHidden = ex.style.display === "none";
+        ex.style.display = isHidden ? "block" : "none";
+        this.innerText = isHidden ? "Sembunyikan Peringkat ▲" : "Lihat Peringkat Lainnya ▼";
+    };
+
+    // --- ADMIN TOOL: KLIK JUDUL 5X ---
+    let adminClick = 0;
+    document.getElementById('rankTitle').onclick = async () => {
+        adminClick++;
+        if(adminClick >= 5) {
+            adminClick = 0;
+            let target = prompt("ADMIN: Masukkan ID Pemain untuk dihapus:");
+            if(target && confirm("Hapus " + target + "?")) {
+                await deleteDoc(doc(db, "players", target.toUpperCase()));
+                alert("Berhasil dihapus.");
+            }
+        }
+    };
 
     const save = async () => {
         if (!deviceId) return;
