@@ -5,108 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Predator Bumi - Solo Master</title>
     <style>
-        :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; }
+    /* Efek Emas Mengkilap */
+.rank-gold {
+    background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    animation: shine 2s linear infinite;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+}
+
+/* Efek Perak */
+.rank-silver {
+    color: #c0c0c0;
+    font-weight: bold;
+    text-shadow: 0 0 3px rgba(192, 192, 192, 0.2);
+}
+
+@keyframes shine {
+    to { background-position: 200% center; }
+}
+
+.btn-more {
+    width: 100%;
+    background: none;
+    border: 1px dashed #444;
+    color: #888;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: 0.3s;
+}
+.btn-more:hover { border-color: #888; color: #fff; }
+
+/* Wadah untuk peringkat 6 ke bawah */
+#extraRanks {
+    display: none; /* Tersembunyi di awal */
+    margin-top: 5px;
+    border-top: 1px solid #222;
+}
+
+        :root { --primary: #ff3333; --accent: #ffd700; --bg: #080808; --success: #00ff00; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
             margin: 0; background: var(--bg); color: #eee; 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
-            overflow-x: hidden;
+            overflow-x: hidden; user-select: none;
         }
 
-        .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; }
+        /* Animasi Guncang */
+        @keyframes shakeBox {
+            0% { transform: translate(0,0); border-color: #fff; }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(5px, -5px); border-color: var(--primary); }
+            100% { transform: translate(0,0); border-color: #333; }
+        }
+        .shake-impact { animation: shakeBox 0.4s ease-in-out; }
+
+        /* Partikel Ledakan */
+        .particle {
+            position: absolute; background: white; border-radius: 50%;
+            pointer-events: none; z-index: 1;
+            animation: explode-particle 0.8s ease-out forwards;
+        }
+        @keyframes explode-particle {
+            0% { transform: translate(0,0); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+        }
+
+        .container { width: 100%; max-width: 400px; padding: 20px; text-align: center; position: relative; z-index: 2; }
         
-        .status-bar { font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; letter-spacing: -1px; }
+        /* Bonus Notification */
+        #frenzyStatus { 
+            display: none; background: var(--accent); color: #000; 
+            font-size: 0.7rem; font-weight: bold; padding: 5px; 
+            border-radius: 5px; margin-bottom: 10px; animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .stats-box { 
+            background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333; 
+            margin-bottom: 20px; box-shadow: 0 0 20px rgba(255,0,0,0.1); 
+            position: relative; overflow: hidden;
+        }
+        #population { color: var(--primary); font-weight: 900; font-size: 2.3rem; display: block; margin: 10px 0; letter-spacing: -1px; position: relative; z-index: 5; }
         
+        .hp-container { width: 100%; background: #222; height: 8px; border-radius: 10px; margin-top: 10px; overflow: hidden; position: relative; z-index: 5; }
+        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #600, #ff3333); transition: width 0.1s linear; }
+
         .btn-main { 
             width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; 
             background: linear-gradient(135deg, #cc0000, #600); border: none; border-radius: 25px; 
-            cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s;
+            cursor: pointer; box-shadow: 0 6px #400; outline: none; transition: 0.1s; position: relative; z-index: 10;
         }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px #200; }
 
         .action-card { background: #111; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #222; text-align: left; }
-        
-        .btn-up { 
-            width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; 
-            background: #222; color: #fff; border: 2px solid #444; 
-            border-radius: 12px; font-weight: bold; font-size: 0.9rem;
-            display: block; text-decoration: none; text-align: center;
-        }
-        .btn-up:disabled { opacity: 0.3; }
-        .btn-nav { background: #004d00; border-color: #00ff00; color: #00ff00; margin-top: 15px; }
+        .btn-up { width: 100%; padding: 14px; margin-top: 10px; cursor: pointer; background: #222; color: #fff; border: 2px solid #444; border-radius: 12px; font-weight: bold; text-align: center; text-decoration: none; display: block;}
+        .btn-up:disabled { opacity: 0.3; filter: grayscale(1); }
 
-        .modal-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+        .floating-text {
+            position: absolute; font-weight: bold;
+            pointer-events: none; animation: floatUp 0.8s ease-out forwards;
+            font-size: 1.2rem; z-index: 100;
         }
-        .modal-box { background: #111; border: 2px solid var(--primary); padding: 20px; border-radius: 20px; max-width: 320px; text-align: center; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
-        /* --- LEADERBOARD STYLE UPDATE --- */
         .leaderboard { margin-top: 30px; background: rgba(10,10,10,0.95); padding: 15px; border-radius: 20px; border: 1px solid #333; text-align: left;}
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.8rem; align-items: center;}
-        .dot-online { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 5px #00ff00; }
-        .dot-offline { width: 8px; height: 8px; background: #444; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.8rem; }
         .me { color: var(--accent) !important; font-weight: bold; }
-        .btn-show { width: 100%; background: none; border: 1px dashed #444; color: #666; padding: 8px; margin-top: 10px; border-radius: 10px; cursor: pointer; font-size: 0.7rem;}
+        /* Warna Biru biar beda dari tombol upgrade */
+button[onclick="transferKoin()"]:active {
+    transform: scale(0.95);
+    background: #002244;
+}
+
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div id="frenzyStatus">⚡ FRENZY MODE: DOUBLE DAMAGE (20s) ⚡</div>
+    
     <div class="status-bar">
         <span>PREDATOR: <b id="myId">---</b></span>
         <span id="connState">SINKRONISASI...</span>
     </div>
 
-    <div class="stats-box">
-        <small style="color:#888; letter-spacing: 2px;">POPULASI TERSISA</small>
+    <div class="stats-box" id="planetBox">
+        <small style="color:#888; letter-spacing: 2px; position: relative; z-index: 5;">POPULASI TERSISA</small>
         <span id="population">8.000.000.000</span>
-        <div style="font-size: 0.9rem; display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px;">
+        <div class="hp-container"><div id="hpBar"></div></div>
+        
+        <div style="font-size: 0.8rem; display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; position: relative; z-index: 5;">
             <span>💰 <b id="consumed">0</b></span>
-            <span>🌍 Planet <b id="planetCount">0</b></span>
+            <span>🎯 Klik: <b id="clickCountDisplay">0</b>/10k</span>
+            <span>🌍 <b id="planetCount">0</b></span>
         </div>
     </div>
 
     <button class="btn-main" id="consumeBtn">GIGIT!</button>
 
     <div class="action-card">
-        <small style="color:var(--accent); font-weight: bold; display: block; margin-bottom: 5px;">UPGRADE EVOLUSI</small>
-        <button class="btn-up" id="btnClick">🦷 GIGI (+1) | 💰 <span id="cCost">15</span></button>
-        <button class="btn-up" id="btnAfk">🧪 VIRUS (-2/s) | 💰 <span id="aCost">50</span></button>
-        <button class="btn-up" onclick="showHelp()" style="border-color: #555; color: #888; margin-top: 15px;">❓ CARA MAIN & INFO</button>
-    </div>
+        <button class="btn-up" id="btnClick">🦷 TAJAMKAN GIGI (+1) | 💰 <span id="cCost">15</span></button>
+        <button class="btn-up" id="btnAfk">🧪 VIRUS ANGKASA (-2/s) | 💰 <span id="aCost">50</span></button>
+    <button class="btn-up" onclick="transferKoin()" style="border-color: #0088ff; color: #00ccff; margin-top: 10px;">💸 TRANSFER KOIN</button>
 
-    <a href="https://gamesmash.vercel.app/" class="btn-up btn-nav" id="navMulti">🔥MAX Version🔥</a>
-
-    <div class="leaderboard">
-        <h3 id="rankTitle" style="margin: 0 0 15px 0; color: var(--accent); font-size: 1rem; cursor: pointer; user-select: none;">🏆 RANKING PREDATOR</h3>
-        <div id="leaderboardList">Memuat...</div>
-        <div id="extraPlayers" style="display: none;"></div>
-        <button id="toggleRanks" class="btn-show" style="display: none;">Lihat Peringkat Lainnya ▼</button>
     </div>
+<div class="leaderboard">
+    <h3 style="margin: 0 0 10px 0; color: var(--accent); font-size: 0.9rem; text-align: left;">🏆 RANKING PREDATOR SULTAN</h3>
+    
+    <div id="leaderboardList"></div>
+    
+    <div id="extraRanks"></div>
+    
+    <button id="btnShowMore" class="btn-more" onclick="toggleMoreRanks()" style="display:none;">Lihat Peringkat Lainnya ▼</button>
 </div>
 
-<div id="modalHelp" class="modal-overlay">
-    <div class="modal-box">
-        <h3 style="color:var(--primary); margin-top:0;">📖 Panduan Predator</h3>
-        <p style="font-size:0.85rem; color:#ccc; line-height:1.6; text-align: left;">
-            • <b>GIGIT:</b> Makan populasi untuk koin 💰.<br>
-            • <b>SPAM KLIK:</b> Musik latar akan mati total saat kamu sibuk klik.<br>
-            • <b>AFK:</b> Virus otomatis bekerja meski game ditutup.<br>
-            • <b>ONLINE:</b> Titik hijau menandakan pemain sedang aktif.<br>
-            • <b>MESSAGE:</b> KUNJUNGI MAX Version untuk fitur CHAT Online.<br>
-        </p>
-        <button onclick="closeHelp()" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">MENGERTI</button>
-    </div>
+
 </div>
 
 <script type="module">
+  
+  window.transferKoin = async () => {
+    const targetId = prompt("Masukkan ID Predator Penerima:").toUpperCase().replace(/\s/g, "_");
+    
+    if (targetId === deviceId) return alert("Nggak bisa kirim ke diri sendiri, bro!");
+    
+    const amount = parseInt(prompt("Mau transfer berapa koin?"));
+    
+    if (isNaN(amount) || amount <= 0) return alert("Jumlah koin nggak valid!");
+    if (data.consumed < amount) return alert("Koin kamu nggak cukup!");
+
+    const confirmTransfer = confirm(`Kirim 💰 ${amount.toLocaleString()} ke ${targetId}?`);
+    if (!confirmTransfer) return;
+
+    // Referensi Database
+    const pengirimRef = doc(db, "players", deviceId);
+    const penerimaRef = doc(db, "players", targetId);
+
+    try {
+        const snapPenerima = await getDoc(penerimaRef);
+        if (!snapPenerima.exists()) return alert("ID Predator penerima nggak ditemukan!");
+
+        // Proses Transfer Aman (Transaction)
+        // Duit pengirim dikurang, duit penerima ditambah
+        data.consumed -= amount; 
+        updateUI(); // Update tampilan biar koin langsung berkurang
+
+        await updateDoc(pengirimRef, { consumed: data.consumed });
+        const koinPenerimaLama = snapPenerima.data().consumed || 0;
+        await updateDoc(penerimaRef, { consumed: koinPenerimaLama + amount });
+
+        alert(`✅ Transfer Berhasil! 💰 ${amount.toLocaleString()} telah dikirim ke ${targetId}.`);
+        saveData(); // Simpan perubahan
+    } catch (e) {
+        console.error(e);
+        alert("Gagal transfer. Coba lagi nanti.");
+    }
+};
+
+  // Daftarkan fungsi ke window agar bisa dipencet dari HTML
+window.toggleMoreRanks = () => {
+    const extra = document.getElementById('extraRanks');
+    const btn = document.getElementById('btnShowMore');
+    
+    if (!extra || !btn) return; // Keamanan agar tidak error
+
+    if (extra.style.display === 'none' || extra.style.display === '') {
+        extra.style.display = 'block';
+        btn.innerText = 'Sembunyikan Peringkat ▲';
+        btn.style.borderColor = 'var(--primary)'; // Biar keren pas kebuka
+    } else {
+        extra.style.display = 'none';
+        btn.innerText = 'Lihat Peringkat Lainnya ▼';
+        btn.style.borderColor = '#444';
+    }
+};
+
+  // Update status online pemain ke database setiap 20 detik
+setInterval(() => {
+    if (deviceId) {
+        updateDoc(doc(db, "players", deviceId), { 
+            lastActive: Date.now() 
+        }).catch(() => {});
+    }
+}, 20000);
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -120,193 +252,233 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- AUDIO & MUSIC ---
     const sfxGigit = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
-    const sfxUpgrade = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
-    const sfxNav = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    const sfxExplode = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
     const bgm = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/descent/background%20music.mp3');
-    bgm.loop = true;
-    bgm.volume = 0.5;
+    bgm.loop = true; bgm.volume = 0.2;
 
-    let muteTimeout;
+    let deviceId = localStorage.getItem('solo_uid');
+    let data = { 
+        population: 8000000000, 
+        consumed: 0, 
+        clickPower: 1, 
+        clickCost: 15, 
+        afkPower: 0, 
+        afkCost: 50, 
+        planetsCleared: 0, 
+        lastUpdate: Date.now(),
+        manualClicks: 0, // Hitungan klik manual
+        frenzyUntil: 0   // Waktu bonus berakhir
+    };
+    const MAX_POP = 8000000000;
+    let isTransitioning = false;
 
-    function playActionWithMute(sfx) {
-        sfx.volume = 0.5;
-        sfx.currentTime = 0;
-        sfx.play();
-        bgm.muted = true; 
-        
-        clearTimeout(muteTimeout); 
-        muteTimeout = setTimeout(() => {
-            bgm.muted = false; 
-        }, 500);
+    function createExplosionEffect() {
+        const box = document.getElementById('planetBox');
+        box.classList.add('shake-impact');
+        sfxExplode.play();
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = '50%'; p.style.top = '50%';
+            p.style.width = Math.random() * 5 + 'px'; p.style.height = p.style.width;
+            p.style.backgroundColor = i % 2 === 0 ? 'var(--primary)' : 'var(--accent)';
+            const tx = (Math.random() - 0.5) * 300 + 'px';
+            const ty = (Math.random() - 0.5) * 300 + 'px';
+            p.style.setProperty('--tx', tx); p.style.setProperty('--ty', ty);
+            box.appendChild(p);
+            setTimeout(() => p.remove(), 800);
+        }
+        setTimeout(() => box.classList.remove('shake-impact'), 500);
     }
 
-    document.addEventListener('click', () => { if (bgm.paused) bgm.play(); }, { once: true });
-
-    // --- LOGIC GAME ---
-    let deviceId = localStorage.getItem('solo_uid');
-    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, lastUpdate: Date.now() };
-
-    window.showHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'flex'; };
-    window.closeHelp = () => { playActionWithMute(sfxNav); document.getElementById('modalHelp').style.display = 'none'; };
+    function createFloatingText(text, x, y, color) {
+        const el = document.createElement('div');
+        el.className = 'floating-text';
+        el.innerText = text;
+        el.style.left = `${x}px`; el.style.top = `${y}px`;
+        el.style.color = color;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 800);
+    }
 
     async function checkIdentity() {
         if (!deviceId) {
-            let chosenName = prompt("DAFTAR NAMA PREDATOR:");
-            if (!chosenName || chosenName.length < 3) return checkIdentity();
-            chosenName = chosenName.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase();
-            const nameRef = doc(db, "players", chosenName);
-            const nameSnap = await getDoc(nameRef);
-            if (nameSnap.exists()) { alert("Nama sudah dipakai!"); return checkIdentity(); }
-            deviceId = chosenName;
+            let name = prompt("NAMA PREDATOR:");
+            if (!name) return checkIdentity();
+            deviceId = name.toUpperCase().replace(/\s/g, "_");
             localStorage.setItem('solo_uid', deviceId);
-            await setDoc(nameRef, data);
+            await setDoc(doc(db, "players", deviceId), data);
         }
         document.getElementById('myId').innerText = deviceId;
-        startGamer();
+        startApp();
+    }
+
+    async function startApp() {
+        const snap = await getDoc(doc(db, "players", deviceId));
+        if (snap.exists()) data = { ...data, ...snap.data() };
+        document.getElementById('connState').innerText = "ONLINE";
+        initLeaderboard();
+        updateUI();
+        setInterval(saveData, 15000);
+        setInterval(() => { 
+            if(data.afkPower > 0) { processHit(data.afkPower, false); updateUI(); }
+            checkFrenzyStatus();
+        }, 1000);
+    }
+
+    function checkFrenzyStatus() {
+        const now = Date.now();
+        const status = document.getElementById('frenzyStatus');
+        if (now < data.frenzyUntil) {
+            status.style.display = 'block';
+        } else {
+            status.style.display = 'none';
+        }
     }
 
     function updateUI() {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
+        document.getElementById('population').innerText = Math.floor(data.population).toLocaleString('id-ID');
         document.getElementById('consumed').innerText = Math.floor(data.consumed).toLocaleString('id-ID');
         document.getElementById('planetCount').innerText = data.planetsCleared;
         document.getElementById('cCost').innerText = data.clickCost.toLocaleString('id-ID');
         document.getElementById('aCost').innerText = data.afkCost.toLocaleString('id-ID');
+        document.getElementById('clickCountDisplay').innerText = (data.manualClicks || 0).toLocaleString();
+        document.getElementById('hpBar').style.width = (data.population / MAX_POP * 100) + "%";
         document.getElementById('btnClick').disabled = data.consumed < data.clickCost;
         document.getElementById('btnAfk').disabled = data.consumed < data.afkCost;
     }
 
-    async function startGamer() {
-        const playerRef = doc(db, "players", deviceId);
-        try {
-            const snap = await getDoc(playerRef);
-            if (snap.exists()) {
-                const cloud = snap.data();
-                const now = Date.now();
-                const diff = Math.floor((now - (cloud.lastUpdate || now)) / 1000);
-                const earned = diff * (cloud.afkPower || 0);
-                data = { ...cloud, consumed: (cloud.consumed || 0) + earned, population: (cloud.population || 8000000000) - earned, lastUpdate: now };
-            }
-            document.getElementById('connState').innerText = "ONLINE";
-            initLeaderboard();
-            updateUI();
-            
-            // Update status online tiap 20 detik
-            setInterval(() => {
-                updateDoc(playerRef, { lastActive: Date.now() }).catch(() => {});
-            }, 20000);
+    function processHit(amt, isManual) {
+        if (isTransitioning) return;
+        
+        let finalAmt = amt;
+        // Cek jika sedang dalam mode Frenzy
+        if (isManual && Date.now() < (data.frenzyUntil || 0)) {
+            finalAmt = amt * 2;
+        }
 
-        } catch (e) { document.getElementById('connState').innerText = "OFFLINE"; }
-    }
+        data.population -= finalAmt;
+        data.consumed += finalAmt;
 
-    // --- LEADERBOARD DENGAN FITUR TAMBAHAN ---
-    function initLeaderboard() {
-        const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(30));
-        onSnapshot(q, (snap) => {
-            const list5 = document.getElementById('leaderboardList');
-            const listExtra = document.getElementById('extraPlayers');
-            const btn = document.getElementById('toggleRanks');
-            let html5 = "";
-            let htmlExtra = "";
-            let count = 0;
-            const now = Date.now();
-
-            snap.forEach(d => {
-                count++;
-                const p = d.data();
-                const isOn = p.lastActive && (now - p.lastActive) < 60000;
-                const dot = `<span class="${isOn ? 'dot-online' : 'dot-offline'}"></span>`;
-                
-                const entry = `<div class="entry ${d.id === deviceId ? 'me' : ''}">
-                    <div style="display:flex; align-items:center;">${dot} ${count}. ${d.id}</div>
-                    <span>🌍 ${p.planetsCleared || 0} | 💰 ${Math.floor(p.consumed || 0).toLocaleString()}</span>
-                </div>`;
-
-                if (count <= 5) html5 += entry;
-                else htmlExtra += entry;
-            });
-
-            list5.innerHTML = html5;
-            listExtra.innerHTML = htmlExtra;
-            btn.style.display = count > 5 ? "block" : "none";
-        });
-    }
-
-    // Toggle Sembunyikan Peringkat
-    document.getElementById('toggleRanks').onclick = function() {
-        const ex = document.getElementById('extraPlayers');
-        const isHidden = ex.style.display === "none";
-        ex.style.display = isHidden ? "block" : "none";
-        this.innerText = isHidden ? "Sembunyikan Peringkat ▲" : "Lihat Peringkat Lainnya ▼";
-    };
-
-    // --- ADMIN TOOL: KLIK JUDUL 5X ---
-    let adminClick = 0;
-    document.getElementById('rankTitle').onclick = async () => {
-        adminClick++;
-        if(adminClick >= 5) {
-            adminClick = 0;
-            let target = prompt("ADMIN: Masukkan ID Pemain untuk dihapus:");
-            if(target && confirm("Hapus " + target + "?")) {
-                await deleteDoc(doc(db, "players", target.toUpperCase()));
-                alert("Berhasil dihapus.");
+        if (isManual) {
+            data.manualClicks = (data.manualClicks || 0) + 1;
+            // Hadiah 10.000 klik
+            if (data.manualClicks >= 10000) {
+                data.manualClicks = 0; // Reset hitungan
+                data.frenzyUntil = Date.now() + 20000; // Tambah 20 detik (20000ms)
             }
         }
-    };
 
-    const save = async () => {
+        if (data.population <= 0) {
+            isTransitioning = true;
+            data.population = 0;
+            createExplosionEffect();
+            setTimeout(() => {
+                data.planetsCleared++;
+                data.population = MAX_POP;
+                isTransitioning = false;
+                updateUI();
+                saveData();
+            }, 800);
+        }
+        return finalAmt;
+    }
+
+    async function saveData() {
         if (!deviceId) return;
-        data.lastUpdate = Date.now();
-        await setDoc(doc(db, "players", deviceId), data, { merge: true });
-    };
+        await updateDoc(doc(db, "players", deviceId), { ...data, lastActive: Date.now() });
+    }
 
-    // --- BUTTON ACTIONS ---
-    document.getElementById('consumeBtn').onclick = () => {
-        playActionWithMute(sfxGigit);
-        data.population -= data.clickPower;
-        data.consumed += data.clickPower;
-        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
-        if(navigator.vibrate) navigator.vibrate(25);
+    document.getElementById('consumeBtn').onclick = (e) => {
+        if (bgm.paused) bgm.play();
+        if (isTransitioning) return;
+        sfxGigit.currentTime = 0; sfxGigit.play();
+        
+        const damageDealt = processHit(data.clickPower, true);
+        
+        const isFrenzy = Date.now() < data.frenzyUntil;
+        createFloatingText(`-${damageDealt}`, e.clientX, e.clientY, isFrenzy ? 'var(--accent)' : 'var(--primary)');
         updateUI();
     };
 
     document.getElementById('btnClick').onclick = () => {
-        if(data.consumed >= data.clickCost) {
-            playActionWithMute(sfxUpgrade);
+        if (data.consumed >= data.clickCost) {
             data.consumed -= data.clickCost;
             data.clickPower++;
-            data.clickCost = Math.floor((data.clickCost + (data.clickPower * 5)) * 1.5);
-            updateUI(); save();
+            data.clickCost = Math.floor(data.clickCost * 1.8);
+            updateUI(); saveData();
         }
     };
 
     document.getElementById('btnAfk').onclick = () => {
-        if(data.consumed >= data.afkCost) {
-            playActionWithMute(sfxUpgrade);
+        if (data.consumed >= data.afkCost) {
             data.consumed -= data.afkCost;
             data.afkPower += 2;
-            data.afkCost = Math.floor((data.afkCost + (data.afkPower * 10)) * 1.6);
-            updateUI(); save();
+            data.afkCost = Math.floor(data.afkCost * 1.8);
+            updateUI(); saveData();
         }
     };
 
-    document.getElementById('navMulti').onclick = (e) => {
-        e.preventDefault();
-        playActionWithMute(sfxNav);
-        setTimeout(() => { window.location.href = 'https://gamesmash.vercel.app/'; }, 450);
-    };
+function initLeaderboard() {
+    // Ambil 30 pemain teratas
+    const q = query(collection(db, "players"), orderBy("consumed", "desc"), limit(30));
+    
+    onSnapshot(q, (snap) => {
+        let htmlTop5 = "";
+        let htmlOthers = "";
+        let i = 1;
+        const now = Date.now();
+
+        snap.forEach(d => {
+            const p = d.data();
+            const isMe = d.id === deviceId;
+            const money = Math.floor(p.consumed || 0).toLocaleString('id-ID');
+            const planets = p.planetsCleared || 0;
+            
+            // --- LOGIKA ONLINE STATUS ---
+            // Cek jika lastActive ada dan kurang dari 60 detik yang lalu
+            const isOnline = p.lastActive && (now - p.lastActive) < 60000;
+            const statusDot = isOnline 
+                ? '<span class="dot-online" style="width:8px; height:8px; background:#00ff00; border-radius:50%; display:inline-block; margin-right:5px; box-shadow:0 0 5px #00ff00;"></span>' 
+                : '<span class="dot-offline" style="width:8px; height:8px; background:#444; border-radius:50%; display:inline-block; margin-right:5px;"></span>';
+
+            // Tentukan kelas warna (Emas untuk 1-5, Perak untuk sisanya)
+            const nameClass = i <= 5 ? 'rank-gold' : 'rank-silver';
+
+            const entry = `
+                <div class="entry ${isMe ? 'me' : ''}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1a1a1a;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="${nameClass}" style="font-size: 0.9rem; display: flex; align-items: center;">
+                            ${statusDot} ${i}. ${d.id} ${isMe ? '⭐' : ''}
+                        </span>
+                        <span style="font-size: 0.75rem; color: #888; padding-left: 13px;">💰 ${money}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.8rem; color: #eee;">🌍 ${planets}</span>
+                    </div>
+                </div>`;
+
+            if (i <= 5) {
+                htmlTop5 += entry;
+            } else {
+                htmlOthers += entry;
+            }
+            i++;
+        });
+
+        document.getElementById('leaderboardList').innerHTML = htmlTop5;
+        document.getElementById('extraRanks').innerHTML = htmlOthers;
+        
+        const btn = document.getElementById('btnShowMore');
+        if (btn) btn.style.display = i > 6 ? 'block' : 'none';
+    });
+}
+
+
 
     checkIdentity();
-    setInterval(() => { 
-        if(data.afkPower > 0) { 
-            data.population -= data.afkPower; 
-            data.consumed += data.afkPower; 
-            if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; save(); }
-            updateUI(); 
-        } 
-    }, 1000);
-    setInterval(save, 15000);
 </script>
 </body>
 </html>
+
