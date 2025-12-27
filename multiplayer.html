@@ -5,6 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Predator Bumi - GALACTIC MAX</title>
     <style>
+        .entry-max {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(0, 242, 255, 0.1);
+    transition: 0.3s;
+}
+
+.entry-max:hover {
+    background: rgba(0, 242, 255, 0.05);
+    border-color: var(--neon);
+}
+
+.planet-badge {
+    background: linear-gradient(135deg, #222, #000);
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid #444;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+        
         :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.8); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -347,21 +375,38 @@ document.getElementById('biteBtn').onclick = (e) => {
     };
 
     function initRank() {
-        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(25)), (s) => {
-            let h1 = "", h2 = "", i = 1; const now = Date.now();
-            s.forEach(d => {
-                const p = d.data(); const isOn = p.lastActive && (now - p.lastActive) < 60000;
-                const row = `<div class="entry" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05)">
-                    <span class="${i<=5?'rank-gold':''}" style="font-size:0.9rem">
-                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; display:inline-block; margin-right:5px;"></span>${i}. ${d.id}
-                    </span>
-                    <span style="color:#aaa; font-size:0.75rem">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
+    onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
+        let h1 = "", h2 = "", count = 0;
+        const now = Date.now();
+
+        snap.forEach(d => {
+            count++;
+            const p = d.data();
+            const isOn = p.lastActive && (now - p.lastActive) < 60000;
+            const planets = p.planetsCleared || 0; // Mengambil data planet
+
+            const row = `
+                <div class="entry-max">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:8px; height:8px; background:${isOn ? '#0f0' : '#444'}; border-radius:50%; box-shadow:${isOn ? '0 0 8px #0f0' : 'none'};"></span>
+                        <div style="display:flex; flex-direction:column;">
+                            <span class="${count <= 5 ? 'rank-gold' : ''}" style="font-size:0.9rem; font-weight:bold;">${count}. ${d.id}</span>
+                            <span style="color:var(--accent); font-size:0.7rem;">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="planet-badge">
+                        🌍 ${planets}
+                    </div>
                 </div>`;
-                if(i <= 5) h1 += row; else h2 += row; i++;
-            });
-            document.getElementById('rankList').innerHTML = h1; document.getElementById('extraList').innerHTML = h2;
+
+            if (count <= 5) h1 += row; else h2 += row;
         });
-    }
+
+        document.getElementById('rankList').innerHTML = h1;
+        document.getElementById('extraList').innerHTML = h2;
+    });
+}
+
 
     window.toggleRanks = () => {
         const ex = document.getElementById('extraList');
