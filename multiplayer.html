@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Predator Bumi - GALACTIC MAX</title>
+    <style>
+        :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.8); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        /* --- BACKGROUND ANIMASI BERAT (MAX ONLY) --- */
+        body { 
+            margin: 0; background: #000; color: #fff;
+            font-family: 'Orbitron', 'Segoe UI', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
+        }
+        
+        .space-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            z-index: -1; overflow: hidden;
+        }
+
+        /* Bintang Bergerak */
+        .stars {
+            position: absolute; width: 2px; height: 2px; background: white;
+            opacity: 0.5; box-shadow: 0 0 10px white;
+            animation: moveStars 20s linear infinite;
+        }
+        @keyframes moveStars {
+            from { transform: translateY(0); }
+            to { transform: translateY(-2000px); }
+        }
+
+        .container { width: 100%; max-width: 420px; padding: 25px; z-index: 2; }
+
+        /* --- UI WOW: NEON GLASS --- */
+        .stats-box, .action-card, .leaderboard, .chat-room { 
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 25px; padding: 20px; margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); backdrop-filter: blur(20px);
+        }
+
+        #population { 
+            color: var(--primary); font-weight: 900; font-size: 2.8rem; 
+            text-align: center; display: block; 
+            text-shadow: 0 0 20px #ff0033, 0 0 40px #660000;
+            letter-spacing: -2px; margin: 15px 0;
+        }
+
+        /* --- BUTTON PREMIUM --- */
+        .btn-main { 
+            width: 100%; padding: 50px 10px; font-size: 2.5rem; font-weight: 900; color: #fff; 
+            background: linear-gradient(45deg, #ff0033, #660000); 
+            border: 2px solid rgba(255,255,255,0.3); border-radius: 30px;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255,0,51,0.4);
+            transition: 0.2s; text-transform: uppercase;
+        }
+        .btn-main::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg); animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
+        .btn-main:active { transform: scale(0.92); box-shadow: 0 5px 15px #ff0033; }
+
+        .btn-up { 
+            width: 100%; padding: 16px; margin-top: 12px; background: rgba(0, 242, 255, 0.05); 
+            color: var(--neon); border: 1px solid var(--neon); border-radius: 15px; 
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-up:hover { background: rgba(0, 242, 255, 0.2); }
+        .btn-up:disabled { opacity: 0.2; border-color: #444; color: #444; }
+
+        /* FRENZY ALERT */
+        #frenzyBox {
+            display: none; background: linear-gradient(90deg, #ffd700, #ff0033);
+            color: #000; font-weight: 900; padding: 10px; border-radius: 15px;
+            margin-bottom: 15px; text-align: center; animation: pulse 0.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* CHAT ROOM WHITE MAX */
+        .chat-room { background: rgba(255, 255, 255, 0.95); color: #000; border: none; }
+        .chat-box { height: 150px; overflow-y: auto; font-family: sans-serif; }
+        .chat-msg { background: #eee; padding: 8px 12px; border-radius: 15px; margin-bottom: 6px; font-size: 0.85rem; border-left: 5px solid var(--primary); }
+
+        /* LEADERBOARD GOLD */
+        .rank-gold {
+            background: linear-gradient(90deg, #ffd700, #fff, #ffd700, #fff); background-size: 200%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 900; animation: goldMove 2s infinite linear;
+        }
+        @keyframes goldMove { to { background-position: 200%; } }
+
+        .hp-container { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; border: 1px solid #444; }
+        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: width 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+
+        .particle { position: absolute; pointer-events: none; border-radius: 50%; z-index: 10; animation: explode 0.8s ease-out forwards; }
+        @keyframes explode { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+        .floating-damage {
+    position: absolute;
+    pointer-events: none;
+    font-weight: 900;
+    font-size: 1.5rem;
+    font-family: 'Orbitron', sans-serif;
+    z-index: 1000;
+    animation: floatCritical 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+@keyframes floatCritical {
+    0% { transform: scale(0.5) translateY(0); opacity: 1; }
+    50% { transform: scale(1.2) translateY(-50px); opacity: 1; }
+    100% { transform: scale(1) translateY(-120px); opacity: 0; }
+}
+
+/* Tambahan agar font Orbitron masuk */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+
+    </style>
+</head>
+<body>
+
+<div class="space-bg" id="space"></div>
+
+<div class="container">
+    <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL DAMAGE ☢️</div>
+
+    <div style="font-size: 0.75rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 15px; text-shadow: 0 0 5px var(--neon);">
+        <span>PREDATOR: <b id="pId">---</b></span>
+        <span id="connState">SINKRONISASI...</span>
+    </div>
+
+    <div class="stats-box" id="planetBox">
+        <small style="color:#888; letter-spacing: 3px; font-size: 0.6rem;">PLANETARY POPULATION</small>
+        <span id="population">8.000.000.000</span>
+        <div class="hp-container"><div id="hpBar"></div></div>
+        <div style="font-size: 0.85rem; display: flex; justify-content: space-between; font-weight: bold;">
+            <span>💰 <b id="money" style="color:var(--accent)">0</b></span>
+            <span>🎯 <b id="clickTask" style="color:var(--neon)">0</b>/10k</span>
+            <span>🌍 <b id="planet">0</b></span>
+        </div>
+    </div>
+
+    <button class="btn-main" id="biteBtn">DESTROY!</button>
+
+
+    <div class="action-card">
+        <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
+        <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
+        <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
+    <a href="https://faqih-roda.vercel.app/" target="_blank" style="text-decoration: none;">
+        <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">
+            🥔
+        </button>
+    </a>
+    </div>
+
+    <div class="chat-room">
+        <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
+        <div style="display:flex; gap:8px; margin-top: 10px;">
+            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd;" placeholder="Pesan Antar Bintang..." maxlength="30">
+            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:10px 15px; border-radius:12px; font-weight:900;">></button>
+        </div>
+    </div>
+
+    <div class="leaderboard">
+        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center; text-shadow: 0 0 10px var(--neon);">🏆 SUPREME PREDATORS</h3>
+        <div id="rankList"></div>
+        <div id="extraList" style="display:none;"></div>
+        <button id="btnToggle" onclick="window.toggleRanks()" style="width:100%; background:none; border:none; color:#555; cursor:pointer; margin-top:15px; font-weight: bold;">[ LIHAT RANKING LAINNYA ]</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, deleteDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
+        authDomain: "fruitsmasmaster.firebaseapp.com",
+        projectId: "fruitsmasmaster",
+        storageBucket: "fruitsmasmaster.firebasestorage.app",
+        messagingSenderId: "673530855742",
+        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const sfxBite = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
+    const sfxExplode = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+
+    let id = localStorage.getItem('solo_uid');
+    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0 };
+    const MAX_POP = 8000000000;
+    let isTransitioning = false;
+
+    // --- EFFECT: BINTANG BERGERAK (MAX VERSION) ---
+    function initStars() {
+        const space = document.getElementById('space');
+        for(let i=0; i<100; i++) {
+            const s = document.createElement('div');
+            s.className = 'stars';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            s.style.animationDelay = Math.random() * 20 + 's';
+            space.appendChild(s);
+        }
+    }
+
+    async function init() {
+        initStars();
+        if(!id) {
+            let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
+            if(!n || n.length < 3) return init();
+            id = n.toUpperCase().replace(/\s/g, "_");
+            const check = await getDoc(doc(db, "players", id));
+            if(check.exists()) { alert("ID sudah terdaftar!"); return init(); }
+            localStorage.setItem('solo_uid', id);
+            await setDoc(doc(db, "players", id), data);
+        }
+        document.getElementById('pId').innerText = id;
+        const snap = await getDoc(doc(db, "players", id));
+        if(snap.exists()) data = { ...data, ...snap.data() };
+        initChat(); initRank(); updateUI();
+        setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
+        setInterval(() => { if(id) updateDoc(doc(db, "players", id), { ...data, lastActive: Date.now() }); }, 15000);
+    }
+
+    function createExplosion() {
+        const box = document.getElementById('planetBox');
+        sfxExplode.play();
+        box.style.animation = 'shake 0.5s infinite';
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = '50%'; p.style.top = '50%';
+            p.style.width = Math.random() * 8 + 'px'; p.style.height = p.style.width;
+            p.style.backgroundColor = i % 2 === 0 ? 'var(--primary)' : 'var(--neon)';
+            p.style.setProperty('--tx', (Math.random()-0.5)*400 + 'px');
+            p.style.setProperty('--ty', (Math.random()-0.5)*400 + 'px');
+            box.appendChild(p);
+            setTimeout(() => p.remove(), 800);
+        }
+        setTimeout(() => box.style.animation = '', 500);
+    }
+
+    function processHit(amt, isManual) {
+        if(isTransitioning) return;
+        let power = amt;
+        if(isManual && Date.now() < data.frenzyUntil) power *= 2;
+        data.population -= power; data.consumed += power;
+        if(isManual) {
+            data.manualClicks++;
+            if(data.manualClicks >= 10000) { data.manualClicks = 0; data.frenzyUntil = Date.now() + 20000; }
+        }
+        if(data.population <= 0) {
+            isTransitioning = true; data.population = 0;
+            createExplosion();
+            setTimeout(() => {
+                data.planetsCleared++; data.population = MAX_POP;
+                isTransitioning = false; updateUI();
+            }, 800);
+        }
+        return power;
+    }
+
+document.getElementById('biteBtn').onclick = (e) => {
+    // 1. Suara & Getar
+    sfxBite.currentTime = 0; 
+    sfxBite.play();
+    if(navigator.vibrate) navigator.vibrate(40);
+
+    // 2. Hitung Damage
+    const isFrenzy = Date.now() < data.frenzyUntil;
+    const damageDealt = processHit(data.clickPower, true);
+
+    // 3. Munculkan Angka "Neon Damage Burst"
+    const damageEl = document.createElement('div');
+    damageEl.className = 'floating-damage';
+    
+    // Tentukan warna & teks (Kalau Frenzy dikasih tanda !)
+    damageEl.innerText = isFrenzy ? `-${damageDealt}!!` : `-${damageDealt}`;
+    damageEl.style.color = isFrenzy ? 'var(--accent)' : 'var(--primary)';
+    
+    // Posisi muncul (acak sedikit biar estetik)
+    const rect = e.target.getBoundingClientRect();
+    const x = e.clientX || (rect.left + rect.width / 2);
+    const y = e.clientY || (rect.top + rect.height / 2);
+    
+    damageEl.style.left = `${x + (Math.random() * 60 - 30)}px`;
+    damageEl.style.top = `${y - 20}px`;
+
+    document.body.appendChild(damageEl);
+
+    // Hapus elemen setelah animasi selesai
+    setTimeout(() => damageEl.remove(), 700);
+
+    updateUI();
+};
+
+
+    function updateUI() {
+        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
+        document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
+        document.getElementById('planet').innerText = data.planetsCleared;
+        document.getElementById('clickTask').innerText = data.manualClicks.toLocaleString();
+        document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
+        document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
+        document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
+        document.getElementById('frenzyBox').style.display = Date.now() < data.frenzyUntil ? 'block' : 'none';
+        document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
+        document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
+    }
+
+    window.transferKoin = async () => {
+        const target = prompt("ID TARGET:").toUpperCase().replace(/\s/g, "_");
+        if(target === id) return alert("Jangan transfer ke diri sendiri!");
+        const amt = parseInt(prompt("JUMLAH TRANSFER:"));
+        if(isNaN(amt) || amt <= 0 || data.consumed < amt) return alert("Gagal Transfer!");
+        const snap = await getDoc(doc(db, "players", target));
+        if(!snap.exists()) return alert("ID tak ditemukan!");
+        data.consumed -= amt;
+        await updateDoc(doc(db, "players", id), { consumed: data.consumed });
+        await updateDoc(doc(db, "players", target), { consumed: (snap.data().consumed || 0) + amt });
+        alert("Transfer Sukses!"); updateUI();
+    };
+
+    function initChat() {
+        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(15)), (s) => {
+            let h = ""; s.docs.reverse().forEach(d => {
+                const m = d.data(); h += `<div class="chat-msg"><b>${m.sender}:</b> ${m.text}</div>`;
+            });
+            document.getElementById('chatBox').innerHTML = h; document.getElementById('chatBox').scrollTop = 999;
+        });
+    }
+
+    document.getElementById('sendChat').onclick = async () => {
+        const i = document.getElementById('chatInput');
+        if(i.value.trim()) {
+            await addDoc(collection(db, "messages"), { sender: id, text: i.value, createdAt: serverTimestamp() });
+            i.value = "";
+        }
+    };
+
+    function initRank() {
+        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(25)), (s) => {
+            let h1 = "", h2 = "", i = 1; const now = Date.now();
+            s.forEach(d => {
+                const p = d.data(); const isOn = p.lastActive && (now - p.lastActive) < 60000;
+                const row = `<div class="entry" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span class="${i<=5?'rank-gold':''}" style="font-size:0.9rem">
+                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; display:inline-block; margin-right:5px;"></span>${i}. ${d.id}
+                    </span>
+                    <span style="color:#aaa; font-size:0.75rem">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
+                </div>`;
+                if(i <= 5) h1 += row; else h2 += row; i++;
+            });
+            document.getElementById('rankList').innerHTML = h1; document.getElementById('extraList').innerHTML = h2;
+        });
+    }
+
+    window.toggleRanks = () => {
+        const ex = document.getElementById('extraList');
+        ex.style.display = ex.style.display === "none" ? "block" : "none";
+    };
+
+    init();
+</script>
+</body>
+</html>
+
