@@ -275,13 +275,20 @@
     }
 
     const save = async () => { 
-        if(id && !isTransitioning) { 
-            await updateDoc(doc(db, "players", id), { 
+    if(id && !isTransitioning) { 
+        try {
+            const playerRef = doc(db, "players", id);
+            await updateDoc(playerRef, { 
                 ...data, 
                 lastActive: Date.now() 
             }); 
-        } 
-    };
+            console.log("✅ Auto-save Berhasil: Waktu Aktif Diperbarui!");
+        } catch (e) {
+            console.error("❌ Gagal save:", e);
+        }
+    } 
+};
+
 
     function processHit(amt, isManual) {
         if(isTransitioning) return;
