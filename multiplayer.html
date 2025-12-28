@@ -251,9 +251,32 @@
             await setDoc(doc(db, "players", id), data);
         }
         document.getElementById('pId').innerText = id;
-        const snap = await getDoc(doc(db, "players", id));
-        if(snap.exists()) data = { ...data, ...snap.data() };
-        initChat(); initRank(); updateUI();
+            if(snap.exists()) {
+        data = { ...data, ...snap.data() };
+        
+        // --- LOGIKA AFK OFFLINE ---
+        if (data.lastActive && data.afkPower > 0) {
+            const sekarang = Date.now();
+            const selisihDetik = Math.floor((sekarang - data.lastActive) / 1000);
+            
+            // Kita batasi maksimal offline 24 jam (86400 detik) biar gak overload
+            const waktuDihitung = Math.min(selisihDetik, 86400); 
+            const koinDihasilkan = waktuDihitung * data.afkPower;
+
+            if (koinDihasilkan > 0) {
+                data.consumed += koinDihasilkan;
+                data.population -= koinDihasilkan; // Populasi juga berkurang
+                
+                // Kasih notifikasi biar pemain seneng
+                setTimeout(() => {
+                    alert(`🚀 WELCOME BACK!\nVirus kamu tetap bekerja saat kamu tidur.\nKamu dapet: 💰 ${koinDihasilkan.toLocaleString()} koin!`);
+                    updateUI();
+                }, 1000);
+            }
+        }
+    }
+            if(snap.exists()) data = { ...data, ...snap.data() };
+        (); initRank(); updateUI();
         setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
         setInterval(() => { if(id) updateDoc(doc(db, "players", id), { ...data, lastActive: Date.now() }); }, 15000);
     }
@@ -412,7 +435,15 @@ document.getElementById('biteBtn').onclick = (e) => {
         const ex = document.getElementById('extraList');
         ex.style.display = ex.style.display === "none" ? "block" : "none";
     };
-
+const save = async () => { 
+    if(id) { 
+        await updateDoc(doc(db, "players", id), { 
+            ...data, 
+            lastActive: Date.now() // Ini kunci utamanya!
+        }); 
+    } 
+};
+    
     init();
 </script>
 </body>
