@@ -204,7 +204,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, deleteDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -222,170 +222,141 @@
     const sfxExplode = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
 
     let id = localStorage.getItem('solo_uid');
-    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0 };
+    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0, lastActive: Date.now() };
     const MAX_POP = 8000000000;
     let isTransitioning = false;
 
-    // --- EFFECT: BINTANG BERGERAK (MAX VERSION) ---
-    function initStars() {
-        const space = document.getElementById('space');
-        for(let i=0; i<100; i++) {
-            const s = document.createElement('div');
-            s.className = 'stars';
-            s.style.left = Math.random() * 100 + '%';
-            s.style.top = Math.random() * 100 + '%';
-            s.style.animationDelay = Math.random() * 20 + 's';
-            space.appendChild(s);
-        }
-    }
-
     async function init() {
-        initStars();
         if(!id) {
             let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
             if(!n || n.length < 3) return init();
             id = n.toUpperCase().replace(/\s/g, "_");
-            const check = await getDoc(doc(db, "players", id));
-            if(check.exists()) { alert("ID sudah terdaftar!"); return init(); }
             localStorage.setItem('solo_uid', id);
             await setDoc(doc(db, "players", id), data);
         }
-        document.getElementById('pId').innerText = id;
-            if(snap.exists()) {
-        data = { ...data, ...snap.data() };
         
-        // --- LOGIKA AFK OFFLINE ---
-        if (data.lastActive && data.afkPower > 0) {
-            const sekarang = Date.now();
-            const selisihDetik = Math.floor((sekarang - data.lastActive) / 1000);
+        document.getElementById('pId').innerText = id;
+        const snap = await getDoc(doc(db, "players", id));
+        
+        if(snap.exists()) {
+            const dbData = snap.data();
             
-            // Kita batasi maksimal offline 24 jam (86400 detik) biar gak overload
-            const waktuDihitung = Math.min(selisihDetik, 86400); 
-            const koinDihasilkan = waktuDihitung * data.afkPower;
+            // --- LOGIKA AFK OFFLINE ---
+            if (dbData.lastActive && dbData.afkPower > 0) {
+                const sekarang = Date.now();
+                const selisihDetik = Math.floor((sekarang - dbData.lastActive) / 1000);
+                const waktuDihitung = Math.min(selisihDetik, 86400); // Max 24 jam
+                const koinDihasilkan = waktuDihitung * dbData.afkPower;
 
-            if (koinDihasilkan > 0) {
-                data.consumed += koinDihasilkan;
-                data.population -= koinDihasilkan; // Populasi juga berkurang
-                
-                // Kasih notifikasi biar pemain seneng
-                setTimeout(() => {
-                    alert(`🚀 WELCOME BACK!\nVirus kamu tetap bekerja saat kamu tidur.\nKamu dapet: 💰 ${koinDihasilkan.toLocaleString()} koin!`);
-                    updateUI();
-                }, 1000);
+                if (koinDihasilkan > 10) {
+                    dbData.consumed = (dbData.consumed || 0) + koinDihasilkan;
+                    dbData.population = (dbData.population || MAX_POP) - koinDihasilkan;
+                    setTimeout(() => {
+                        alert(`🚀 WELCOME BACK!\nVirus kamu dapet: 💰 ${Math.floor(koinDihasilkan).toLocaleString()} koin saat kamu offline!`);
+                        updateUI();
+                    }, 1000);
+                }
             }
+            data = { ...data, ...dbData };
         }
-    }
-            if(snap.exists()) data = { ...data, ...snap.data() };
-        (); initRank(); updateUI();
-        setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
-        setInterval(() => { if(id) updateDoc(doc(db, "players", id), { ...data, lastActive: Date.now() }); }, 15000);
+
+        initChat(); 
+        initRank(); 
+        updateUI();
+
+        // Jalanin virus tiap detik
+        setInterval(() => { 
+            if(data.afkPower > 0) processHit(data.afkPower, false); 
+            updateUI(); 
+        }, 1000);
+
+        // PENTING: Simpan data tiap 15 detik agar waktu offline tercatat
+        setInterval(save, 15000);
     }
 
-    function createExplosion() {
-        const box = document.getElementById('planetBox');
-        sfxExplode.play();
-        box.style.animation = 'shake 0.5s infinite';
-        for(let i=0; i<30; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = '50%'; p.style.top = '50%';
-            p.style.width = Math.random() * 8 + 'px'; p.style.height = p.style.width;
-            p.style.backgroundColor = i % 2 === 0 ? 'var(--primary)' : 'var(--neon)';
-            p.style.setProperty('--tx', (Math.random()-0.5)*400 + 'px');
-            p.style.setProperty('--ty', (Math.random()-0.5)*400 + 'px');
-            box.appendChild(p);
-            setTimeout(() => p.remove(), 800);
-        }
-        setTimeout(() => box.style.animation = '', 500);
-    }
+    const save = async () => { 
+        if(id && !isTransitioning) { 
+            await updateDoc(doc(db, "players", id), { 
+                ...data, 
+                lastActive: Date.now() 
+            }); 
+        } 
+    };
 
     function processHit(amt, isManual) {
         if(isTransitioning) return;
         let power = amt;
         if(isManual && Date.now() < data.frenzyUntil) power *= 2;
         data.population -= power; data.consumed += power;
+        
         if(isManual) {
             data.manualClicks++;
             if(data.manualClicks >= 10000) { data.manualClicks = 0; data.frenzyUntil = Date.now() + 20000; }
         }
+
         if(data.population <= 0) {
             isTransitioning = true; data.population = 0;
-            createExplosion();
+            sfxExplode.play();
             setTimeout(() => {
-                data.planetsCleared++; data.population = MAX_POP;
-                isTransitioning = false; updateUI();
+                data.planetsCleared++; 
+                data.population = MAX_POP;
+                isTransitioning = false; 
+                updateUI();
+                save();
             }, 800);
         }
         return power;
     }
 
-document.getElementById('biteBtn').onclick = (e) => {
-    // 1. Suara & Getar
-    sfxBite.currentTime = 0; 
-    sfxBite.play();
-    if(navigator.vibrate) navigator.vibrate(40);
+    document.getElementById('biteBtn').onclick = (e) => {
+        sfxBite.currentTime = 0; sfxBite.play();
+        const p = processHit(data.clickPower, true);
+        const d = document.createElement('div');
+        d.className = 'floating-damage';
+        d.innerText = `-${Math.floor(p)}`;
+        d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 700);
+        updateUI();
+    };
 
-    // 2. Hitung Damage
-    const isFrenzy = Date.now() < data.frenzyUntil;
-    const damageDealt = processHit(data.clickPower, true);
+    document.getElementById('upGigi').onclick = () => {
+        if(data.consumed >= data.clickCost) {
+            data.consumed -= data.clickCost;
+            data.clickPower += 1;
+            data.clickCost = Math.floor(data.clickCost * 1.5);
+            updateUI(); save();
+        }
+    };
 
-    // 3. Munculkan Angka "Neon Damage Burst"
-    const damageEl = document.createElement('div');
-    damageEl.className = 'floating-damage';
-    
-    // Tentukan warna & teks (Kalau Frenzy dikasih tanda !)
-    damageEl.innerText = isFrenzy ? `-${damageDealt}!!` : `-${damageDealt}`;
-    damageEl.style.color = isFrenzy ? 'var(--accent)' : 'var(--primary)';
-    
-    // Posisi muncul (acak sedikit biar estetik)
-    const rect = e.target.getBoundingClientRect();
-    const x = e.clientX || (rect.left + rect.width / 2);
-    const y = e.clientY || (rect.top + rect.height / 2);
-    
-    damageEl.style.left = `${x + (Math.random() * 60 - 30)}px`;
-    damageEl.style.top = `${y - 20}px`;
-
-    document.body.appendChild(damageEl);
-
-    // Hapus elemen setelah animasi selesai
-    setTimeout(() => damageEl.remove(), 700);
-
-    updateUI();
-};
-
+    document.getElementById('upVirus').onclick = () => {
+        if(data.consumed >= data.afkCost) {
+            data.consumed -= data.afkCost;
+            data.afkPower += 2;
+            data.afkCost = Math.floor(data.afkCost * 1.6);
+            updateUI(); save();
+        }
+    };
 
     function updateUI() {
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
-        document.getElementById('clickTask').innerText = data.manualClicks.toLocaleString();
+        document.getElementById('clickTask').innerText = data.manualClicks;
         document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
         document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
         document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
-        document.getElementById('frenzyBox').style.display = Date.now() < data.frenzyUntil ? 'block' : 'none';
         document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
         document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
-    window.transferKoin = async () => {
-        const target = prompt("ID TARGET:").toUpperCase().replace(/\s/g, "_");
-        if(target === id) return alert("Jangan transfer ke diri sendiri!");
-        const amt = parseInt(prompt("JUMLAH TRANSFER:"));
-        if(isNaN(amt) || amt <= 0 || data.consumed < amt) return alert("Gagal Transfer!");
-        const snap = await getDoc(doc(db, "players", target));
-        if(!snap.exists()) return alert("ID tak ditemukan!");
-        data.consumed -= amt;
-        await updateDoc(doc(db, "players", id), { consumed: data.consumed });
-        await updateDoc(doc(db, "players", target), { consumed: (snap.data().consumed || 0) + amt });
-        alert("Transfer Sukses!"); updateUI();
-    };
-
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(15)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
-                const m = d.data(); h += `<div class="chat-msg"><b>${m.sender}:</b> ${m.text}</div>`;
+                h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
-            document.getElementById('chatBox').innerHTML = h; document.getElementById('chatBox').scrollTop = 999;
+            document.getElementById('chatBox').innerHTML = h;
+            document.getElementById('chatBox').scrollTop = 999;
         });
     }
 
@@ -398,53 +369,25 @@ document.getElementById('biteBtn').onclick = (e) => {
     };
 
     function initRank() {
-    onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
-        let h1 = "", h2 = "", count = 0;
-        const now = Date.now();
-
-        snap.forEach(d => {
-            count++;
-            const p = d.data();
-            const isOn = p.lastActive && (now - p.lastActive) < 60000;
-            const planets = p.planetsCleared || 0; // Mengambil data planet
-
-            const row = `
-                <div class="entry-max">
+        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
+            let h1 = ""; let count = 0; const now = Date.now();
+            snap.forEach(d => {
+                count++; const p = d.data();
+                const isOn = p.lastActive && (now - p.lastActive) < 60000;
+                h1 += `<div class="entry-max">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="width:8px; height:8px; background:${isOn ? '#0f0' : '#444'}; border-radius:50%; box-shadow:${isOn ? '0 0 8px #0f0' : 'none'};"></span>
-                        <div style="display:flex; flex-direction:column;">
-                            <span class="${count <= 5 ? 'rank-gold' : ''}" style="font-size:0.9rem; font-weight:bold;">${count}. ${d.id}</span>
-                            <span style="color:var(--accent); font-size:0.7rem;">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
-                        </div>
+                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%;"></span>
+                        <div><b>${count}. ${d.id}</b><br><small>💰 ${Math.floor(p.consumed).toLocaleString()}</small></div>
                     </div>
-                    <div class="planet-badge">
-                        🌍 ${planets}
-                    </div>
+                    <div class="planet-badge">🌍 ${p.planetsCleared || 0}</div>
                 </div>`;
-
-            if (count <= 5) h1 += row; else h2 += row;
+            });
+            document.getElementById('rankList').innerHTML = h1;
         });
+    }
 
-        document.getElementById('rankList').innerHTML = h1;
-        document.getElementById('extraList').innerHTML = h2;
-    });
-}
-
-
-    window.toggleRanks = () => {
-        const ex = document.getElementById('extraList');
-        ex.style.display = ex.style.display === "none" ? "block" : "none";
-    };
-const save = async () => { 
-    if(id) { 
-        await updateDoc(doc(db, "players", id), { 
-            ...data, 
-            lastActive: Date.now() // Ini kunci utamanya!
-        }); 
-    } 
-};
-    
     init();
+
 </script>
 </body>
 </html>
