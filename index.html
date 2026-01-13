@@ -5,38 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Predator Bumi - GALACTIC MAX</title>
     <style>
+        /* --- CSS UTAMA --- */
         .entry-max {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 15px;
-    margin-bottom: 8px;
-    border: 1px solid rgba(0, 242, 255, 0.1);
-    transition: 0.3s;
-}
-
-.entry-max:hover {
-    background: rgba(0, 242, 255, 0.05);
-    border-color: var(--neon);
-}
-
-.planet-badge {
-    background: linear-gradient(135deg, #222, #000);
-    padding: 4px 10px;
-    border-radius: 10px;
-    border: 1px solid #444;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: bold;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px; margin-bottom: 8px;
+            border: 1px solid rgba(0, 242, 255, 0.1); transition: 0.3s;
+        }
+        .entry-max:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--neon); }
+        
+        .planet-badge {
+            background: linear-gradient(135deg, #222, #000); padding: 4px 10px;
+            border-radius: 10px; border: 1px solid #444; color: #fff;
+            font-size: 0.8rem; font-weight: bold; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
         
         :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.8); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* --- BACKGROUND ANIMASI BERAT (MAX ONLY) --- */
         body { 
             margin: 0; background: #000; color: #fff;
             font-family: 'Orbitron', 'Segoe UI', sans-serif; 
@@ -49,20 +35,8 @@
             z-index: -1; overflow: hidden;
         }
 
-        /* Bintang Bergerak */
-        .stars {
-            position: absolute; width: 2px; height: 2px; background: white;
-            opacity: 0.5; box-shadow: 0 0 10px white;
-            animation: moveStars 20s linear infinite;
-        }
-        @keyframes moveStars {
-            from { transform: translateY(0); }
-            to { transform: translateY(-2000px); }
-        }
-
         .container { width: 100%; max-width: 420px; padding: 25px; z-index: 2; }
 
-        /* --- UI WOW: NEON GLASS --- */
         .stats-box, .action-card, .leaderboard, .chat-room { 
             background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.3);
             border-radius: 25px; padding: 20px; margin-bottom: 25px;
@@ -76,21 +50,13 @@
             letter-spacing: -2px; margin: 15px 0;
         }
 
-        /* --- BUTTON PREMIUM --- */
         .btn-main { 
             width: 100%; padding: 50px 10px; font-size: 2.5rem; font-weight: 900; color: #fff; 
             background: linear-gradient(45deg, #ff0033, #660000); 
             border: 2px solid rgba(255,255,255,0.3); border-radius: 30px;
             cursor: pointer; position: relative; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(255,0,51,0.4);
-            transition: 0.2s; text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(255,0,51,0.4); transition: 0.2s; text-transform: uppercase;
         }
-        .btn-main::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg); animation: shimmer 3s infinite;
-        }
-        @keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
         .btn-main:active { transform: scale(0.92); box-shadow: 0 5px 15px #ff0033; }
 
         .btn-up { 
@@ -109,64 +75,47 @@
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* CHAT ROOM WHITE MAX */
         .chat-room { background: rgba(255, 255, 255, 0.95); color: #000; border: none; }
         .chat-box { height: 150px; overflow-y: auto; font-family: sans-serif; }
         .chat-msg { background: #eee; padding: 8px 12px; border-radius: 15px; margin-bottom: 6px; font-size: 0.85rem; border-left: 5px solid var(--primary); }
 
-        /* LEADERBOARD GOLD */
-        .rank-gold {
-            background: linear-gradient(90deg, #ffd700, #fff, #ffd700, #fff); background-size: 200%;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 900; animation: goldMove 2s infinite linear;
-        }
-        @keyframes goldMove { to { background-position: 200%; } }
-
         .hp-container { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; border: 1px solid #444; }
         #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: width 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
-        .particle { position: absolute; pointer-events: none; border-radius: 50%; z-index: 10; animation: explode 0.8s ease-out forwards; }
-        @keyframes explode { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
         .floating-damage {
-    position: absolute;
-    pointer-events: none;
-    font-weight: 900;
-    font-size: 1.5rem;
-    font-family: 'Orbitron', sans-serif;
-    z-index: 1000;
-    animation: floatCritical 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-}
+            position: absolute; pointer-events: none; font-weight: 900; font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif; z-index: 1000;
+            animation: floatCritical 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        }
+        @keyframes floatCritical {
+            0% { transform: scale(0.5) translateY(0); opacity: 1; }
+            50% { transform: scale(1.2) translateY(-50px); opacity: 1; }
+            100% { transform: scale(1) translateY(-120px); opacity: 0; }
+        }
 
-@keyframes floatCritical {
-    0% { transform: scale(0.5) translateY(0); opacity: 1; }
-    50% { transform: scale(1.2) translateY(-50px); opacity: 1; }
-    100% { transform: scale(1) translateY(-120px); opacity: 0; }
-}
+        /* --- UI PROFIL MODAL (YANG BARU) --- */
+        #profileModal {
+            display: none;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 380px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid var(--neon);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+            border-radius: 20px; padding: 25px; z-index: 9999;
+            backdrop-filter: blur(15px); text-align: center;
+            animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity:0;} 100% { transform: translate(-50%, -50%) scale(1); opacity:1;} }
 
-/* Tambahan agar font Orbitron masuk */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+        .prof-badge { background: #222; padding: 8px; border-radius: 8px; margin: 5px; display: inline-block; font-size: 0.8rem; border: 1px solid #444; }
 
-        /* --- UI PROFIL MODAL --- */
-#profileModal {
-    display: none;
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 90%; max-width: 380px;
-    background: rgba(10, 10, 10, 0.95);
-    border: 2px solid var(--neon);
-    box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
-    border-radius: 20px; padding: 25px; z-index: 9999;
-    backdrop-filter: blur(15px); text-align: center;
-    animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-@keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity:0;} 100% { transform: translate(-50%, -50%) scale(1); opacity:1;} }
-
-.prof-badge { background: #222; padding: 8px; border-radius: 8px; margin: 5px; display: inline-block; font-size: 0.8rem; border: 1px solid #444; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
     </style>
 </head>
 <body>
 
-<div class="space-bg" id="space"></div>
+<div class="space-bg"></div>
 
 <div class="container">
     <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL DAMAGE ☢️</div>
@@ -175,6 +124,49 @@
         <span>PREDATOR: <b id="pId">---</b></span>
         <span id="connState">SINKRONISASI...</span>
     </div>
+
+    <div class="stats-box" id="planetBox">
+        <small style="color:#888; letter-spacing: 3px; font-size: 0.6rem;">PLANETARY POPULATION</small>
+        <span id="population">8.000.000.000</span>
+        <div class="hp-container"><div id="hpBar"></div></div>
+        <div style="font-size: 0.85rem; display: flex; justify-content: space-between; font-weight: bold;">
+            <span>💰 <b id="money" style="color:var(--accent)">0</b></span>
+            <span>🎯 <b id="clickTask" style="color:var(--neon)">0</b>/10k</span>
+            <span>🌍 <b id="planet">0</b></span>
+        </div>
+    </div>
+
+    <button class="btn-main" id="biteBtn">DESTROY!</button>
+
+    <div class="action-card">
+        <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
+        <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
+        <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
+        
+        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea; margin-top: 10px;">
+            🎨 DEKORASI PROFIL
+        </button>
+
+        <a href="indx.html" target="_blank" style="text-decoration: none;">
+            <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">
+                🥔 KEMBALI
+            </button>
+        </a>
+    </div>
+
+    <div class="chat-room">
+        <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
+        <div style="display:flex; gap:8px; margin-top: 10px;">
+            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd;" placeholder="Pesan Antar Bintang..." maxlength="30">
+            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:10px 15px; border-radius:12px; font-weight:900;">></button>
+        </div>
+    </div>
+
+    <div class="leaderboard">
+        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center; text-shadow: 0 0 10px var(--neon);">🏆 SUPREME PREDATORS</h3>
+        <div id="rankList"></div>
+    </div>
+</div>
 
 <div id="profileModal">
     <div id="profHeader" style="padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #fff;">
@@ -190,55 +182,9 @@
     <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">TUTUP</button>
 </div>
 
-    <div class="stats-box" id="planetBox">
-        <small style="color:#888; letter-spacing: 3px; font-size: 0.6rem;">PLANETARY POPULATION</small>
-        <span id="population">8.000.000.000</span>
-        <div class="hp-container"><div id="hpBar"></div></div>
-        <div style="font-size: 0.85rem; display: flex; justify-content: space-between; font-weight: bold;">
-            <span>💰 <b id="money" style="color:var(--accent)">0</b></span>
-            <span>🎯 <b id="clickTask" style="color:var(--neon)">0</b>/10k</span>
-            <span>🌍 <b id="planet">0</b></span>
-        </div>
-    </div>
-
-    <button class="btn-main" id="biteBtn">DESTROY!</button>
-
-
-   <div class="action-card">
-    <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
-    <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
-    <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
-    
-    <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea; margin-top: 10px;">
-        🎨 DEKORASI PROFIL
-    </button>
-
-    <a href="indx.html" target="_blank" style="text-decoration: none;">
-        <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">
-            🥔 KEMBALI
-        </button>
-    </a>
-</div>
-
-    <div class="chat-room">
-        <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
-        <div style="display:flex; gap:8px; margin-top: 10px;">
-            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd;" placeholder="Pesan Antar Bintang..." maxlength="30">
-            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:10px 15px; border-radius:12px; font-weight:900;">></button>
-        </div>
-    </div>
-
-    <div class="leaderboard">
-        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center; text-shadow: 0 0 10px var(--neon);">🏆 SUPREME PREDATORS</h3>
-        <div id="rankList"></div>
-        <div id="extraList" style="display:none;"></div>
-        <button id="btnToggle" onclick="window.toggleRanks()" style="width:100%; background:none; border:none; color:#555; cursor:pointer; margin-top:15px; font-weight: bold;">[ LIHAT RANKING LAINNYA ]</button>
-    </div>
-</div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
@@ -260,88 +206,134 @@
     const MAX_POP = 8000000000;
     let isTransitioning = false;
 
+    // --- LOGIKA UTAMA DENGAN PROFIL ---
     async function init() {
-    // 1. Cek ID di LocalStorage
-    if(!id) {
-        let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
-        if(!n || n.length < 3) return init();
-        id = n.toUpperCase().replace(/\s/g, "_");
-        localStorage.setItem('solo_uid', id);
-    }
-    
-    document.getElementById('pId').innerText = id;
-    const playerRef = doc(db, "players", id);
-    const snap = await getDoc(playerRef);
-    
-    if(snap.exists()) {
-        // DATA LAMA DITEMUKAN: Ambil data dari server
-        const dbData = snap.data();
-        
-        // Cek apakah pemain lama belum punya data Umur/Bio
-        if(!dbData.age || !dbData.bio) {
-            alert("Halo Predator Senior! Lengkapi profil barumu dulu ya.");
-            let age = prompt("Konfirmasi Umur kamu:", dbData.age || "");
-            let bio = prompt("Tulis bio/semboyan kamu:", dbData.bio || "Misi: Menghancurkan Bumi");
-            
-            // Masukkan data baru tanpa menghapus koin/planet lama
-            dbData.age = age || "??";
-            dbData.bio = bio || "Misi: Menghancurkan Bumi";
-            dbData.themeColor = dbData.themeColor || "#00f2ff";
-            
-            await updateDoc(playerRef, dbData);
+        if(!id) {
+            let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
+            if(!n || n.length < 3) return init();
+            id = n.toUpperCase().replace(/\s/g, "_");
+            localStorage.setItem('solo_uid', id);
         }
         
-        // Gabungkan data lama dengan variabel lokal
-        data = { ...data, ...dbData };
+        document.getElementById('pId').innerText = id;
+        const playerRef = doc(db, "players", id);
+        const snap = await getDoc(playerRef);
         
-        // Logika AFK Offline tetap jalan
-        if (dbData.lastActive && dbData.afkPower > 0) {
-            const sekarang = Date.now();
-            const selisihDetik = Math.floor((sekarang - dbData.lastActive) / 1000);
-            const waktuDihitung = Math.min(selisihDetik, 86400); 
-            const koinDihasilkan = waktuDihitung * dbData.afkPower;
-            if (koinDihasilkan > 10) {
-                data.consumed += koinDihasilkan;
-                data.population -= koinDihasilkan;
-                setTimeout(() => alert(`🚀 WELCOME BACK!\nVirus kamu dapet: 💰 ${Math.floor(koinDihasilkan).toLocaleString()} koin!`), 1000);
+        if(snap.exists()) {
+            const dbData = snap.data();
+            
+            // CEK PROFIL LAMA: Kalau kosong, minta isi
+            if(!dbData.bio) {
+                alert("⚠️ FITUR BARU: Silahkan lengkapi Profil kamu!");
+                let age = prompt("Umur:", "18");
+                let bio = prompt("Bio/Semboyan:", "Misi: Hancurkan Bumi");
+                
+                await updateDoc(playerRef, { 
+                    age: age || "??", 
+                    bio: bio || "New Predator", 
+                    themeColor: "#00f2ff" 
+                });
+                dbData.age = age; dbData.bio = bio; dbData.themeColor = "#00f2ff";
             }
+            
+            data = { ...data, ...dbData };
+            
+            // AFK Calculation
+            if (dbData.lastActive && dbData.afkPower > 0) {
+                const diff = Math.min(Math.floor((Date.now() - dbData.lastActive)/1000), 86400);
+                const gain = diff * dbData.afkPower;
+                if (gain > 10) {
+                    data.consumed += gain;
+                    data.population -= gain;
+                    alert(`🚀 WELCOME BACK!\nDapat 💰 ${Math.floor(gain).toLocaleString()} koin hasil virus!`);
+                }
+            }
+        } else {
+            // PLAYER BARU
+            let age = prompt("MASUKKAN UMUR:");
+            data.age = age || "??";
+            data.bio = "Predator Baru";
+            data.themeColor = "#00f2ff";
+            await setDoc(playerRef, data);
         }
-    } else {
-        // PEMAIN BARU: Buat data dari nol
-        let age = prompt("MASUKKAN UMUR KAMU:");
-        data.age = age || "??";
-        data.bio = "Predator Baru di Galaksi";
-        data.themeColor = "#00f2ff";
-        await setDoc(playerRef, data);
+
+        initChat(); 
+        initRank(); // Leaderboard baru
+        updateUI();
+
+        setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
+        setInterval(save, 15000);
     }
 
-    initChat(); 
-    initRank(); 
-    updateUI();
-
-    setInterval(() => { 
-        if(data.afkPower > 0) processHit(data.afkPower, false); 
-        updateUI(); 
-    }, 1000);
-
-    setInterval(save, 15000);
-}
+    // --- FUNGSI SAVE ---
     const save = async () => { 
-    if(id && !isTransitioning) { 
-        try {
-            const playerRef = doc(db, "players", id);
-            await updateDoc(playerRef, { 
-                ...data, 
-                lastActive: Date.now() 
-            }); 
-            console.log("✅ Auto-save Berhasil: Waktu Aktif Diperbarui!");
-        } catch (e) {
-            console.error("❌ Gagal save:", e);
+        if(id && !isTransitioning) { 
+            try {
+                await updateDoc(doc(db, "players", id), { ...data, lastActive: Date.now() }); 
+            } catch (e) { console.error("Save error", e); }
+        } 
+    };
+
+    // --- TAMPILKAN PROFIL ORANG ---
+    window.showProfile = async (targetId) => {
+        const snap = await getDoc(doc(db, "players", targetId));
+        if (snap.exists()) {
+            const p = snap.data();
+            const header = document.getElementById('profHeader');
+            
+            // Set Warna
+            header.style.background = p.themeColor || '#222';
+            header.style.borderColor = p.themeColor || '#fff';
+            header.style.boxShadow = `0 0 20px ${p.themeColor || '#000'}`;
+
+            document.getElementById('profName').innerText = targetId;
+            document.getElementById('profAge').innerText = "Umur: " + (p.age || "??");
+            document.getElementById('profBio').innerText = `"${p.bio || '...'}"`;
+            
+            document.getElementById('statPlanet').innerText = `🌍 ${p.planetsCleared || 0} Planet`;
+            document.getElementById('statGigi').innerText = `🧬 Lv.${p.clickPower} Gigi`;
+            document.getElementById('statVirus').innerText = `🦠 ${p.afkPower}/detik`;
+
+            document.getElementById('profileModal').style.display = 'block';
         }
-    } 
-};
+    };
 
+    // --- EDIT PROFIL SENDIRI ---
+    window.editMyProfile = async () => {
+        let newBio = prompt("Ganti Bio (Max 30 huruf):", data.bio);
+        let newColor = prompt("Ganti Warna Neon (Merah/Blue/#00ff00):", data.themeColor);
+        
+        if(newBio) data.bio = newBio.substring(0, 30);
+        if(newColor) data.themeColor = newColor;
+        
+        save();
+        alert("✅ Profil Diperbarui! Coba klik namamu di ranking.");
+    };
 
+    // --- LEADERBOARD BISA DIKLIK ---
+    function initRank() {
+        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
+            let h1 = ""; let count = 0; const now = Date.now();
+            snap.forEach(d => {
+                count++; const p = d.data();
+                const isOn = p.lastActive && (now - p.lastActive) < 60000;
+                
+                h1 += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; box-shadow:${isOn?'0 0 5px #0f0':'none'}"></span>
+                        <div>
+                            <b style="color:${d.id === id ? 'var(--neon)' : '#fff'}">${count}. ${d.id}</b>
+                            <br><small style="color:#888">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
+                        </div>
+                    </div>
+                    <div class="planet-badge" style="border-color:${p.themeColor || '#444'}">🌍 ${p.planetsCleared || 0}</div>
+                </div>`;
+            });
+            document.getElementById('rankList').innerHTML = h1;
+        });
+    }
+
+    // --- GAME LOGIC ---
     function processHit(amt, isManual) {
         if(isTransitioning) return;
         let power = amt;
@@ -360,8 +352,7 @@
                 data.planetsCleared++; 
                 data.population = MAX_POP;
                 isTransitioning = false; 
-                updateUI();
-                save();
+                updateUI(); save();
             }, 800);
         }
         return power;
@@ -381,8 +372,7 @@
 
     document.getElementById('upGigi').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost;
-            data.clickPower += 1;
+            data.consumed -= data.clickCost; data.clickPower += 1;
             data.clickCost = Math.floor(data.clickCost * 1.5);
             updateUI(); save();
         }
@@ -390,8 +380,7 @@
 
     document.getElementById('upVirus').onclick = () => {
         if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost;
-            data.afkPower += 2;
+            data.consumed -= data.afkCost; data.afkPower += 2;
             data.afkCost = Math.floor(data.afkCost * 1.6);
             updateUI(); save();
         }
@@ -405,141 +394,34 @@
         document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
         document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
         document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
+        
+        // Cek tombol aktif/mati
         document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
         document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
+    // --- CHAT SYSTEM ---
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(15)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
                 h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
-            document.getElementById('chatBox').innerHTML = h;
-            document.getElementById('chatBox').scrollTop = 999;
+            const cb = document.getElementById('chatBox');
+            cb.innerHTML = h; cb.scrollTop = cb.scrollHeight;
         });
     }
 
-// 1. FUNGSI INIT BARU (Aman buat data lama)
-    async function init() {
-        if(!id) {
-            let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
-            if(!n || n.length < 3) return init();
-            id = n.toUpperCase().replace(/\s/g, "_");
-            localStorage.setItem('solo_uid', id);
-        }
-        
-        document.getElementById('pId').innerText = id;
-        const playerRef = doc(db, "players", id);
-        const snap = await getDoc(playerRef);
-        
-        if(snap.exists()) {
-            const dbData = snap.data();
-            
-            // CEK DATA LAMA: Kalau belum ada bio/umur, minta isi (sekali aja)
-            if(!dbData.bio) {
-                alert("⚠️ FITUR BARU: Silahkan lengkapi Profil kamu!");
-                let age = prompt("Umur:", "18");
-                let bio = prompt("Bio/Semboyan:", "Misi: Hancurkan Bumi");
-                // Simpan data profil TANPA mereset koin
-                await updateDoc(playerRef, { 
-                    age: age || "??", 
-                    bio: bio || "New Predator", 
-                    themeColor: "#00f2ff" 
-                });
-                dbData.age = age; dbData.bio = bio; dbData.themeColor = "#00f2ff";
-            }
-            
-            data = { ...data, ...dbData }; // Gabung data
-            
-            // Hitung AFK Offline
-            if (dbData.lastActive && dbData.afkPower > 0) {
-                const diff = Math.min(Math.floor((Date.now() - dbData.lastActive)/1000), 86400);
-                const gain = diff * dbData.afkPower;
-                if (gain > 10) {
-                    data.consumed += gain;
-                    data.population -= gain;
-                    alert(`🚀 WELCOME BACK!\nDapat 💰 ${Math.floor(gain).toLocaleString()} koin hasil virus!`);
-                }
-            }
-        } else {
-            // PEMAIN BARU
-            let age = prompt("MASUKKAN UMUR:");
-            data.age = age || "??";
-            data.bio = "Predator Baru";
-            data.themeColor = "#00f2ff";
-            await setDoc(playerRef, data);
-        }
-
-        initChat(); 
-        initRank(); // Panggil fungsi rank yang baru
-        updateUI();
-        setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
-        setInterval(save, 15000);
-    }
-
-    // 2. FUNGSI MENAMPILKAN PROFIL ORANG LAIN
-    window.showProfile = async (targetId) => {
-        const snap = await getDoc(doc(db, "players", targetId));
-        if (snap.exists()) {
-            const p = snap.data();
-            const header = document.getElementById('profHeader');
-            
-            // Set Warna Dekorasi punya orang itu
-            header.style.background = p.themeColor || '#222';
-            header.style.borderColor = p.themeColor || '#fff';
-            header.style.boxShadow = `0 0 20px ${p.themeColor || '#000'}`;
-
-            document.getElementById('profName').innerText = targetId;
-            document.getElementById('profAge').innerText = "Umur: " + (p.age || "??");
-            document.getElementById('profBio').innerText = `"${p.bio || '...'}"`;
-            
-            document.getElementById('statPlanet').innerText = `🌍 ${p.planetsCleared || 0} Planet`;
-            document.getElementById('statGigi').innerText = `🧬 Lv.${p.clickPower} Gigi`;
-            document.getElementById('statVirus').innerText = `🦠 ${p.afkPower}/detik`;
-
-            document.getElementById('profileModal').style.display = 'block';
+    document.getElementById('sendChat').onclick = async () => {
+        const i = document.getElementById('chatInput');
+        if(i.value.trim()) {
+            await addDoc(collection(db, "messages"), { sender: id, text: i.value, createdAt: serverTimestamp() });
+            i.value = "";
         }
     };
 
-    // 3. FUNGSI EDIT PROFIL SENDIRI
-    window.editMyProfile = async () => {
-        let newBio = prompt("Ganti Bio (Max 30 huruf):", data.bio);
-        let newColor = prompt("Ganti Warna Neon (Merah/Blue/#00ff00):", data.themeColor);
-        
-        if(newBio) data.bio = newBio.substring(0, 30);
-        if(newColor) data.themeColor = newColor;
-        
-        save(); // Simpan ke database
-        alert("✅ Profil Diperbarui!");
-    };
-
-    // 4. FUNGSI RANKING (Biar bisa diklik)
-    function initRank() {
-        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
-            let h1 = ""; let count = 0; const now = Date.now();
-            snap.forEach(d => {
-                count++; const p = d.data();
-                const isOn = p.lastActive && (now - p.lastActive) < 60000;
-                
-                // Perhatikan bagian onclick="window.showProfile(...)"
-                h1 += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; box-shadow:${isOn?'0 0 5px #0f0':'none'}"></span>
-                        <div>
-                            <b style="color:${d.id === id ? 'var(--neon)' : '#fff'}">${count}. ${d.id}</b>
-                            <br><small style="color:#888">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
-                        </div>
-                    </div>
-                    <div class="planet-badge" style="border-color:${p.themeColor || '#444'}">🌍 ${p.planetsCleared || 0}</div>
-                </div>`;
-            });
-            document.getElementById('rankList').innerHTML = h1;
-        });
-    }
-
+    // JALANKAN SEMUA
     init();
 
 </script>
 </body>
 </html>
-
