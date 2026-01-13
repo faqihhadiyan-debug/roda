@@ -35,9 +35,8 @@
             background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); 
             border-radius: 25px; cursor: pointer; box-shadow: 0 8px 25px rgba(255,0,51,0.4);
         }
-        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; }
 
-        .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; }
         .btn-up:disabled { opacity: 0.2; }
 
         .hp-container { width: 100%; background: #222; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
@@ -69,11 +68,11 @@
         </div>
     </div>
 
-    <button class="btn-main" id="biteBtn" disabled>WAIT...</button>
+    <button class="btn-main" id="biteBtn">ATTACK!</button>
 
     <div class="action-card">
-        <button class="btn-up" id="upGigi" disabled>🧬 MUTATE TEETH | 💰 <span id="gCost">--</span></button>
-        <button class="btn-up" id="upVirus" disabled>🦠 GALAXY VIRUS | 💰 <span id="vCost">--</span></button>
+        <button class="btn-up" id="upGigi">🧬 MUTATE TEETH | 💰 <span id="gCost">--</span></button>
+        <button class="btn-up" id="upVirus">🦠 GALAXY VIRUS | 💰 <span id="vCost">--</span></button>
     </div>
 
     <div class="chat-room">
@@ -97,7 +96,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-    // API KEY TERBARU YANG LO KASIH
     const firebaseConfig = {
       apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
       authDomain: "fruitsmasmaster.firebaseapp.com",
@@ -111,10 +109,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // STORAGE LAMA
     let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
     let data = null;
-    let isDataLoaded = false;
     const MAX_POP = 8000000000;
 
     async function init() {
@@ -124,44 +120,37 @@
             localStorage.setItem('predator_uid_v2', myId);
             data = { name: n || "Predator", population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0 };
             await setDoc(doc(db, "players", myId), data);
-            isDataLoaded = true;
         } else {
             const snap = await getDoc(doc(db, "players", myId));
             if(snap.exists()) {
                 data = snap.data();
-                isDataLoaded = true;
             } else {
                 myId = null; init(); return;
             }
         }
 
-        if(isDataLoaded) {
-            document.getElementById('biteBtn').disabled = false;
-            document.getElementById('biteBtn').innerText = "ATTACK!";
-            document.getElementById('connState').innerText = "LIVE";
-            document.getElementById('connState').style.color = "#00f2ff";
-            document.getElementById('uiName').innerText = data.name;
+        document.getElementById('connState').innerText = "LIVE";
+        document.getElementById('connState').style.color = "#00f2ff";
+        document.getElementById('uiName').innerText = data.name;
 
-            updateUI(); initChat(); initRank(); animateStars();
+        updateUI(); initChat(); initRank(); animateStars();
 
-            setInterval(() => {
-                if(isDataLoaded && data && myId) {
-                    updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
-                }
-            }, 7000);
+        setInterval(() => {
+            if(data && myId) {
+                updateDoc(doc(db, "players", myId), data).catch(e => {});
+            }
+        }, 7000);
 
-            setInterval(() => {
-                if(isDataLoaded && data && data.afkPower > 0) {
-                    data.population = Math.max(0, data.population - data.afkPower);
-                    data.consumed += data.afkPower;
-                    updateUI();
-                }
-            }, 1000);
-        }
+        setInterval(() => {
+            if(data && data.afkPower > 0) {
+                data.population = Math.max(0, data.population - data.afkPower);
+                data.consumed += data.afkPower;
+                updateUI();
+            }
+        }, 1000);
     }
 
     document.getElementById('biteBtn').onclick = () => {
-        if(!isDataLoaded) return;
         document.getElementById('sfxBite').currentTime = 0; 
         document.getElementById('sfxBite').play();
         data.population = Math.max(0, data.population - data.clickPower);
@@ -175,11 +164,11 @@
         document.getElementById('population').innerText = Math.floor(data.population).toLocaleString();
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
-        document.getElementById('gCost').innerText = (data.clickCost || 15).toLocaleString();
-        document.getElementById('vCost').innerText = (data.afkCost || 50).toLocaleString();
+        document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
+        document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
         document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
-        document.getElementById('upGigi').disabled = data.consumed < (data.clickCost || 15);
-        document.getElementById('upVirus').disabled = data.consumed < (data.afkCost || 50);
+        document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
+        document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
     const canvas = document.getElementById('starCanvas');
@@ -207,7 +196,6 @@
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(10)), (s) => {
             let h = ""; s.forEach(d => {
                 const p = d.data();
-                // NO PROFILE POPUP
                 h += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222; font-size:0.75rem;">
                     <span><b>${p.name}</b></span>
                     <span style="color:var(--accent)">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
