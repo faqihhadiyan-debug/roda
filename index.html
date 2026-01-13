@@ -3,22 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EARTH PREDATOR - DATA RECOVERY</title>
+    <title>EARTH PREDATOR - ULTIMATE EDITION</title>
     <style>
         :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.85); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .space-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); z-index: -1; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body { 
+            margin: 0; background: #000; color: #fff;
+            font-family: 'Orbitron', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
+        }
+        
+        .space-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            z-index: -1;
+        }
+
         .container { width: 100%; max-width: 420px; padding: 20px; z-index: 2; }
-        .stats-box, .action-card, .leaderboard, .chat-room { background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; text-align: center; display: block; text-shadow: 0 0 20px #ff0033; margin: 10px 0; }
-        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); border-radius: 25px; cursor: pointer; box-shadow: 0 10px 25px rgba(255,0,51,0.4); }
-        .btn-up { width: 100%; padding: 15px; margin-top: 10px; background: rgba(0, 242, 255, 0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; cursor: pointer; }
-        .hp-container { width: 100%; background: #222; height: 8px; border-radius: 4px; margin: 12px 0; overflow: hidden; }
-        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: 0.3s; }
-        .entry-max { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
-        #profileModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 350px; background: rgba(5, 5, 5, 0.98); border: 2px solid var(--neon); border-radius: 20px; padding: 20px; z-index: 10000; text-align: center; }
-        .chat-box { height: 120px; overflow-y: auto; font-size: 0.85rem; color: #333; background: #fff; padding: 10px; border-radius: 10px; }
+
+        .stats-box, .action-card, .leaderboard, .chat-room { 
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 25px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); backdrop-filter: blur(15px);
+        }
+
+        #population { 
+            color: var(--primary); font-weight: 900; font-size: 2.8rem; 
+            text-align: center; display: block; 
+            text-shadow: 0 0 20px #ff0033, 0 0 40px #660000;
+            letter-spacing: -1px; margin: 10px 0;
+        }
+
+        .btn-main { 
+            width: 100%; padding: 45px 10px; font-size: 2.5rem; font-weight: 900; color: #fff; 
+            background: linear-gradient(45deg, #ff0033, #660000); 
+            border: 2px solid rgba(255,255,255,0.3); border-radius: 30px;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255,0,51,0.4); transition: 0.2s;
+        }
+        .btn-main:active { transform: scale(0.92); }
+
+        .btn-up { 
+            width: 100%; padding: 16px; margin-top: 12px; background: rgba(0, 242, 255, 0.05); 
+            color: var(--neon); border: 1px solid var(--neon); border-radius: 15px; 
+            font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.85rem;
+        }
+        .btn-up:disabled { opacity: 0.2; border-color: #444; color: #444; }
+
+        /* FRENZY ALERT */
+        #frenzyBox {
+            display: none; background: linear-gradient(90deg, #ffd700, #ff0033);
+            color: #000; font-weight: 900; padding: 10px; border-radius: 15px;
+            margin-bottom: 15px; text-align: center; animation: pulse 0.5s infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+        .hp-container { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; border: 1px solid #444; }
+        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: width 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+
+        /* DAMAGE ANIMATION */
+        .floating-damage {
+            position: absolute; pointer-events: none; font-weight: 900; font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif; z-index: 1000; color: #ff0033;
+            animation: floatDmg 0.7s ease-out forwards;
+            text-shadow: 0 0 10px rgba(255,0,0,0.8);
+        }
+        @keyframes floatDmg { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
+
+        /* LEADERBOARD & PROFILE */
+        .entry-max {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px; margin-bottom: 8px; border: 1px solid rgba(0, 242, 255, 0.1);
+        }
+        .planet-badge {
+            background: #111; padding: 4px 10px; border-radius: 10px; border: 1px solid #444; 
+            font-size: 0.75rem; font-weight: bold;
+        }
+
+        #profileModal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 380px; background: rgba(10, 10, 10, 0.98);
+            border: 2px solid var(--neon); border-radius: 25px; padding: 25px; z-index: 9999;
+            backdrop-filter: blur(20px); text-align: center;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+        .prof-badge { background: #222; padding: 10px; border-radius: 12px; margin: 5px; flex: 1; font-size: 0.75rem; border: 1px solid #333; }
+
+        .chat-box { height: 140px; overflow-y: auto; background: rgba(255,255,255,0.95); color: #000; padding: 12px; border-radius: 15px; font-family: sans-serif; font-size: 0.85rem; }
+        .chat-msg { margin-bottom: 6px; border-left: 4px solid var(--primary); padding-left: 8px; }
+
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
     </style>
 </head>
@@ -27,17 +102,20 @@
 <div class="space-bg"></div>
 
 <div class="container">
-    <div style="font-size: 0.7rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 10px;">
+    <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL DAMAGE ☢️</div>
+
+    <div style="font-size: 0.75rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 15px;">
         <span>PREDATOR: <b id="uiName">---</b> <span id="uiTag" style="color:var(--accent)"></span></span>
-        <span id="connState">RECOVERING DATA...</span>
+        <span id="connState">SYNCING...</span>
     </div>
 
     <div class="stats-box">
-        <small style="color:#666; letter-spacing: 2px; font-size: 0.6rem;">TARGET POPULATION</small>
+        <small style="color:#666; letter-spacing: 3px; font-size: 0.6rem;">TARGET POPULATION</small>
         <span id="population">8.000.000.000</span>
         <div class="hp-container"><div id="hpBar"></div></div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-            <span>💰 <b id="money">0</b></span>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem;">
+            <span>💰 <b id="money" style="color:var(--accent)">0</b></span>
+            <span>🎯 <b id="clickTask" style="color:var(--neon)">0</b>/10k</span>
             <span>🌍 <b id="planet">0</b></span>
         </div>
     </div>
@@ -45,31 +123,37 @@
     <button class="btn-main" id="biteBtn">ATTACK!</button>
 
     <div class="action-card">
-        <button class="btn-up" id="upGigi">🧬 UPGRADE TEETH | 💰 <span id="gCost">15</span></button>
+        <button class="btn-up" id="upGigi">🧬 MUTATE TEETH | 💰 <span id="gCost">15</span></button>
         <button class="btn-up" id="upVirus">🦠 GALAXY VIRUS | 💰 <span id="vCost">50</span></button>
         <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea;">🎨 EDIT PROFILE</button>
     </div>
 
     <div class="chat-room">
-        <div id="chatBox" class="chat-box">Connecting...</div>
-        <div style="display:flex; gap:5px; margin-top: 10px;">
-            <input type="text" id="chatInput" style="flex:1; padding:10px; border-radius:8px;" placeholder="Message..." maxlength="30">
-            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:0 15px; border-radius:8px;">></button>
+        <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
+        <div style="display:flex; gap:8px; margin-top: 10px;">
+            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:none;" placeholder="Broadcast message..." maxlength="30">
+            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:0 15px; border-radius:12px; font-weight:900;">></button>
         </div>
     </div>
 
     <div class="leaderboard">
-        <h3 style="margin:0 0 15px 0; font-size:1rem; color:var(--neon); text-align:center;">🏆 TOP PREDATORS</h3>
+        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center;">🏆 RANKING</h3>
         <div id="rankList"></div>
     </div>
 </div>
 
 <div id="profileModal">
-    <div id="profHeader" style="padding:15px; border-radius:12px; margin-bottom:15px;">
-        <h2 style="margin:0; font-size: 1.1rem;"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
+    <div id="profHeader" style="padding:20px; border-radius:20px; margin-bottom:15px; border: 1px solid #fff;">
+        <h2 style="margin:0; font-family:'Orbitron';"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
+        <span id="pAge" style="font-size:0.8rem; opacity:0.8;">Age: --</span>
     </div>
-    <p id="pBio" style="font-style:italic; font-size:0.8rem; color:#ccc;">"..."</p>
-    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:10px; margin-top:15px; border-radius:10px; border:none; background:#333; color:white;">CLOSE</button>
+    <p id="pBio" style="font-style:italic; color:#ddd; margin:15px 0; font-size: 0.9rem;">"..."</p>
+    <div style="display:flex; justify-content:space-between; gap:5px; margin-bottom:20px;">
+        <div class="prof-badge"><div style="font-size:1.2rem;">🌍</div><b id="sPlanet">0</b><br>Planets</div>
+        <div class="prof-badge"><div style="font-size:1.2rem;">🧬</div><b id="sGigi">0</b><br>Power</div>
+        <div class="prof-badge"><div style="font-size:1.2rem;">🦠</div><b id="sVirus">0</b><br>Idle/s</div>
+    </div>
+    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">CLOSE SYSTEM</button>
 </div>
 
 <script type="module">
@@ -87,32 +171,43 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const sfxBite = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
 
-    // LOGIKA PENYELAMAT: Cek semua kunci LocalStorage yang pernah ada
-    let myId = localStorage.getItem('solo_uid') || localStorage.getItem('predator_uid_v2'); 
+    // LOGIKA PENYELAMAT DATA (Cek semua key lama)
+    let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
+    const MAX_POP = 8000000000;
     
     let data = { 
         name: "Unknown", tag: "#" + Math.floor(1000 + Math.random() * 9000), 
-        population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, 
-        afkPower: 0, afkCost: 50, planetsCleared: 0, lastActive: Date.now(),
-        age: "18", bio: "Predator", themeColor: "#00f2ff"
+        population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, 
+        afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0,
+        lastActive: Date.now(), age: "18", bio: "Earth Destroyer", themeColor: "#00f2ff"
     };
 
     async function init() {
         if(!myId) {
-            let n = prompt("WELCOME! ENTER YOUR PREDATOR NAME:");
-            myId = n ? n.toUpperCase().replace(/\s/g, "_") : "USER_" + Math.floor(Math.random()*9999);
-            localStorage.setItem('solo_uid', myId);
+            let n = prompt("ENTER YOUR PREDATOR NAME:");
+            myId = "user_" + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('predator_uid_v2', myId);
+            data.name = n || "Predator";
+            await setDoc(doc(db, "players", myId), data);
         }
 
         const snap = await getDoc(doc(db, "players", myId));
         if(snap.exists()) {
             const dbData = snap.data();
-            // Gabungkan data lama dengan template baru agar tidak ada yang hilang
+            // Migrasi nama jika kosong
+            if(!dbData.name || dbData.name === "Unknown") dbData.name = myId.split('_')[1] || "Predator";
             data = { ...data, ...dbData };
-            if(!data.name || data.name === "Unknown") data.name = myId;
+
+            // Logic Offline Earning
+            const diff = Math.floor((Date.now() - (data.lastActive || Date.now())) / 1000);
+            if(diff > 10 && data.afkPower > 0) {
+                const gain = Math.min(diff * data.afkPower, 5000000); 
+                data.consumed += gain; data.population -= gain;
+                alert(`OFFLINE PROFIT: 💰 ${Math.floor(gain).toLocaleString()}`);
+            }
         } else {
-            // Jika benar-benar baru di database
             data.name = myId;
             await setDoc(doc(db, "players", myId), data);
         }
@@ -121,83 +216,100 @@
         document.getElementById('uiTag').innerText = data.tag;
         
         initChat(); initRank(); updateUI();
-        setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
-        setInterval(() => { if(myId) updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); }, 10000);
+        setInterval(() => { 
+            if(data.afkPower > 0) { processHit(data.afkPower, false); updateUI(); }
+            if(Date.now() < data.frenzyUntil) { document.getElementById('frenzyBox').style.display = 'block'; }
+            else { document.getElementById('frenzyBox').style.display = 'none'; }
+        }, 1000);
+        setInterval(() => { if(myId) updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); }, 15000);
     }
 
     window.showProfile = async (targetId) => {
         const snap = await getDoc(doc(db, "players", targetId));
         if(snap.exists()) {
             const p = snap.data();
+            const modal = document.getElementById('profileModal');
             document.getElementById('profHeader').style.background = p.themeColor || '#222';
-            document.getElementById('pName').innerText = p.name || targetId;
+            document.getElementById('pName').innerText = p.name;
             document.getElementById('pTag').innerText = p.tag || "";
-            document.getElementById('pBio').innerText = `"${p.bio || 'Destroying Earth...'}"`;
-            document.getElementById('profileModal').style.display = 'block';
+            document.getElementById('pAge').innerText = "Age: " + (p.age || "??");
+            document.getElementById('pBio').innerText = `"${p.bio || 'Destroying stars...'}"`;
+            document.getElementById('sPlanet').innerText = p.planetsCleared || 0;
+            document.getElementById('sGigi').innerText = p.clickPower || 1;
+            document.getElementById('sVirus').innerText = p.afkPower || 0;
+            modal.style.display = 'block';
         }
     };
 
     window.editMyProfile = async () => {
-        let nName = prompt("Change Name:", data.name);
-        let nBio = prompt("Change Bio:", data.bio);
-        let nColor = prompt("Neon Color (e.g: lime, #ff00ea):", data.themeColor);
-        if(nName) data.name = nName;
-        if(nBio) data.bio = nBio;
+        let nName = prompt("New Name:", data.name);
+        let nAge = prompt("Age:", data.age);
+        let nBio = prompt("New Bio (max 30):", data.bio);
+        let nColor = prompt("Neon Color (hex/name):", data.themeColor);
+        if(nName) data.name = nName.substring(0,12);
+        if(nAge) data.age = nAge;
+        if(nBio) data.bio = nBio.substring(0,30);
         if(nColor) data.themeColor = nColor;
         document.getElementById('uiName').innerText = data.name;
-        updateDoc(doc(db, "players", myId), data);
+        save();
     };
 
-    function initRank() {
-        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
-            let h = ""; let c = 0;
-            snap.forEach(d => {
-                c++; const p = d.data();
-                h += `<div class="entry-max" onclick="window.showProfile('${d.id}')">
-                    <span>#${c} <b>${p.name || d.id}</b></span>
-                    <span style="color:var(--accent)">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
-                </div>`;
-            });
-            document.getElementById('rankList').innerHTML = h;
-        });
+    function processHit(amt, isManual) {
+        let p = amt;
+        if(isManual && Date.now() < data.frenzyUntil) p *= 2;
+        data.population -= p; data.consumed += p;
+        if(data.population <= 0) {
+            data.planetsCleared++; data.population = MAX_POP;
+            alert("PLANET CRUSHED! TARGETING NEXT...");
+        }
+        return p;
     }
 
-    document.getElementById('biteBtn').onclick = () => {
-        data.population -= data.clickPower;
-        data.consumed += data.clickPower;
-        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; }
+    document.getElementById('biteBtn').onclick = (e) => {
+        sfxBite.currentTime = 0; sfxBite.play();
+        const dmg = processHit(data.clickPower, true);
+        data.manualClicks++;
+        if(data.manualClicks >= 10000) { data.manualClicks = 0; data.frenzyUntil = Date.now() + 20000; }
+        
+        const d = document.createElement('div');
+        d.className = 'floating-damage'; d.innerText = `-${Math.floor(dmg)}`;
+        d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
+        document.body.appendChild(d); setTimeout(() => d.remove(), 700);
         updateUI();
-    };
-
-    document.getElementById('upGigi').onclick = () => {
-        if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost; data.clickPower++;
-            data.clickCost = Math.floor(data.clickCost * 1.6); updateUI();
-        }
-    };
-
-    document.getElementById('upVirus').onclick = () => {
-        if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost; data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 1.7); updateUI();
-        }
     };
 
     function updateUI() {
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString();
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
-        document.getElementById('gCost').innerText = data.clickCost;
-        document.getElementById('vCost').innerText = data.afkCost;
-        document.getElementById('hpBar').style.width = (data.population/8000000000*100) + "%";
+        document.getElementById('clickTask').innerText = data.manualClicks;
+        document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
+        document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
+        document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
+        document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
+        document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
+    }
+
+    function initRank() {
+        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
+            let h = ""; let c = 0;
+            snap.forEach(d => {
+                c++; const p = d.data();
+                h += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer">
+                    <span>#${c} <b>${p.name}</b> <small style="opacity:0.5">${p.tag || ''}</small></span>
+                    <div class="planet-badge" style="border-color:${p.themeColor}">🌍 ${p.planetsCleared || 0}</div>
+                </div>`;
+            });
+            document.getElementById('rankList').innerHTML = h;
+        });
     }
 
     function initChat() {
-        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(10)), (s) => {
+        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(12)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
                 h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
-            document.getElementById('chatBox').innerHTML = h;
+            const cb = document.getElementById('chatBox'); cb.innerHTML = h; cb.scrollTop = cb.scrollHeight;
         });
     }
 
@@ -208,6 +320,10 @@
             i.value = "";
         }
     };
+
+    const save = () => { if(myId) updateDoc(doc(db, "players", myId), data); };
+    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); save(); } };
+    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); save(); } };
 
     init();
 </script>
