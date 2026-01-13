@@ -1,74 +1,317 @@
-<script>
-    let totalTaps = parseInt(localStorage.getItem('total_taps')) || 0; // Counter buat bonus 1000
-    let score = parseInt(localStorage.getItem('total_score')) || 0;
-    
-    // ... (kode sfx, bgm, dan ban tetap sama) ...
-
-    function updateRank() {
-        let r = "Newbie";
-        let color = "#f8fafc"; // Warna default
-
-        if (score >= 1000) r = "Pro";
-        if (score >= 3000) r = "Elite";
-        if (score >= 5000) { 
-            r = "Aurum"; // Nama emas yang elegan
-            color = "#ffd700"; // Kuning emas halus
-        }
-        if (score >= 10000) r = "Godlike";
-
-        const rankEl = document.getElementById('rank');
-        rankEl.innerText = r;
-        rankEl.style.color = color;
-    }
-
-    document.getElementById('consumeBtn').onclick = () => {
-        if (isExhausted) return;
-        
-        // Suara & Score
-        sfx.currentTime = 0;
-        sfx.play();
-        
-        score++;
-        totalTaps++; // Tambah counter tap untuk bonus
-        spamCounter++;
-
-        // CEK BONUS TIAP 1000 TAP
-        if (totalTaps >= 1000) {
-            score += 10; // Bonus 10k (atau 10 poin sesuai request)
-            totalTaps = 0; // Reset counter bonus
-            showBonusAnim(); // Munculin notif kecil
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Clicker Ultra Pro</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #38bdf8;
+            --aurum: #ffd700;
+            --danger: #ef4444;
         }
 
-        scoreEl.innerText = score.toLocaleString(); // Pake separator ribuan biar rapi
-        localStorage.setItem('total_score', score);
-        localStorage.setItem('total_taps', totalTaps);
+        body { 
+            background: var(--bg); 
+            color: #f8fafc; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Canvas Komet - Paling Depan */
+        #cometCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Container Utama dengan Spacing Lega */
+        #main-wrapper {
+            z-index: 10;
+            width: 90%;
+            max-width: 400px;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 50px; /* Jarak antar elemen */
+        }
+
+        /* Profil Card Pro */
+        #profile-box { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: left;
+        }
+
+        .status-badge { 
+            background: var(--accent); 
+            color: #000;
+            padding: 5px 12px; 
+            border-radius: 30px; 
+            font-size: 10px; 
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        /* Tombol Dino Smooth & Bounce */
+        #game-container { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #consumeBtn { 
+            width: 200px; 
+            height: 200px; 
+            border-radius: 50%; 
+            border: 6px solid var(--accent);
+            background: url('https://cdn-icons-png.flaticon.com/512/2972/2972215.png') center/75% no-repeat #24344d;
+            cursor: pointer; 
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        #consumeBtn:active { 
+            transform: scale(0.9); 
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Warning Overheat Overlay */
+        #staminaWarn { 
+            display: none; 
+            position: fixed; 
+            inset: 0;
+            background: rgba(10, 10, 10, 0.98);
+            z-index: 10000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--danger);
+            text-align: center;
+        }
+
+        #score {
+            font-size: 2rem;
+            font-weight: 800;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .bonus-notif {
+            position: fixed;
+            color: var(--aurum);
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1.5s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+    </style>
+</head>
+<body onload="checkBan()">
+
+    <canvas id="cometCanvas"></canvas>
+
+    <div id="main-wrapper">
+        <div id="profile-box">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span id="statusBadge" class="status-badge">NORMAL</span>
+                <div style="font-size: 11px; opacity: 0.5;">
+                    MUSIC <input type="checkbox" id="bgmToggle">
+                </div>
+            </div>
+            <h2 style="margin: 0; font-size: 1.4rem; letter-spacing: -0.5px;">Elite Player</h2>
+            <div id="score">0</div>
+            <p style="margin: 5px 0 0; opacity: 0.6; font-size: 14px;">Rank: <span id="rank">Newbie</span></p>
+        </div>
+
+        <div id="game-container">
+            <button id="consumeBtn"></button>
+            <p style="margin-top: 25px; font-size: 12px; opacity: 0.4; letter-spacing: 2px;">PRESS TO HARVEST</p>
+        </div>
+    </div>
+
+    <div id="staminaWarn">
+        <h1 style="font-size: 2.5rem; margin:0; letter-spacing: -1px;">SYSTEM LOCK</h1>
+        <p id="warnTimer" style="font-size: 1.2rem; font-family: monospace; color: white; margin: 20px 0;">SANKSI: 00:00:00</p>
+        <p style="opacity: 0.5; font-size: 14px;">Cooling down system components...</p>
+    </div>
+
+    <audio id="sfxClick" src="click.mp3"></audio>
+    <audio id="bgmMusic" src="bgm.mp3" loop></audio>
+
+    <script>
+        // Data & Storage
+        let score = parseInt(localStorage.getItem('total_score')) || 0;
+        let tapCounterForBonus = parseInt(localStorage.getItem('tap_bonus_cnt')) || 0;
+        let spamCounter = 0;
+        let isExhausted = false;
+        let overheatCount = parseInt(localStorage.getItem('oh_count')) || 0;
+        let banEndTime = parseInt(localStorage.getItem('ban_time')) || 0;
+
+        const scoreEl = document.getElementById('score');
+        const statusBadge = document.getElementById('statusBadge');
+        const sfx = document.getElementById('sfxClick');
+        const bgm = document.getElementById('bgmMusic');
+
+        // Init View
+        scoreEl.innerText = score.toLocaleString();
         updateRank();
 
-        // ... (Logika Ban 24 jam tetap ada di bawah sini) ...
-        if (spamCounter > 90) {
-            handleOverheat();
+        // Music
+        document.getElementById('bgmToggle').onchange = (e) => {
+            e.target.checked ? bgm.play() : bgm.pause();
+        };
+
+        // Komet Animasi
+        const canvas = document.getElementById('cometCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.onresize = resize; resize();
+
+        class Comet {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -50;
+                this.speed = 3 + Math.random() * 4;
+                this.size = 1 + Math.random() * 2;
+            }
+            draw() {
+                this.y += this.speed; this.x -= 1;
+                if (this.y > canvas.height) this.reset();
+                ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
         }
-    };
+        for(let i=0; i<25; i++) particles.push(new Comet());
+        function animate() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            particles.forEach(p => p.draw());
+            requestAnimationFrame(animate);
+        }
+        animate();
 
-    function showBonusAnim() {
-        const bonusTxt = document.createElement('div');
-        bonusTxt.innerText = "+10 BONUS ENERGY!";
-        bonusTxt.style.cssText = "position:fixed; top:20%; color:#38bdf8; font-weight:bold; animation: fadeUp 1s forwards;";
-        document.body.appendChild(bonusTxt);
-        setTimeout(() => bonusTxt.remove(), 1000);
-    }
-</script>
+        // Game Logic
+        document.getElementById('consumeBtn').onclick = (e) => {
+            if (isExhausted) return;
+            
+            // Effect
+            sfx.currentTime = 0; sfx.play();
+            
+            score++;
+            tapCounterForBonus++;
+            spamCounter++;
 
-<style>
-    /* Animasi Notif Bonus */
-    @keyframes fadeUp {
-        0% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-50px); }
-    }
-    
-    /* Glow effect buat skor */
-    #score {
-        text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-        font-family: 'Courier New', Courier, monospace;
-    }
-</style>
+            // Fitur Bonus 10k tiap 1000 Tap
+            if (tapCounterForBonus >= 1000) {
+                score += 10000;
+                tapCounterForBonus = 0;
+                showBonusNotif();
+            }
+
+            // Save & Display
+            scoreEl.innerText = score.toLocaleString();
+            localStorage.setItem('total_score', score);
+            localStorage.setItem('tap_bonus_cnt', tapCounterForBonus);
+            updateRank();
+
+            // Anti-Spam Detection
+            if (spamCounter > 40) {
+                statusBadge.innerText = "CRITICAL";
+                statusBadge.style.background = "var(--danger)";
+                if (spamCounter > 90) {
+                    handleOverheat();
+                }
+            }
+        };
+
+        function updateRank() {
+            let r = "Newbie", c = "#f8fafc";
+            if(score > 1000) r = "Pro";
+            if(score > 5000) { r = "Aurum"; c = "var(--aurum)"; } // Rank Emas Gak Mencolok
+            if(score > 20000) r = "Mythic";
+            const rankEl = document.getElementById('rank');
+            rankEl.innerText = r;
+            rankEl.style.color = c;
+        }
+
+        function handleOverheat() {
+            overheatCount++;
+            localStorage.setItem('oh_count', overheatCount);
+            let duration = 60;
+            if (overheatCount === 2) duration = 300;
+            if (overheatCount >= 3) {
+                duration = 86400;
+                localStorage.setItem('ban_time', Date.now() + (86400 * 1000));
+            }
+            startBanTimer(duration);
+        }
+
+        function startBanTimer(seconds) {
+            isExhausted = true;
+            const overlay = document.getElementById('staminaWarn');
+            overlay.style.display = 'flex';
+            
+            let t = seconds;
+            const timer = setInterval(() => {
+                let h = Math.floor(t / 3600).toString().padStart(2, '0');
+                let m = Math.floor((t % 3600) / 60).toString().padStart(2, '0');
+                let s = (t % 60).toString().padStart(2, '0');
+                document.getElementById('warnTimer').innerText = `SANKSI: ${h}:${m}:${s}`;
+                t--;
+                if (t < 0) {
+                    clearInterval(timer);
+                    localStorage.setItem('oh_count', 0);
+                    localStorage.setItem('ban_time', 0);
+                    location.reload();
+                }
+            }, 1000);
+        }
+
+        function checkBan() {
+            const now = Date.now();
+            if (now < banEndTime) {
+                startBanTimer(Math.ceil((banEndTime - now) / 1000));
+            }
+        }
+
+        function showBonusNotif() {
+            const n = document.createElement('div');
+            n.className = 'bonus-notif';
+            n.innerText = "+10,000 AURUM BONUS!";
+            n.style.left = "50%"; n.style.transform = "translateX(-50%)";
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 1500);
+        }
+
+        // Reset spam counter kalo diem
+        setInterval(() => {
+            if (!isExhausted) {
+                spamCounter = 0;
+                statusBadge.innerText = "NORMAL";
+                statusBadge.style.background = "var(--accent)";
+            }
+        }, 2500);
+    </script>
+</body>
+</html>
