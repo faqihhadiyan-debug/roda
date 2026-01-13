@@ -3,78 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EARTH PREDATOR - GALACTIC MAX</title>
+    <title>EARTH PREDATOR - DATA RECOVERY</title>
     <style>
         :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.85); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body { 
-            margin: 0; background: #000; color: #fff;
-            font-family: 'Orbitron', 'Segoe UI', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden;
-        }
-        
-        .space-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
-            z-index: -1;
-        }
-
+        body { margin: 0; background: #000; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .space-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); z-index: -1; }
         .container { width: 100%; max-width: 420px; padding: 20px; z-index: 2; }
-
-        .stats-box, .action-card, .leaderboard, .chat-room { 
-            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2);
-            border-radius: 20px; padding: 20px; margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); backdrop-filter: blur(10px);
-        }
-
-        #population { 
-            color: var(--primary); font-weight: 900; font-size: 2.5rem; 
-            text-align: center; display: block; 
-            text-shadow: 0 0 20px #ff0033;
-            letter-spacing: -1px; margin: 10px 0;
-        }
-
-        .btn-main { 
-            width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; 
-            background: linear-gradient(45deg, #ff0033, #660000); 
-            border: 2px solid rgba(255,255,255,0.2); border-radius: 25px;
-            cursor: pointer; box-shadow: 0 10px 25px rgba(255,0,51,0.4); transition: 0.1s;
-        }
-        .btn-main:active { transform: scale(0.95); }
-
-        .btn-up { 
-            width: 100%; padding: 15px; margin-top: 10px; background: rgba(0, 242, 255, 0.05); 
-            color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; 
-            font-weight: bold; cursor: pointer; font-size: 0.85rem;
-        }
-        .btn-up:disabled { opacity: 0.3; border-color: #555; color: #555; }
-
+        .stats-box, .action-card, .leaderboard, .chat-room { background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        #population { color: var(--primary); font-weight: 900; font-size: 2.5rem; text-align: center; display: block; text-shadow: 0 0 20px #ff0033; margin: 10px 0; }
+        .btn-main { width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); border-radius: 25px; cursor: pointer; box-shadow: 0 10px 25px rgba(255,0,51,0.4); }
+        .btn-up { width: 100%; padding: 15px; margin-top: 10px; background: rgba(0, 242, 255, 0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; cursor: pointer; }
         .hp-container { width: 100%; background: #222; height: 8px; border-radius: 4px; margin: 12px 0; overflow: hidden; }
         #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: 0.3s; }
-
-        /* Leaderboard Style */
-        .entry-max {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid transparent;
-        }
-        .entry-max:hover { border-color: var(--neon); background: rgba(0, 242, 255, 0.05); }
-        .planet-badge { background: #111; padding: 3px 8px; border-radius: 8px; border: 1px solid #444; font-size: 0.75rem; }
-
-        /* Profile Modal */
-        #profileModal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; max-width: 350px; background: rgba(5, 5, 5, 0.98);
-            border: 2px solid var(--neon); border-radius: 20px; padding: 20px; z-index: 10000;
-            text-align: center; box-shadow: 0 0 40px rgba(0,0,0,1);
-        }
-        .prof-badge { background: #1a1a1a; padding: 6px 10px; border-radius: 8px; margin: 4px; font-size: 0.75rem; border: 1px solid #333; }
-
-        /* Chat */
+        .entry-max { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+        #profileModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 350px; background: rgba(5, 5, 5, 0.98); border: 2px solid var(--neon); border-radius: 20px; padding: 20px; z-index: 10000; text-align: center; }
         .chat-box { height: 120px; overflow-y: auto; font-size: 0.85rem; color: #333; background: #fff; padding: 10px; border-radius: 10px; }
-        .chat-msg { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
     </style>
 </head>
@@ -85,7 +29,7 @@
 <div class="container">
     <div style="font-size: 0.7rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 10px;">
         <span>PREDATOR: <b id="uiName">---</b> <span id="uiTag" style="color:var(--accent)"></span></span>
-        <span id="connState">SYNCING...</span>
+        <span id="connState">RECOVERING DATA...</span>
     </div>
 
     <div class="stats-box">
@@ -94,7 +38,6 @@
         <div class="hp-container"><div id="hpBar"></div></div>
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
             <span>💰 <b id="money">0</b></span>
-            <span>🎯 <b id="clickTask">0</b>/10k</span>
             <span>🌍 <b id="planet">0</b></span>
         </div>
     </div>
@@ -102,36 +45,30 @@
     <button class="btn-main" id="biteBtn">ATTACK!</button>
 
     <div class="action-card">
-        <button class="btn-up" id="upGigi">🧬 TEETH MUTATION | 💰 <span id="gCost">15</span></button>
+        <button class="btn-up" id="upGigi">🧬 UPGRADE TEETH | 💰 <span id="gCost">15</span></button>
         <button class="btn-up" id="upVirus">🦠 GALAXY VIRUS | 💰 <span id="vCost">50</span></button>
-        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea;">🎨 PROFILE DECORATION</button>
+        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea;">🎨 EDIT PROFILE</button>
     </div>
 
     <div class="chat-room">
-        <div id="chatBox" class="chat-box">GalaxNet connecting...</div>
+        <div id="chatBox" class="chat-box">Connecting...</div>
         <div style="display:flex; gap:5px; margin-top: 10px;">
-            <input type="text" id="chatInput" style="flex:1; padding:10px; border-radius:8px; border:none;" placeholder="Say something..." maxlength="30">
-            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:0 15px; border-radius:8px;">SEND</button>
+            <input type="text" id="chatInput" style="flex:1; padding:10px; border-radius:8px;" placeholder="Message..." maxlength="30">
+            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:0 15px; border-radius:8px;">></button>
         </div>
     </div>
 
     <div class="leaderboard">
-        <h3 style="margin:0 0 15px 0; font-size:1rem; color:var(--neon); text-align:center;">🏆 RANKING</h3>
+        <h3 style="margin:0 0 15px 0; font-size:1rem; color:var(--neon); text-align:center;">🏆 TOP PREDATORS</h3>
         <div id="rankList"></div>
     </div>
 </div>
 
 <div id="profileModal">
     <div id="profHeader" style="padding:15px; border-radius:12px; margin-bottom:15px;">
-        <h2 style="margin:0; font-size: 1.2rem;"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
-        <span id="pAge" style="font-size:0.7rem;">Age: --</span>
+        <h2 style="margin:0; font-size: 1.1rem;"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
     </div>
-    <p id="pBio" style="font-style:italic; font-size:0.8rem; color:#ccc;">"Loading..."</p>
-    <div style="display:flex; justify-content:center; flex-wrap:wrap;">
-        <div class="prof-badge" id="sPlanet">🌍 0</div>
-        <div class="prof-badge" id="sGigi">🧬 0</div>
-        <div class="prof-badge" id="sVirus">🦠 0</div>
-    </div>
+    <p id="pBio" style="font-style:italic; font-size:0.8rem; color:#ccc;">"..."</p>
     <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:10px; margin-top:15px; border-radius:10px; border:none; background:#333; color:white;">CLOSE</button>
 </div>
 
@@ -139,7 +76,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-    // PASTIIN CONFIG INI SESUAI PUNYA KAMU
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
         authDomain: "fruitsmasmaster.firebaseapp.com",
@@ -152,155 +88,98 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const sfxBite = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
+    // LOGIKA PENYELAMAT: Cek semua kunci LocalStorage yang pernah ada
+    let myId = localStorage.getItem('solo_uid') || localStorage.getItem('predator_uid_v2'); 
     
-    // --- DATABASE & ID SYSTEM ---
-    let myId = localStorage.getItem('predator_uid_v2'); // ID unik mesin
     let data = { 
-        name: "Unknown", tag: "#000", population: 8000000000, consumed: 0, 
-        clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, 
-        planetsCleared: 0, manualClicks: 0, lastActive: Date.now(),
-        age: "18", bio: "Earth Destroyer", themeColor: "#00f2ff"
+        name: "Unknown", tag: "#" + Math.floor(1000 + Math.random() * 9000), 
+        population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, 
+        afkPower: 0, afkCost: 50, planetsCleared: 0, lastActive: Date.now(),
+        age: "18", bio: "Predator", themeColor: "#00f2ff"
     };
 
-    function generateTag() {
-        const chars = '0123456789ABC';
-        let t = '#';
-        for(let i=0; i<4; i++) t += chars[Math.floor(Math.random()*chars.length)];
-        return t;
-    }
-
     async function init() {
-        // Jika belum punya akun
         if(!myId) {
-            let n = prompt("ENTER YOUR NAME:");
-            if(!n) n = "Predator";
-            myId = "user_" + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('predator_uid_v2', myId);
-            data.name = n;
-            data.tag = generateTag();
-            await setDoc(doc(db, "players", myId), data);
+            let n = prompt("WELCOME! ENTER YOUR PREDATOR NAME:");
+            myId = n ? n.toUpperCase().replace(/\s/g, "_") : "USER_" + Math.floor(Math.random()*9999);
+            localStorage.setItem('solo_uid', myId);
         }
 
         const snap = await getDoc(doc(db, "players", myId));
         if(snap.exists()) {
             const dbData = snap.data();
-            
-            // LOGIKA MIGRASI: Jika name masih "Unknown" atau kosong
-            if(!dbData.name || dbData.name === "Unknown") dbData.name = myId.split('_')[1] || "Predator";
-            if(!dbData.tag) dbData.tag = generateTag();
-            
+            // Gabungkan data lama dengan template baru agar tidak ada yang hilang
             data = { ...data, ...dbData };
-            
-            // Hitung AFK
-            if (dbData.lastActive && dbData.afkPower > 0) {
-                const diff = Math.min(Math.floor((Date.now() - dbData.lastActive)/1000), 86400);
-                const gain = diff * dbData.afkPower;
-                if(gain > 5) {
-                    data.consumed += gain; data.population -= gain;
-                    alert(`OFFLINE EARNINGS: 💰 ${Math.floor(gain)}`);
-                }
-            }
+            if(!data.name || data.name === "Unknown") data.name = myId;
+        } else {
+            // Jika benar-benar baru di database
+            data.name = myId;
+            await setDoc(doc(db, "players", myId), data);
         }
 
         document.getElementById('uiName').innerText = data.name;
         document.getElementById('uiTag').innerText = data.tag;
         
-        initChat();
-        initRank();
-        updateUI();
+        initChat(); initRank(); updateUI();
         setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
-        setInterval(save, 10000);
+        setInterval(() => { if(myId) updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); }, 10000);
     }
 
-    const save = async () => { 
-        if(myId) await updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); 
-    };
-
-    // --- PROFILE LOGIC ---
     window.showProfile = async (targetId) => {
         const snap = await getDoc(doc(db, "players", targetId));
         if(snap.exists()) {
             const p = snap.data();
-            const modal = document.getElementById('profileModal');
             document.getElementById('profHeader').style.background = p.themeColor || '#222';
-            document.getElementById('pName').innerText = p.name;
-            document.getElementById('pTag').innerText = p.tag;
-            document.getElementById('pAge').innerText = "Age: " + (p.age || "??");
-            document.getElementById('pBio').innerText = `"${p.bio || '...'}"`;
-            document.getElementById('sPlanet').innerText = `🌍 ${p.planetsCleared}`;
-            document.getElementById('sGigi').innerText = `🧬 Power ${p.clickPower}`;
-            document.getElementById('sVirus').innerText = `🦠 ${p.afkPower}/s`;
-            modal.style.display = 'block';
+            document.getElementById('pName').innerText = p.name || targetId;
+            document.getElementById('pTag').innerText = p.tag || "";
+            document.getElementById('pBio').innerText = `"${p.bio || 'Destroying Earth...'}"`;
+            document.getElementById('profileModal').style.display = 'block';
         }
     };
 
     window.editMyProfile = async () => {
-        let nName = prompt("New Display Name:", data.name);
-        let nAge = prompt("Your Age:", data.age);
-        let nBio = prompt("Short Bio:", data.bio);
-        let nColor = prompt("Neon Color (hex or name, e.g: red, #ff00ea):", data.themeColor);
-        
-        if(nName) data.name = nName.substring(0, 12);
-        if(nAge) data.age = nAge;
-        if(nBio) data.bio = nBio.substring(0, 30);
+        let nName = prompt("Change Name:", data.name);
+        let nBio = prompt("Change Bio:", data.bio);
+        let nColor = prompt("Neon Color (e.g: lime, #ff00ea):", data.themeColor);
+        if(nName) data.name = nName;
+        if(nBio) data.bio = nBio;
         if(nColor) data.themeColor = nColor;
-        
         document.getElementById('uiName').innerText = data.name;
-        save();
-        alert("PROFILE UPDATED!");
+        updateDoc(doc(db, "players", myId), data);
     };
 
-    // --- LEADERBOARD ---
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
-            let h = ""; let count = 0;
+            let h = ""; let c = 0;
             snap.forEach(d => {
-                count++; const p = d.data();
-                const isMe = d.id === myId;
+                c++; const p = d.data();
                 h += `<div class="entry-max" onclick="window.showProfile('${d.id}')">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="font-size:0.8rem; color:#777;">#${count}</span>
-                        <div>
-                            <b style="color:${isMe ? 'var(--neon)' : '#fff'}">${p.name || 'Unknown'}</b>
-                            <br><small style="color:#666">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
-                        </div>
-                    </div>
-                    <div class="planet-badge" style="border-color:${p.themeColor}">🌍 ${p.planetsCleared}</div>
+                    <span>#${c} <b>${p.name || d.id}</b></span>
+                    <span style="color:var(--accent)">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
                 </div>`;
             });
             document.getElementById('rankList').innerHTML = h;
         });
     }
 
-    // --- GAME ACTIONS ---
-    document.getElementById('biteBtn').onclick = (e) => {
-        sfxBite.currentTime = 0; sfxBite.play();
+    document.getElementById('biteBtn').onclick = () => {
         data.population -= data.clickPower;
         data.consumed += data.clickPower;
-        data.manualClicks++;
-        
-        if(data.population <= 0) {
-            data.planetsCleared++;
-            data.population = 8000000000;
-            alert("PLANET DESTROYED! Moving to next target...");
-        }
+        if(data.population <= 0) { data.planetsCleared++; data.population = 8000000000; }
         updateUI();
     };
 
     document.getElementById('upGigi').onclick = () => {
         if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost; data.clickPower += 1;
-            data.clickCost = Math.floor(data.clickCost * 1.6);
-            updateUI(); save();
+            data.consumed -= data.clickCost; data.clickPower++;
+            data.clickCost = Math.floor(data.clickCost * 1.6); updateUI();
         }
     };
 
     document.getElementById('upVirus').onclick = () => {
         if(data.consumed >= data.afkCost) {
             data.consumed -= data.afkCost; data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 1.7);
-            updateUI(); save();
+            data.afkCost = Math.floor(data.afkCost * 1.7); updateUI();
         }
     };
 
@@ -308,23 +187,17 @@
         document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString();
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
-        document.getElementById('clickTask').innerText = data.manualClicks;
-        document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
-        document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
+        document.getElementById('gCost').innerText = data.clickCost;
+        document.getElementById('vCost').innerText = data.afkCost;
         document.getElementById('hpBar').style.width = (data.population/8000000000*100) + "%";
-        
-        document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
-        document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
-    // --- CHAT ---
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(10)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
                 h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
-            const cb = document.getElementById('chatBox');
-            cb.innerHTML = h; cb.scrollTop = cb.scrollHeight;
+            document.getElementById('chatBox').innerHTML = h;
         });
     }
 
