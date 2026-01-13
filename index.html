@@ -94,7 +94,7 @@
             100% { transform: scale(1) translateY(-120px); opacity: 0; }
         }
 
-        /* --- UI PROFIL MODAL (YANG BARU) --- */
+        /* --- UI PROFIL MODAL --- */
         #profileModal {
             display: none;
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -109,6 +109,11 @@
         @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity:0;} 100% { transform: translate(-50%, -50%) scale(1); opacity:1;} }
 
         .prof-badge { background: #222; padding: 8px; border-radius: 8px; margin: 5px; display: inline-block; font-size: 0.8rem; border: 1px solid #444; }
+        
+        .cool-tag { 
+            font-size: 0.7em; color: var(--accent); background: rgba(0,0,0,0.5); 
+            padding: 2px 6px; border-radius: 4px; border: 1px solid #555; margin-left: 5px; letter-spacing: 1px;
+        }
 
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
     </style>
@@ -121,7 +126,7 @@
     <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL DAMAGE ☢️</div>
 
     <div style="font-size: 0.75rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 15px; text-shadow: 0 0 5px var(--neon);">
-        <span>PREDATOR: <b id="pId">---</b></span>
+        <span>AGENT: <b id="displayNameDisplay">---</b> <span id="displayTag" style="color:var(--accent)"></span></span>
         <span id="connState">SINKRONISASI...</span>
     </div>
 
@@ -142,22 +147,16 @@
         <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
         <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
         <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
-        
-        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea; margin-top: 10px;">
-            🎨 DEKORASI PROFIL
-        </button>
-
+        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea; margin-top: 10px;">🎨 DEKORASI PROFIL</button>
         <a href="indx.html" target="_blank" style="text-decoration: none;">
-            <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">
-                🥔 KEMBALI
-            </button>
+            <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">🥔 KEMBALI</button>
         </a>
     </div>
 
     <div class="chat-room">
         <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
         <div style="display:flex; gap:8px; margin-top: 10px;">
-            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd;" placeholder="Pesan Antar Bintang..." maxlength="30">
+            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd;" placeholder="Pesan..." maxlength="30">
             <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:10px 15px; border-radius:12px; font-weight:900;">></button>
         </div>
     </div>
@@ -170,7 +169,9 @@
 
 <div id="profileModal">
     <div id="profHeader" style="padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #fff;">
-        <h2 id="profName" style="margin:0; font-family:'Orbitron'; text-shadow:0 0 10px white;">NAME</h2>
+        <h2 style="margin:0; font-family:'Orbitron'; text-shadow:0 0 10px white;">
+            <span id="profName">NAME</span> <span id="profTag" class="cool-tag">#000</span>
+        </h2>
         <span id="profAge" style="font-size:0.8rem; opacity:0.8;">Age: --</span>
     </div>
     <div id="profBio" style="font-style:italic; color:#ddd; margin:15px 0; font-size: 0.9rem;">"Loading..."</div>
@@ -201,95 +202,127 @@
     const sfxBite = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
     const sfxExplode = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
 
-    let id = localStorage.getItem('solo_uid');
-    let data = { population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0, lastActive: Date.now() };
+    // MENGGUNAKAN LOCAL STORAGE KEY BARU AGAR TIDAK BENTROK
+    let myUid = localStorage.getItem('predator_uid_v2'); 
+    let data = { 
+        name: "Unknown", 
+        tag: "#000",
+        population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, 
+        planetsCleared: 0, manualClicks: 0, frenzyUntil: 0, lastActive: Date.now() 
+    };
     const MAX_POP = 8000000000;
     let isTransitioning = false;
 
-    // --- LOGIKA UTAMA DENGAN PROFIL ---
+    // --- GENERATOR ID ACAK (Biar Nama Sama Tetap Bisa Masuk) ---
+    function makeId(length) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
+
+    // --- GENERATOR TAG KEREN (Ex: #X92) ---
+    function makeTag() {
+        const chars = '0123456789ABC'; // Angka dan huruf kapital dikit biar keren
+        let tag = '#';
+        for (let i = 0; i < 4; i++) tag += chars.charAt(Math.floor(Math.random() * chars.length));
+        return tag;
+    }
+
     async function init() {
-        if(!id) {
-            let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
-            if(!n || n.length < 3) return init();
-            id = n.toUpperCase().replace(/\s/g, "_");
-            localStorage.setItem('solo_uid', id);
+        // Cek apakah user sudah punya akun di browser ini
+        if(!myUid) {
+            // KALAU BELUM, BUAT BARU
+            let n = prompt("MASUKKAN NAMA (Boleh sama dengan teman):");
+            if(!n || n.trim().length === 0) n = "Predator";
+            
+            // Generate ID Mesin (Hidden) dan Tag Keren (Public)
+            myUid = "user_" + makeId(12); // ID Unik Sistem
+            const myTag = makeTag(); // ID Keren (Tag)
+            
+            localStorage.setItem('predator_uid_v2', myUid);
+            
+            // Simpan data awal
+            data.name = n.substring(0, 15); // Nama user
+            data.tag = myTag; // Tag keren
+            data.age = prompt("Umur:", "18") || "??";
+            data.bio = "Predator Baru";
+            data.themeColor = "#00f2ff";
+            
+            await setDoc(doc(db, "players", myUid), data);
         }
         
-        document.getElementById('pId').innerText = id;
-        const playerRef = doc(db, "players", id);
+        // --- LOAD DATA ---
+        const playerRef = doc(db, "players", myUid);
         const snap = await getDoc(playerRef);
         
         if(snap.exists()) {
             const dbData = snap.data();
             
-            // CEK PROFIL LAMA: Kalau kosong, minta isi
-            if(!dbData.bio) {
-                alert("⚠️ FITUR BARU: Silahkan lengkapi Profil kamu!");
-                let age = prompt("Umur:", "18");
-                let bio = prompt("Bio/Semboyan:", "Misi: Hancurkan Bumi");
-                
-                await updateDoc(playerRef, { 
-                    age: age || "??", 
-                    bio: bio || "New Predator", 
-                    themeColor: "#00f2ff" 
-                });
-                dbData.age = age; dbData.bio = bio; dbData.themeColor = "#00f2ff";
-            }
+            // Update data lokal jika nama/tag belum ada (migrasi dari versi lama)
+            if(!dbData.tag) dbData.tag = makeTag();
+            if(!dbData.name) dbData.name = "Unknown";
             
             data = { ...data, ...dbData };
             
-            // AFK Calculation
+            // Tampilan Nama & ID di Atas
+            document.getElementById('displayNameDisplay').innerText = data.name;
+            document.getElementById('displayTag').innerText = data.tag;
+            
+            // Hitung AFK
             if (dbData.lastActive && dbData.afkPower > 0) {
                 const diff = Math.min(Math.floor((Date.now() - dbData.lastActive)/1000), 86400);
                 const gain = diff * dbData.afkPower;
                 if (gain > 10) {
                     data.consumed += gain;
                     data.population -= gain;
-                    alert(`🚀 WELCOME BACK!\nDapat 💰 ${Math.floor(gain).toLocaleString()} koin hasil virus!`);
+                    alert(`🚀 WELCOME BACK, ${data.name}!\nDapat 💰 ${Math.floor(gain).toLocaleString()} koin!`);
                 }
             }
         } else {
-            // PLAYER BARU
-            let age = prompt("MASUKKAN UMUR:");
-            data.age = age || "??";
-            data.bio = "Predator Baru";
-            data.themeColor = "#00f2ff";
+            // Jaga-jaga kalau data di server kehapus tapi di HP masih ada ID
             await setDoc(playerRef, data);
         }
 
         initChat(); 
-        initRank(); // Leaderboard baru
+        initRank(); 
         updateUI();
 
         setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
         setInterval(save, 15000);
     }
 
-    // --- FUNGSI SAVE ---
     const save = async () => { 
-        if(id && !isTransitioning) { 
+        if(myUid && !isTransitioning) { 
             try {
-                await updateDoc(doc(db, "players", id), { ...data, lastActive: Date.now() }); 
+                // Pastikan nama dan tag ikut tersimpan
+                await updateDoc(doc(db, "players", myUid), { 
+                    ...data, 
+                    lastActive: Date.now() 
+                }); 
             } catch (e) { console.error("Save error", e); }
         } 
     };
 
-    // --- TAMPILKAN PROFIL ORANG ---
+    // --- TAMPILKAN PROFIL ---
     window.showProfile = async (targetId) => {
         const snap = await getDoc(doc(db, "players", targetId));
         if (snap.exists()) {
             const p = snap.data();
             const header = document.getElementById('profHeader');
             
-            // Set Warna
             header.style.background = p.themeColor || '#222';
             header.style.borderColor = p.themeColor || '#fff';
             header.style.boxShadow = `0 0 20px ${p.themeColor || '#000'}`;
 
-            document.getElementById('profName').innerText = targetId;
+            // TAMPILKAN NAMA + TAG KEREN
+            document.getElementById('profName').innerText = p.name || "Unknown";
+            document.getElementById('profTag').innerText = p.tag || "#???";
+            
             document.getElementById('profAge').innerText = "Umur: " + (p.age || "??");
             document.getElementById('profBio').innerText = `"${p.bio || '...'}"`;
-            
             document.getElementById('statPlanet').innerText = `🌍 ${p.planetsCleared || 0} Planet`;
             document.getElementById('statGigi').innerText = `🧬 Lv.${p.clickPower} Gigi`;
             document.getElementById('statVirus').innerText = `🦠 ${p.afkPower}/detik`;
@@ -298,19 +331,24 @@
         }
     };
 
-    // --- EDIT PROFIL SENDIRI ---
+    // --- EDIT PROFIL (Hanya Nama/Bio/Warna, TAG TIDAK BISA DIEDIT) ---
     window.editMyProfile = async () => {
-        let newBio = prompt("Ganti Bio (Max 30 huruf):", data.bio);
-        let newColor = prompt("Ganti Warna Neon (Merah/Blue/#00ff00):", data.themeColor);
+        let newName = prompt("Ganti Nama Panggilan (Tag ID tidak akan berubah):", data.name);
+        let newBio = prompt("Ganti Bio:", data.bio);
+        let newColor = prompt("Ganti Warna Neon:", data.themeColor);
         
+        if(newName) data.name = newName.substring(0, 15);
         if(newBio) data.bio = newBio.substring(0, 30);
         if(newColor) data.themeColor = newColor;
         
+        // Update tampilan langsung
+        document.getElementById('displayNameDisplay').innerText = data.name;
+        
         save();
-        alert("✅ Profil Diperbarui! Coba klik namamu di ranking.");
+        alert("✅ Profil Diperbarui!");
     };
 
-    // --- LEADERBOARD BISA DIKLIK ---
+    // --- LEADERBOARD KEREN ---
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
             let h1 = ""; let count = 0; const now = Date.now();
@@ -318,11 +356,15 @@
                 count++; const p = d.data();
                 const isOn = p.lastActive && (now - p.lastActive) < 60000;
                 
+                // KITA PAKAI d.id (UID) UNTUK KLIK, TAPI TAMPILKAN p.name + p.tag
                 h1 += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer;">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; box-shadow:${isOn?'0 0 5px #0f0':'none'}"></span>
                         <div>
-                            <b style="color:${d.id === id ? 'var(--neon)' : '#fff'}">${count}. ${d.id}</b>
+                            <b style="color:${d.id === myUid ? 'var(--neon)' : '#fff'}">
+                                ${count}. ${p.name || 'Unknown'} 
+                                <span style="font-size:0.7em; color:#888;">${p.tag || ''}</span>
+                            </b>
                             <br><small style="color:#888">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
                         </div>
                     </div>
@@ -395,16 +437,15 @@
         document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
         document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
         
-        // Cek tombol aktif/mati
         document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
         document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
-    // --- CHAT SYSTEM ---
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(15)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
-                h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
+                // Tampilkan Nama + Tag di Chat
+                h += `<div class="chat-msg"><b>${d.data().senderName || 'Unknown'} <span style="font-size:0.7em; opacity:0.7">${d.data().senderTag || ''}</span>:</b> ${d.data().text}</div>`;
             });
             const cb = document.getElementById('chatBox');
             cb.innerHTML = h; cb.scrollTop = cb.scrollHeight;
@@ -414,12 +455,17 @@
     document.getElementById('sendChat').onclick = async () => {
         const i = document.getElementById('chatInput');
         if(i.value.trim()) {
-            await addDoc(collection(db, "messages"), { sender: id, text: i.value, createdAt: serverTimestamp() });
+            await addDoc(collection(db, "messages"), { 
+                senderUid: myUid, 
+                senderName: data.name,
+                senderTag: data.tag,
+                text: i.value, 
+                createdAt: serverTimestamp() 
+            });
             i.value = "";
         }
     };
 
-    // JALANKAN SEMUA
     init();
 
 </script>
