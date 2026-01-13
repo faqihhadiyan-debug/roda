@@ -25,9 +25,8 @@
             border-radius: 20px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px);
         }
 
-        /* FONT POPULASI DIKECILIN BIAR GAK KEBESARAN */
         #population { 
-            color: var(--primary); font-weight: 900; font-size: 1.8rem; text-align: center; display: block; 
+            color: var(--primary); font-weight: 900; font-size: 2.2rem; text-align: center; display: block; 
             text-shadow: 0 0 15px #ff0033; letter-spacing: 1px; margin: 5px 0;
         }
 
@@ -36,9 +35,7 @@
             background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); 
             border-radius: 25px; cursor: pointer; box-shadow: 0 8px 25px rgba(255,0,51,0.4);
         }
-        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
-
-        #frenzyAlert { display: none; background: linear-gradient(90deg, #ffd700, #ff0033); color: #000; font-weight: 900; padding: 10px; border-radius: 12px; text-align: center; margin-bottom: 12px; }
+        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; }
 
         .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; }
         .btn-up:disabled { opacity: 0.2; }
@@ -57,25 +54,22 @@
 <div class="bgm-ctrl" onclick="toggleBGM()">🎵 MUSIC: <span id="bgmStatus">OFF</span></div>
 
 <div class="container">
-    <div id="frenzyAlert">🔥 FRENZY MODE: 2X POWER! 🔥</div>
-
     <div style="font-size: 0.7rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 10px;">
         <span>PREDATOR: <b id="uiName">---</b></span>
         <span id="connState" style="color: yellow;">SYNCING...</span>
     </div>
 
     <div class="stats-box">
-        <small style="color:#666; letter-spacing: 2px; font-size: 0.55rem;">POPULATION STATUS</small>
-        <span id="population">LOADING...</span>
+        <small style="color:#666; letter-spacing: 2px; font-size: 0.55rem;">WORLD POPULATION</small>
+        <span id="population">CONNECTING</span>
         <div class="hp-container"><div id="hpBar"></div></div>
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
             <span>💰 <b id="money">0</b></span>
             <span>🌍 <b id="planet">0</b></span>
-            <span style="color:var(--neon)">🎯 <b id="clickCount">0</b>/10k</span>
         </div>
     </div>
 
-    <button class="btn-main" id="biteBtn" disabled>CONNECTING...</button>
+    <button class="btn-main" id="biteBtn" disabled>WAIT...</button>
 
     <div class="action-card">
         <button class="btn-up" id="upGigi" disabled>🧬 MUTATE TEETH | 💰 <span id="gCost">--</span></button>
@@ -85,7 +79,7 @@
     <div class="chat-room">
         <div id="chatBox" class="chat-box">GalaxNet online...</div>
         <div style="display:flex; gap:5px; margin-top: 8px;">
-            <input type="text" id="chatInput" style="flex:1; padding:8px; border-radius:8px; border:none;" placeholder="Chat..." maxlength="30">
+            <input type="text" id="chatInput" style="flex:1; padding:8px; border-radius:8px; border:none;" placeholder="Chat...">
             <button id="sendChat" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:0 12px;">></button>
         </div>
     </div>
@@ -122,10 +116,10 @@
 
     async function init() {
         if(!myId) {
-            let n = prompt("ENTER PREDATOR NAME:");
+            let n = prompt("NAME:");
             myId = "user_" + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('predator_uid_v2', myId);
-            data = { name: n || "Predator", tag: "#"+Math.floor(1000+Math.random()*9000), population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0 };
+            data = { name: n || "Predator", population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0 };
             await setDoc(doc(db, "players", myId), data);
             isDataLoaded = true;
         } else {
@@ -138,6 +132,7 @@
             }
         }
 
+        // UNLOCK UI SETELAH DATA LOADED
         document.getElementById('biteBtn').disabled = false;
         document.getElementById('biteBtn').innerText = "ATTACK!";
         document.getElementById('connState').innerText = "LIVE";
@@ -146,33 +141,28 @@
 
         updateUI(); initChat(); initRank(); animateStars();
 
+        // AUTOSAVE TIAP 7 DETIK (HANYA JALAN KALO DATA LOADED)
         setInterval(() => {
             if(isDataLoaded && data && myId) {
                 updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
             }
         }, 7000);
 
+        // AFK LOGIC
         setInterval(() => {
-            if(isDataLoaded && data) {
-                if(data.afkPower > 0) {
-                    data.population = Math.max(0, data.population - data.afkPower);
-                    data.consumed += data.afkPower;
-                    updateUI();
-                }
-                document.getElementById('frenzyAlert').style.display = (Date.now() < data.frenzyUntil) ? 'block' : 'none';
+            if(isDataLoaded && data && data.afkPower > 0) {
+                data.population = Math.max(0, data.population - data.afkPower);
+                data.consumed += data.afkPower;
+                updateUI();
             }
         }, 1000);
     }
 
-    document.getElementById('biteBtn').onclick = (e) => {
+    document.getElementById('biteBtn').onclick = () => {
         if(!isDataLoaded) return;
         document.getElementById('sfxBite').currentTime = 0; document.getElementById('sfxBite').play();
-        let pwr = data.clickPower;
-        if(Date.now() < data.frenzyUntil) pwr *= 2;
-        data.population = Math.max(0, data.population - pwr);
-        data.consumed += pwr;
-        data.manualClicks++;
-        if(data.manualClicks >= 10000) { data.manualClicks = 0; data.frenzyUntil = Date.now() + 30000; }
+        data.population = Math.max(0, data.population - data.clickPower);
+        data.consumed += data.clickPower;
         if(data.population <= 0) { data.planetsCleared++; data.population = MAX_POP; }
         updateUI();
     };
@@ -182,7 +172,6 @@
         document.getElementById('population').innerText = Math.floor(data.population).toLocaleString();
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
-        document.getElementById('clickCount').innerText = data.manualClicks.toLocaleString();
         document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
         document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
         document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
@@ -190,6 +179,7 @@
         document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
+    // CANVAS BINTANG JATUH
     const canvas = document.getElementById('starCanvas');
     const ctx = canvas.getContext('2d');
     let stars = [];
