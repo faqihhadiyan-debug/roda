@@ -97,18 +97,21 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+    // API KEY TERBARU YANG LO KASIH
     const firebaseConfig = {
-        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
-        authDomain: "fruitsmasmaster.firebaseapp.com",
-        projectId: "fruitsmasmaster",
-        storageBucket: "fruitsmasmaster.firebasestorage.app",
-        messagingSenderId: "673530855742",
-        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
+      apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
+      authDomain: "fruitsmasmaster.firebaseapp.com",
+      projectId: "fruitsmasmaster",
+      storageBucket: "fruitsmasmaster.firebasestorage.app",
+      messagingSenderId: "673530855742",
+      appId: "1:673530855742:web:0e580efc3a318efa4cac6f",
+      measurementId: "G-2CYKYD9M3S"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // STORAGE LAMA
     let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
     let data = null;
     let isDataLoaded = false;
@@ -132,27 +135,29 @@
             }
         }
 
-        document.getElementById('biteBtn').disabled = false;
-        document.getElementById('biteBtn').innerText = "ATTACK!";
-        document.getElementById('connState').innerText = "LIVE";
-        document.getElementById('connState').style.color = "#00f2ff";
-        document.getElementById('uiName').innerText = data.name;
+        if(isDataLoaded) {
+            document.getElementById('biteBtn').disabled = false;
+            document.getElementById('biteBtn').innerText = "ATTACK!";
+            document.getElementById('connState').innerText = "LIVE";
+            document.getElementById('connState').style.color = "#00f2ff";
+            document.getElementById('uiName').innerText = data.name;
 
-        updateUI(); initChat(); initRank(); animateStars();
+            updateUI(); initChat(); initRank(); animateStars();
 
-        setInterval(() => {
-            if(isDataLoaded && data && myId) {
-                updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
-            }
-        }, 7000);
+            setInterval(() => {
+                if(isDataLoaded && data && myId) {
+                    updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
+                }
+            }, 7000);
 
-        setInterval(() => {
-            if(isDataLoaded && data && data.afkPower > 0) {
-                data.population = Math.max(0, data.population - data.afkPower);
-                data.consumed += data.afkPower;
-                updateUI();
-            }
-        }, 1000);
+            setInterval(() => {
+                if(isDataLoaded && data && data.afkPower > 0) {
+                    data.population = Math.max(0, data.population - data.afkPower);
+                    data.consumed += data.afkPower;
+                    updateUI();
+                }
+            }, 1000);
+        }
     }
 
     document.getElementById('biteBtn').onclick = () => {
@@ -202,7 +207,7 @@
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(10)), (s) => {
             let h = ""; s.forEach(d => {
                 const p = d.data();
-                // FITUR PROFIL DIHAPUS DARI SINI (onclick dibuang)
+                // NO PROFILE POPUP
                 h += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222; font-size:0.75rem;">
                     <span><b>${p.name}</b></span>
                     <span style="color:var(--accent)">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
@@ -229,18 +234,8 @@
         }
     };
 
-    document.getElementById('upGigi').onclick = () => { 
-        if(data.consumed >= data.clickCost) { 
-            data.consumed -= data.clickCost; data.clickPower++; 
-            data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); 
-        } 
-    };
-    document.getElementById('upVirus').onclick = () => { 
-        if(data.consumed >= data.afkCost) { 
-            data.consumed -= data.afkCost; data.afkPower += 2; 
-            data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); 
-        } 
-    };
+    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); } };
+    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); } };
 
     init();
 </script>
