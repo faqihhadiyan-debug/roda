@@ -1,26 +1,11 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Predator Bumi - GALACTIC MAX</title>
+    <title>EARTH PREDATOR - GALACTIC MAX</title>
     <style>
-        /* --- CSS UTAMA --- */
-        .entry-max {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 15px; background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px; margin-bottom: 8px;
-            border: 1px solid rgba(0, 242, 255, 0.1); transition: 0.3s;
-        }
-        .entry-max:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--neon); }
-        
-        .planet-badge {
-            background: linear-gradient(135deg, #222, #000); padding: 4px 10px;
-            border-radius: 10px; border: 1px solid #444; color: #fff;
-            font-size: 0.8rem; font-weight: bold; box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.8); }
+        :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.85); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
@@ -32,90 +17,65 @@
         .space-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
-            z-index: -1; overflow: hidden;
+            z-index: -1;
         }
 
-        .container { width: 100%; max-width: 420px; padding: 25px; z-index: 2; }
+        .container { width: 100%; max-width: 420px; padding: 20px; z-index: 2; }
 
         .stats-box, .action-card, .leaderboard, .chat-room { 
-            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.3);
-            border-radius: 25px; padding: 20px; margin-bottom: 25px;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); backdrop-filter: blur(20px);
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 20px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); backdrop-filter: blur(10px);
         }
 
         #population { 
-            color: var(--primary); font-weight: 900; font-size: 2.8rem; 
+            color: var(--primary); font-weight: 900; font-size: 2.5rem; 
             text-align: center; display: block; 
-            text-shadow: 0 0 20px #ff0033, 0 0 40px #660000;
-            letter-spacing: -2px; margin: 15px 0;
+            text-shadow: 0 0 20px #ff0033;
+            letter-spacing: -1px; margin: 10px 0;
         }
 
         .btn-main { 
-            width: 100%; padding: 50px 10px; font-size: 2.5rem; font-weight: 900; color: #fff; 
+            width: 100%; padding: 45px 10px; font-size: 2.2rem; font-weight: 900; color: #fff; 
             background: linear-gradient(45deg, #ff0033, #660000); 
-            border: 2px solid rgba(255,255,255,0.3); border-radius: 30px;
-            cursor: pointer; position: relative; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(255,0,51,0.4); transition: 0.2s; text-transform: uppercase;
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 25px;
+            cursor: pointer; box-shadow: 0 10px 25px rgba(255,0,51,0.4); transition: 0.1s;
         }
-        .btn-main:active { transform: scale(0.92); box-shadow: 0 5px 15px #ff0033; }
+        .btn-main:active { transform: scale(0.95); }
 
         .btn-up { 
-            width: 100%; padding: 16px; margin-top: 12px; background: rgba(0, 242, 255, 0.05); 
-            color: var(--neon); border: 1px solid var(--neon); border-radius: 15px; 
-            font-weight: bold; cursor: pointer; transition: 0.3s;
+            width: 100%; padding: 15px; margin-top: 10px; background: rgba(0, 242, 255, 0.05); 
+            color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; 
+            font-weight: bold; cursor: pointer; font-size: 0.85rem;
         }
-        .btn-up:hover { background: rgba(0, 242, 255, 0.2); }
-        .btn-up:disabled { opacity: 0.2; border-color: #444; color: #444; }
+        .btn-up:disabled { opacity: 0.3; border-color: #555; color: #555; }
 
-        /* FRENZY ALERT */
-        #frenzyBox {
-            display: none; background: linear-gradient(90deg, #ffd700, #ff0033);
-            color: #000; font-weight: 900; padding: 10px; border-radius: 15px;
-            margin-bottom: 15px; text-align: center; animation: pulse 0.5s infinite;
+        .hp-container { width: 100%; background: #222; height: 8px; border-radius: 4px; margin: 12px 0; overflow: hidden; }
+        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: 0.3s; }
+
+        /* Leaderboard Style */
+        .entry-max {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid transparent;
         }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .entry-max:hover { border-color: var(--neon); background: rgba(0, 242, 255, 0.05); }
+        .planet-badge { background: #111; padding: 3px 8px; border-radius: 8px; border: 1px solid #444; font-size: 0.75rem; }
 
-        .chat-room { background: rgba(255, 255, 255, 0.95); color: #000; border: none; }
-        .chat-box { height: 150px; overflow-y: auto; font-family: sans-serif; }
-        .chat-msg { background: #eee; padding: 8px 12px; border-radius: 15px; margin-bottom: 6px; font-size: 0.85rem; border-left: 5px solid var(--primary); }
-
-        .hp-container { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; border: 1px solid #444; }
-        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: width 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-
-        .floating-damage {
-            position: absolute; pointer-events: none; font-weight: 900; font-size: 1.5rem;
-            font-family: 'Orbitron', sans-serif; z-index: 1000;
-            animation: floatCritical 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-        }
-        @keyframes floatCritical {
-            0% { transform: scale(0.5) translateY(0); opacity: 1; }
-            50% { transform: scale(1.2) translateY(-50px); opacity: 1; }
-            100% { transform: scale(1) translateY(-120px); opacity: 0; }
-        }
-
-        /* --- UI PROFIL MODAL --- */
+        /* Profile Modal */
         #profileModal {
-            display: none;
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; max-width: 380px;
-            background: rgba(10, 10, 10, 0.95);
-            border: 2px solid var(--neon);
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
-            border-radius: 20px; padding: 25px; z-index: 9999;
-            backdrop-filter: blur(15px); text-align: center;
-            animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; max-width: 350px; background: rgba(5, 5, 5, 0.98);
+            border: 2px solid var(--neon); border-radius: 20px; padding: 20px; z-index: 10000;
+            text-align: center; box-shadow: 0 0 40px rgba(0,0,0,1);
         }
-        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity:0;} 100% { transform: translate(-50%, -50%) scale(1); opacity:1;} }
+        .prof-badge { background: #1a1a1a; padding: 6px 10px; border-radius: 8px; margin: 4px; font-size: 0.75rem; border: 1px solid #333; }
 
-        .prof-badge { background: #222; padding: 8px; border-radius: 8px; margin: 5px; display: inline-block; font-size: 0.8rem; border: 1px solid #444; }
-        
-        .cool-tag { 
-            font-size: 0.7em; color: var(--accent); background: rgba(0,0,0,0.5); 
-            padding: 2px 6px; border-radius: 4px; border: 1px solid #555; margin-left: 5px; letter-spacing: 1px;
-        }
+        /* Chat */
+        .chat-box { height: 120px; overflow-y: auto; font-size: 0.85rem; color: #333; background: #fff; padding: 10px; border-radius: 10px; }
+        .chat-msg { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
 
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
     </style>
 </head>
 <body>
@@ -123,70 +83,63 @@
 <div class="space-bg"></div>
 
 <div class="container">
-    <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL DAMAGE ☢️</div>
-
-    <div style="font-size: 0.75rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 15px; text-shadow: 0 0 5px var(--neon);">
-        <span>AGENT: <b id="displayNameDisplay">---</b> <span id="displayTag" style="color:var(--accent)"></span></span>
-        <span id="connState">SINKRONISASI...</span>
+    <div style="font-size: 0.7rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span>PREDATOR: <b id="uiName">---</b> <span id="uiTag" style="color:var(--accent)"></span></span>
+        <span id="connState">SYNCING...</span>
     </div>
 
-    <div class="stats-box" id="planetBox">
-        <small style="color:#888; letter-spacing: 3px; font-size: 0.6rem;">PLANETARY POPULATION</small>
+    <div class="stats-box">
+        <small style="color:#666; letter-spacing: 2px; font-size: 0.6rem;">TARGET POPULATION</small>
         <span id="population">8.000.000.000</span>
         <div class="hp-container"><div id="hpBar"></div></div>
-        <div style="font-size: 0.85rem; display: flex; justify-content: space-between; font-weight: bold;">
-            <span>💰 <b id="money" style="color:var(--accent)">0</b></span>
-            <span>🎯 <b id="clickTask" style="color:var(--neon)">0</b>/10k</span>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+            <span>💰 <b id="money">0</b></span>
+            <span>🎯 <b id="clickTask">0</b>/10k</span>
             <span>🌍 <b id="planet">0</b></span>
         </div>
     </div>
 
-    <button class="btn-main" id="biteBtn">DESTROY!</button>
+    <button class="btn-main" id="biteBtn">ATTACK!</button>
 
     <div class="action-card">
-        <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
-        <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
-        <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
-        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea; margin-top: 10px;">🎨 DEKORASI PROFIL</button>
-        <a href="indx.html" target="_blank" style="text-decoration: none;">
-            <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">🥔 KEMBALI</button>
-        </a>
+        <button class="btn-up" id="upGigi">🧬 TEETH MUTATION | 💰 <span id="gCost">15</span></button>
+        <button class="btn-up" id="upVirus">🦠 GALAXY VIRUS | 💰 <span id="vCost">50</span></button>
+        <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea;">🎨 PROFILE DECORATION</button>
     </div>
 
     <div class="chat-room">
-        <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
-        <div style="display:flex; gap:8px; margin-top: 10px;">
-            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd;" placeholder="Pesan..." maxlength="30">
-            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:10px 15px; border-radius:12px; font-weight:900;">></button>
+        <div id="chatBox" class="chat-box">GalaxNet connecting...</div>
+        <div style="display:flex; gap:5px; margin-top: 10px;">
+            <input type="text" id="chatInput" style="flex:1; padding:10px; border-radius:8px; border:none;" placeholder="Say something..." maxlength="30">
+            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:0 15px; border-radius:8px;">SEND</button>
         </div>
     </div>
 
     <div class="leaderboard">
-        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center; text-shadow: 0 0 10px var(--neon);">🏆 SUPREME PREDATORS</h3>
+        <h3 style="margin:0 0 15px 0; font-size:1rem; color:var(--neon); text-align:center;">🏆 RANKING</h3>
         <div id="rankList"></div>
     </div>
 </div>
 
 <div id="profileModal">
-    <div id="profHeader" style="padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #fff;">
-        <h2 style="margin:0; font-family:'Orbitron'; text-shadow:0 0 10px white;">
-            <span id="profName">NAME</span> <span id="profTag" class="cool-tag">#000</span>
-        </h2>
-        <span id="profAge" style="font-size:0.8rem; opacity:0.8;">Age: --</span>
+    <div id="profHeader" style="padding:15px; border-radius:12px; margin-bottom:15px;">
+        <h2 style="margin:0; font-size: 1.2rem;"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
+        <span id="pAge" style="font-size:0.7rem;">Age: --</span>
     </div>
-    <div id="profBio" style="font-style:italic; color:#ddd; margin:15px 0; font-size: 0.9rem;">"Loading..."</div>
-    <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:5px; margin-bottom:20px;">
-        <div class="prof-badge" id="statPlanet">🌍 0 Planet</div>
-        <div class="prof-badge" id="statGigi">🧬 0 Power</div>
-        <div class="prof-badge" id="statVirus">🦠 0/s Idle</div>
+    <p id="pBio" style="font-style:italic; font-size:0.8rem; color:#ccc;">"Loading..."</p>
+    <div style="display:flex; justify-content:center; flex-wrap:wrap;">
+        <div class="prof-badge" id="sPlanet">🌍 0</div>
+        <div class="prof-badge" id="sGigi">🧬 0</div>
+        <div class="prof-badge" id="sVirus">🦠 0</div>
     </div>
-    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">TUTUP</button>
+    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:10px; margin-top:15px; border-radius:10px; border:none; background:#333; color:white;">CLOSE</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+    // PASTIIN CONFIG INI SESUAI PUNYA KAMU
     const firebaseConfig = {
         apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
         authDomain: "fruitsmasmaster.firebaseapp.com",
@@ -200,231 +153,145 @@
     const db = getFirestore(app);
 
     const sfxBite = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
-    const sfxExplode = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-
-    // MENGGUNAKAN LOCAL STORAGE KEY BARU AGAR TIDAK BENTROK
-    let myUid = localStorage.getItem('predator_uid_v2'); 
+    
+    // --- DATABASE & ID SYSTEM ---
+    let myId = localStorage.getItem('predator_uid_v2'); // ID unik mesin
     let data = { 
-        name: "Unknown", 
-        tag: "#000",
-        population: 8000000000, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, 
-        planetsCleared: 0, manualClicks: 0, frenzyUntil: 0, lastActive: Date.now() 
+        name: "Unknown", tag: "#000", population: 8000000000, consumed: 0, 
+        clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, 
+        planetsCleared: 0, manualClicks: 0, lastActive: Date.now(),
+        age: "18", bio: "Earth Destroyer", themeColor: "#00f2ff"
     };
-    const MAX_POP = 8000000000;
-    let isTransitioning = false;
 
-    // --- GENERATOR ID ACAK (Biar Nama Sama Tetap Bisa Masuk) ---
-    function makeId(length) {
-        let result = '';
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
-    }
-
-    // --- GENERATOR TAG KEREN (Ex: #X92) ---
-    function makeTag() {
-        const chars = '0123456789ABC'; // Angka dan huruf kapital dikit biar keren
-        let tag = '#';
-        for (let i = 0; i < 4; i++) tag += chars.charAt(Math.floor(Math.random() * chars.length));
-        return tag;
+    function generateTag() {
+        const chars = '0123456789ABC';
+        let t = '#';
+        for(let i=0; i<4; i++) t += chars[Math.floor(Math.random()*chars.length)];
+        return t;
     }
 
     async function init() {
-        // Cek apakah user sudah punya akun di browser ini
-        if(!myUid) {
-            // KALAU BELUM, BUAT BARU
-            let n = prompt("MASUKKAN NAMA (Boleh sama dengan teman):");
-            if(!n || n.trim().length === 0) n = "Predator";
-            
-            // Generate ID Mesin (Hidden) dan Tag Keren (Public)
-            myUid = "user_" + makeId(12); // ID Unik Sistem
-            const myTag = makeTag(); // ID Keren (Tag)
-            
-            localStorage.setItem('predator_uid_v2', myUid);
-            
-            // Simpan data awal
-            data.name = n.substring(0, 15); // Nama user
-            data.tag = myTag; // Tag keren
-            data.age = prompt("Umur:", "18") || "??";
-            data.bio = "Predator Baru";
-            data.themeColor = "#00f2ff";
-            
-            await setDoc(doc(db, "players", myUid), data);
+        // Jika belum punya akun
+        if(!myId) {
+            let n = prompt("ENTER YOUR NAME:");
+            if(!n) n = "Predator";
+            myId = "user_" + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('predator_uid_v2', myId);
+            data.name = n;
+            data.tag = generateTag();
+            await setDoc(doc(db, "players", myId), data);
         }
-        
-        // --- LOAD DATA ---
-        const playerRef = doc(db, "players", myUid);
-        const snap = await getDoc(playerRef);
-        
-        if(snap.exists()) {
-    const dbData = snap.data();
-    
-    // --- LOGIKA FIX UNKNOWN ---
-    // Jika kolom 'name' kosong, ambil dari 'id' lama atau minta input baru
-    if(!dbData.name) {
-        dbData.name = id || prompt("Nama kamu hilang, masukkan kembali:") || "Predator";
-    }
-    if(!dbData.tag) {
-        dbData.tag = makeTag(); // Kasih tag unik baru
-    }
-    // --------------------------
 
-    data = { ...data, ...dbData };
-    
-    // Update tampilan di atas biar gak Unknown lagi
-    document.getElementById('displayNameDisplay').innerText = data.name;
-    document.getElementById('displayTag').innerText = data.tag;
-    
-    // ... sisa kode AFK dan lainnya ...
-}
+        const snap = await getDoc(doc(db, "players", myId));
+        if(snap.exists()) {
+            const dbData = snap.data();
+            
+            // LOGIKA MIGRASI: Jika name masih "Unknown" atau kosong
+            if(!dbData.name || dbData.name === "Unknown") dbData.name = myId.split('_')[1] || "Predator";
+            if(!dbData.tag) dbData.tag = generateTag();
+            
+            data = { ...data, ...dbData };
             
             // Hitung AFK
             if (dbData.lastActive && dbData.afkPower > 0) {
                 const diff = Math.min(Math.floor((Date.now() - dbData.lastActive)/1000), 86400);
                 const gain = diff * dbData.afkPower;
-                if (gain > 10) {
-                    data.consumed += gain;
-                    data.population -= gain;
-                    alert(`🚀 WELCOME BACK, ${data.name}!\nDapat 💰 ${Math.floor(gain).toLocaleString()} koin!`);
+                if(gain > 5) {
+                    data.consumed += gain; data.population -= gain;
+                    alert(`OFFLINE EARNINGS: 💰 ${Math.floor(gain)}`);
                 }
             }
-        } else {
-            // Jaga-jaga kalau data di server kehapus tapi di HP masih ada ID
-            await setDoc(playerRef, data);
         }
 
-        initChat(); 
-        initRank(); 
+        document.getElementById('uiName').innerText = data.name;
+        document.getElementById('uiTag').innerText = data.tag;
+        
+        initChat();
+        initRank();
         updateUI();
-
-        setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
-        setInterval(save, 15000);
+        setInterval(() => { if(data.afkPower > 0) { data.population -= data.afkPower; data.consumed += data.afkPower; updateUI(); } }, 1000);
+        setInterval(save, 10000);
     }
 
     const save = async () => { 
-        if(myUid && !isTransitioning) { 
-            try {
-                // Pastikan nama dan tag ikut tersimpan
-                await updateDoc(doc(db, "players", myUid), { 
-                    ...data, 
-                    lastActive: Date.now() 
-                }); 
-            } catch (e) { console.error("Save error", e); }
-        } 
+        if(myId) await updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); 
     };
 
-    // --- TAMPILKAN PROFIL ---
+    // --- PROFILE LOGIC ---
     window.showProfile = async (targetId) => {
         const snap = await getDoc(doc(db, "players", targetId));
-        if (snap.exists()) {
+        if(snap.exists()) {
             const p = snap.data();
-            const header = document.getElementById('profHeader');
-            
-            header.style.background = p.themeColor || '#222';
-            header.style.borderColor = p.themeColor || '#fff';
-            header.style.boxShadow = `0 0 20px ${p.themeColor || '#000'}`;
-
-            // TAMPILKAN NAMA + TAG KEREN
-            document.getElementById('profName').innerText = p.name || "Unknown";
-            document.getElementById('profTag').innerText = p.tag || "#???";
-            
-            document.getElementById('profAge').innerText = "Umur: " + (p.age || "??");
-            document.getElementById('profBio').innerText = `"${p.bio || '...'}"`;
-            document.getElementById('statPlanet').innerText = `🌍 ${p.planetsCleared || 0} Planet`;
-            document.getElementById('statGigi').innerText = `🧬 Lv.${p.clickPower} Gigi`;
-            document.getElementById('statVirus').innerText = `🦠 ${p.afkPower}/detik`;
-
-            document.getElementById('profileModal').style.display = 'block';
+            const modal = document.getElementById('profileModal');
+            document.getElementById('profHeader').style.background = p.themeColor || '#222';
+            document.getElementById('pName').innerText = p.name;
+            document.getElementById('pTag').innerText = p.tag;
+            document.getElementById('pAge').innerText = "Age: " + (p.age || "??");
+            document.getElementById('pBio').innerText = `"${p.bio || '...'}"`;
+            document.getElementById('sPlanet').innerText = `🌍 ${p.planetsCleared}`;
+            document.getElementById('sGigi').innerText = `🧬 Power ${p.clickPower}`;
+            document.getElementById('sVirus').innerText = `🦠 ${p.afkPower}/s`;
+            modal.style.display = 'block';
         }
     };
 
-    // --- EDIT PROFIL (Hanya Nama/Bio/Warna, TAG TIDAK BISA DIEDIT) ---
     window.editMyProfile = async () => {
-        let newName = prompt("Ganti Nama Panggilan (Tag ID tidak akan berubah):", data.name);
-        let newBio = prompt("Ganti Bio:", data.bio);
-        let newColor = prompt("Ganti Warna Neon:", data.themeColor);
+        let nName = prompt("New Display Name:", data.name);
+        let nAge = prompt("Your Age:", data.age);
+        let nBio = prompt("Short Bio:", data.bio);
+        let nColor = prompt("Neon Color (hex or name, e.g: red, #ff00ea):", data.themeColor);
         
-        if(newName) data.name = newName.substring(0, 15);
-        if(newBio) data.bio = newBio.substring(0, 30);
-        if(newColor) data.themeColor = newColor;
+        if(nName) data.name = nName.substring(0, 12);
+        if(nAge) data.age = nAge;
+        if(nBio) data.bio = nBio.substring(0, 30);
+        if(nColor) data.themeColor = nColor;
         
-        // Update tampilan langsung
-        document.getElementById('displayNameDisplay').innerText = data.name;
-        
+        document.getElementById('uiName').innerText = data.name;
         save();
-        alert("✅ Profil Diperbarui!");
+        alert("PROFILE UPDATED!");
     };
 
-    // --- LEADERBOARD KEREN ---
+    // --- LEADERBOARD ---
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
-            let h1 = ""; let count = 0; const now = Date.now();
+            let h = ""; let count = 0;
             snap.forEach(d => {
                 count++; const p = d.data();
-                const isOn = p.lastActive && (now - p.lastActive) < 60000;
-                
-                // KITA PAKAI d.id (UID) UNTUK KLIK, TAPI TAMPILKAN p.name + p.tag
-                h1 += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer;">
+                const isMe = d.id === myId;
+                h += `<div class="entry-max" onclick="window.showProfile('${d.id}')">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; box-shadow:${isOn?'0 0 5px #0f0':'none'}"></span>
+                        <span style="font-size:0.8rem; color:#777;">#${count}</span>
                         <div>
-                            <b style="color:${d.id === myUid ? 'var(--neon)' : '#fff'}">
-                                ${count}. ${p.name || 'Unknown'} 
-                                <span style="font-size:0.7em; color:#888;">${p.tag || ''}</span>
-                            </b>
-                            <br><small style="color:#888">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
+                            <b style="color:${isMe ? 'var(--neon)' : '#fff'}">${p.name || 'Unknown'}</b>
+                            <br><small style="color:#666">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
                         </div>
                     </div>
-                    <div class="planet-badge" style="border-color:${p.themeColor || '#444'}">🌍 ${p.planetsCleared || 0}</div>
+                    <div class="planet-badge" style="border-color:${p.themeColor}">🌍 ${p.planetsCleared}</div>
                 </div>`;
             });
-            document.getElementById('rankList').innerHTML = h1;
+            document.getElementById('rankList').innerHTML = h;
         });
     }
 
-    // --- GAME LOGIC ---
-    function processHit(amt, isManual) {
-        if(isTransitioning) return;
-        let power = amt;
-        if(isManual && Date.now() < data.frenzyUntil) power *= 2;
-        data.population -= power; data.consumed += power;
-        
-        if(isManual) {
-            data.manualClicks++;
-            if(data.manualClicks >= 10000) { data.manualClicks = 0; data.frenzyUntil = Date.now() + 20000; }
-        }
-
-        if(data.population <= 0) {
-            isTransitioning = true; data.population = 0;
-            sfxExplode.play();
-            setTimeout(() => {
-                data.planetsCleared++; 
-                data.population = MAX_POP;
-                isTransitioning = false; 
-                updateUI(); save();
-            }, 800);
-        }
-        return power;
-    }
-
+    // --- GAME ACTIONS ---
     document.getElementById('biteBtn').onclick = (e) => {
         sfxBite.currentTime = 0; sfxBite.play();
-        const p = processHit(data.clickPower, true);
-        const d = document.createElement('div');
-        d.className = 'floating-damage';
-        d.innerText = `-${Math.floor(p)}`;
-        d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
-        document.body.appendChild(d);
-        setTimeout(() => d.remove(), 700);
+        data.population -= data.clickPower;
+        data.consumed += data.clickPower;
+        data.manualClicks++;
+        
+        if(data.population <= 0) {
+            data.planetsCleared++;
+            data.population = 8000000000;
+            alert("PLANET DESTROYED! Moving to next target...");
+        }
         updateUI();
     };
 
     document.getElementById('upGigi').onclick = () => {
         if(data.consumed >= data.clickCost) {
             data.consumed -= data.clickCost; data.clickPower += 1;
-            data.clickCost = Math.floor(data.clickCost * 1.5);
+            data.clickCost = Math.floor(data.clickCost * 1.6);
             updateUI(); save();
         }
     };
@@ -432,29 +299,29 @@
     document.getElementById('upVirus').onclick = () => {
         if(data.consumed >= data.afkCost) {
             data.consumed -= data.afkCost; data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 1.6);
+            data.afkCost = Math.floor(data.afkCost * 1.7);
             updateUI(); save();
         }
     };
 
     function updateUI() {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
+        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString();
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
         document.getElementById('clickTask').innerText = data.manualClicks;
         document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
         document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
-        document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
+        document.getElementById('hpBar').style.width = (data.population/8000000000*100) + "%";
         
         document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
         document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
+    // --- CHAT ---
     function initChat() {
-        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(15)), (s) => {
+        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(10)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
-                // Tampilkan Nama + Tag di Chat
-                h += `<div class="chat-msg"><b>${d.data().senderName || 'Unknown'} <span style="font-size:0.7em; opacity:0.7">${d.data().senderTag || ''}</span>:</b> ${d.data().text}</div>`;
+                h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
             const cb = document.getElementById('chatBox');
             cb.innerHTML = h; cb.scrollTop = cb.scrollHeight;
@@ -464,19 +331,12 @@
     document.getElementById('sendChat').onclick = async () => {
         const i = document.getElementById('chatInput');
         if(i.value.trim()) {
-            await addDoc(collection(db, "messages"), { 
-                senderUid: myUid, 
-                senderName: data.name,
-                senderTag: data.tag,
-                text: i.value, 
-                createdAt: serverTimestamp() 
-            });
+            await addDoc(collection(db, "messages"), { sender: data.name, text: i.value, createdAt: serverTimestamp() });
             i.value = "";
         }
     };
 
     init();
-
 </script>
 </body>
 </html>
