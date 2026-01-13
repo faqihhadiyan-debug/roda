@@ -259,17 +259,26 @@
         const snap = await getDoc(playerRef);
         
         if(snap.exists()) {
-            const dbData = snap.data();
-            
-            // Update data lokal jika nama/tag belum ada (migrasi dari versi lama)
-            if(!dbData.tag) dbData.tag = makeTag();
-            if(!dbData.name) dbData.name = "Unknown";
-            
-            data = { ...data, ...dbData };
-            
-            // Tampilan Nama & ID di Atas
-            document.getElementById('displayNameDisplay').innerText = data.name;
-            document.getElementById('displayTag').innerText = data.tag;
+    const dbData = snap.data();
+    
+    // --- LOGIKA FIX UNKNOWN ---
+    // Jika kolom 'name' kosong, ambil dari 'id' lama atau minta input baru
+    if(!dbData.name) {
+        dbData.name = id || prompt("Nama kamu hilang, masukkan kembali:") || "Predator";
+    }
+    if(!dbData.tag) {
+        dbData.tag = makeTag(); // Kasih tag unik baru
+    }
+    // --------------------------
+
+    data = { ...data, ...dbData };
+    
+    // Update tampilan di atas biar gak Unknown lagi
+    document.getElementById('displayNameDisplay').innerText = data.name;
+    document.getElementById('displayTag').innerText = data.tag;
+    
+    // ... sisa kode AFK dan lainnya ...
+}
             
             // Hitung AFK
             if (dbData.lastActive && dbData.afkPower > 0) {
