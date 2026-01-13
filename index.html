@@ -109,7 +109,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // PENYIMPANAN ASLI LO
     let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
     let data = null;
     let isDataLoaded = false;
@@ -124,7 +123,6 @@
             await setDoc(doc(db, "players", myId), data);
             isDataLoaded = true;
         } else {
-            // TARIK DATA DARI 'players'
             const snap = await getDoc(doc(db, "players", myId));
             if(snap.exists()) {
                 data = snap.data();
@@ -142,7 +140,6 @@
 
         updateUI(); initChat(); initRank(); animateStars();
 
-        // Autosave 7 detik (Hanya jika data sudah ditarik)
         setInterval(() => {
             if(isDataLoaded && data && myId) {
                 updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
@@ -180,7 +177,6 @@
         document.getElementById('upVirus').disabled = data.consumed < (data.afkCost || 50);
     }
 
-    // --- Visual ---
     const canvas = document.getElementById('starCanvas');
     const ctx = canvas.getContext('2d');
     let stars = [];
@@ -195,15 +191,18 @@
         });
         requestAnimationFrame(animateStars);
     }
+
     window.toggleBGM = () => {
         const b = document.getElementById('bgm');
         if(b.paused) { b.play(); document.getElementById('bgmStatus').innerText = "ON"; }
         else { b.pause(); document.getElementById('bgmStatus').innerText = "OFF"; }
     };
+
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(10)), (s) => {
             let h = ""; s.forEach(d => {
                 const p = d.data();
+                // FITUR PROFIL DIHAPUS DARI SINI (onclick dibuang)
                 h += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222; font-size:0.75rem;">
                     <span><b>${p.name}</b></span>
                     <span style="color:var(--accent)">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
@@ -212,6 +211,7 @@
             document.getElementById('rankList').innerHTML = h;
         });
     }
+
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(6)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
@@ -220,6 +220,7 @@
             document.getElementById('chatBox').innerHTML = h;
         });
     }
+
     document.getElementById('sendChat').onclick = async () => {
         const i = document.getElementById('chatInput');
         if(i.value.trim() && data) {
@@ -227,8 +228,20 @@
             i.value = "";
         }
     };
-    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); } };
-    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); } };
+
+    document.getElementById('upGigi').onclick = () => { 
+        if(data.consumed >= data.clickCost) { 
+            data.consumed -= data.clickCost; data.clickPower++; 
+            data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); 
+        } 
+    };
+    document.getElementById('upVirus').onclick = () => { 
+        if(data.consumed >= data.afkCost) { 
+            data.consumed -= data.afkCost; data.afkPower += 2; 
+            data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); 
+        } 
+    };
+
     init();
 </script>
 </body>
