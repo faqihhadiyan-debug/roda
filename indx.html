@@ -8,23 +8,47 @@
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
         :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.9); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Orbitron', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; overflow-y: auto; }
+
+        body { 
+            margin: 0; background: #000; color: #fff; font-family: 'Orbitron', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; overflow-x: hidden; overflow-y: auto; 
+        }
+
         #starCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; pointer-events: none; }
         .space-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); z-index: -1; }
+
         .container { width: 100%; max-width: 400px; padding: 15px; z-index: 10; position: relative; padding-bottom: 50px; }
-        .stats-box, .action-card, .leaderboard, .chat-room { background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px); }
-        #population { color: var(--primary); font-weight: 900; font-size: 2.2rem; text-align: center; display: block; text-shadow: 0 0 15px #ff0033; letter-spacing: 1px; margin: 5px 0; }
-        .btn-main { width: 100%; padding: 40px 10px; font-size: 2rem; font-weight: 900; color: #fff; background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); border-radius: 25px; cursor: pointer; box-shadow: 0 8px 25px rgba(255,0,51,0.4); }
-        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; }
-        .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; }
+
+        .stats-box, .action-card, .leaderboard, .chat-room { 
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 20px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px);
+        }
+
+        #population { 
+            color: var(--primary); font-weight: 900; font-size: 2.2rem; text-align: center; display: block; 
+            text-shadow: 0 0 15px #ff0033; letter-spacing: 1px; margin: 5px 0;
+        }
+
+        .btn-main { 
+            width: 100%; padding: 40px 10px; font-size: 2rem; font-weight: 900; color: #fff; 
+            background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); 
+            border-radius: 25px; cursor: pointer; box-shadow: 0 8px 25px rgba(255,0,51,0.4);
+        }
+        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+
+        .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .btn-up:disabled { opacity: 0.2; }
+
         .hp-container { width: 100%; background: #222; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
         #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: 0.3s; }
+
         .chat-box { height: 100px; overflow-y: auto; background: #fff; color: #000; padding: 10px; border-radius: 12px; font-size: 0.8rem; }
         .bgm-ctrl { position: fixed; top: 10px; right: 10px; z-index: 10001; background: rgba(0,0,0,0.6); border: 1px solid var(--neon); padding: 5px 10px; border-radius: 15px; font-size: 0.6rem; cursor: pointer; }
     </style>
 </head>
 <body>
+
 <canvas id="starCanvas"></canvas>
 <div class="space-bg"></div>
 <div class="bgm-ctrl" onclick="toggleBGM()">🎵 MUSIC: <span id="bgmStatus">OFF</span></div>
@@ -34,27 +58,32 @@
         <span>PREDATOR: <b id="uiName">---</b></span>
         <span id="connState" style="color: yellow;">SYNCING...</span>
     </div>
+
     <div class="stats-box">
         <small style="color:#666; letter-spacing: 2px; font-size: 0.55rem;">WORLD POPULATION</small>
-        <span id="population">LOADING...</span>
+        <span id="population">CONNECTING...</span>
         <div class="hp-container"><div id="hpBar"></div></div>
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
             <span>💰 <b id="money">0</b></span>
             <span>🌍 <b id="planet">0</b></span>
         </div>
     </div>
+
     <button class="btn-main" id="biteBtn" disabled>WAIT...</button>
+
     <div class="action-card">
         <button class="btn-up" id="upGigi" disabled>🧬 MUTATE TEETH | 💰 <span id="gCost">--</span></button>
         <button class="btn-up" id="upVirus" disabled>🦠 GALAXY VIRUS | 💰 <span id="vCost">--</span></button>
     </div>
+
     <div class="chat-room">
-        <div id="chatBox" class="chat-box">Connecting...</div>
+        <div id="chatBox" class="chat-box">GalaxNet online...</div>
         <div style="display:flex; gap:5px; margin-top: 8px;">
             <input type="text" id="chatInput" style="flex:1; padding:8px; border-radius:8px; border:none;" placeholder="Chat...">
             <button id="sendChat" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:0 12px;">></button>
         </div>
     </div>
+
     <div class="leaderboard">
         <h3 style="margin:0 0 10px 0; font-size:0.9rem; color:var(--neon); text-align:center;">🏆 TOP RANK</h3>
         <div id="rankList"></div>
@@ -80,7 +109,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // TETAP PAKAI PENYIMPANAN LAMA
     let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
     let data = null;
     let isDataLoaded = false;
@@ -88,49 +116,60 @@
 
     async function init() {
         if(!myId) {
-            let n = prompt("NAME:");
+            let n = prompt("ENTER PREDATOR NAME:");
             myId = "user_" + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('predator_uid_v2', myId);
             data = { name: n || "Predator", population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0 };
             await setDoc(doc(db, "players", myId), data);
             isDataLoaded = true;
         } else {
+            // TARIK DATA CLOUD DULU SEBELUM START
             const snap = await getDoc(doc(db, "players", myId));
             if(snap.exists()) {
                 data = snap.data();
-                isDataLoaded = true; // KUNCI DIBUKA: Data asli ditemukan
+                isDataLoaded = true;
             } else {
-                myId = null; init(); return;
+                // Jika ID lama gak ketemu di cloud, reset local biar gak error
+                myId = null; 
+                localStorage.removeItem('predator_uid_v2');
+                localStorage.removeItem('solo_uid');
+                init(); 
+                return;
             }
         }
 
-        document.getElementById('biteBtn').disabled = false;
-        document.getElementById('biteBtn').innerText = "ATTACK!";
-        document.getElementById('connState').innerText = "LIVE";
-        document.getElementById('connState').style.color = "#00f2ff";
-        document.getElementById('uiName').innerText = data.name;
+        // UNLOCK GAME
+        if(isDataLoaded) {
+            document.getElementById('biteBtn').disabled = false;
+            document.getElementById('biteBtn').innerText = "ATTACK!";
+            document.getElementById('connState').innerText = "LIVE";
+            document.getElementById('connState').style.color = "#00f2ff";
+            document.getElementById('uiName').innerText = data.name;
 
-        updateUI(); initChat(); initRank(); animateStars();
+            updateUI(); initChat(); initRank(); animateStars();
 
-        // Autosave tiap 7 detik cuma kalau data sudah loaded
-        setInterval(() => {
-            if(isDataLoaded && data && myId) {
-                updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
-            }
-        }, 7000);
+            // Autosave tiap 7 detik
+            setInterval(() => {
+                if(isDataLoaded && data && myId) {
+                    updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync delay"));
+                }
+            }, 7000);
 
-        setInterval(() => {
-            if(isDataLoaded && data && data.afkPower > 0) {
-                data.population = Math.max(0, data.population - data.afkPower);
-                data.consumed += data.afkPower;
-                updateUI();
-            }
-        }, 1000);
+            // Income tiap detik
+            setInterval(() => {
+                if(isDataLoaded && data && data.afkPower > 0) {
+                    data.population = Math.max(0, data.population - data.afkPower);
+                    data.consumed += data.afkPower;
+                    updateUI();
+                }
+            }, 1000);
+        }
     }
 
     document.getElementById('biteBtn').onclick = () => {
         if(!isDataLoaded) return;
-        document.getElementById('sfxBite').currentTime = 0; document.getElementById('sfxBite').play();
+        document.getElementById('sfxBite').currentTime = 0; 
+        document.getElementById('sfxBite').play();
         data.population = Math.max(0, data.population - data.clickPower);
         data.consumed += data.clickPower;
         if(data.population <= 0) { data.planetsCleared++; data.population = MAX_POP; }
@@ -149,7 +188,6 @@
         document.getElementById('upVirus').disabled = data.consumed < (data.afkCost || 50);
     }
 
-    // --- Efek Visual & Pendukung ---
     const canvas = document.getElementById('starCanvas');
     const ctx = canvas.getContext('2d');
     let stars = [];
@@ -164,11 +202,13 @@
         });
         requestAnimationFrame(animateStars);
     }
+
     window.toggleBGM = () => {
         const b = document.getElementById('bgm');
         if(b.paused) { b.play(); document.getElementById('bgmStatus').innerText = "ON"; }
         else { b.pause(); document.getElementById('bgmStatus').innerText = "OFF"; }
     };
+
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(10)), (s) => {
             let h = ""; s.forEach(d => {
@@ -181,14 +221,16 @@
             document.getElementById('rankList').innerHTML = h;
         });
     }
+
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(6)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
-                h += `<div style="margin-bottom:4px;"><b>${d.data().sender || 'Anon'}:</b> ${d.data().text}</div>`;
+                h += `<div style="margin-bottom:4px;"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
             document.getElementById('chatBox').innerHTML = h;
         });
     }
+
     document.getElementById('sendChat').onclick = async () => {
         const i = document.getElementById('chatInput');
         if(i.value.trim() && data) {
@@ -196,6 +238,7 @@
             i.value = "";
         }
     };
+
     document.getElementById('upGigi').onclick = () => { 
         if(data.consumed >= data.clickCost) { 
             data.consumed -= data.clickCost; data.clickPower++; 
@@ -208,7 +251,9 @@
             data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); 
         } 
     };
+
     init();
 </script>
 </body>
-</html>
+    </html>
+    
