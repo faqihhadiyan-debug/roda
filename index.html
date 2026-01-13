@@ -1,317 +1,250 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dino Clicker Ultra Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EARTH PREDATOR</title>
     <style>
-        :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --accent: #38bdf8;
-            --aurum: #ffd700;
-            --danger: #ef4444;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+        :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.9); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            background: var(--bg); 
-            color: #f8fafc; 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh;
-            overflow: hidden;
-            user-select: none;
+            margin: 0; background: #000; color: #fff; font-family: 'Orbitron', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; overflow-x: hidden; overflow-y: auto; 
         }
 
-        /* Canvas Komet - Paling Depan */
-        #cometCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9999;
+        #starCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; pointer-events: none; }
+        .space-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); z-index: -1; }
+
+        .container { width: 100%; max-width: 400px; padding: 15px; z-index: 10; position: relative; padding-bottom: 50px; }
+
+        .stats-box, .action-card, .leaderboard, .chat-room { 
+            background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 20px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px);
         }
 
-        /* Container Utama dengan Spacing Lega */
-        #main-wrapper {
-            z-index: 10;
-            width: 90%;
-            max-width: 400px;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 50px; /* Jarak antar elemen */
+        /* FONT POPULASI DIKECILIN BIAR GAK KEBESARAN */
+        #population { 
+            color: var(--primary); font-weight: 900; font-size: 1.8rem; text-align: center; display: block; 
+            text-shadow: 0 0 15px #ff0033; letter-spacing: 1px; margin: 5px 0;
         }
 
-        /* Profil Card Pro */
-        #profile-box { 
-            background: var(--card); 
-            padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: left;
+        .btn-main { 
+            width: 100%; padding: 40px 10px; font-size: 2rem; font-weight: 900; color: #fff; 
+            background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); 
+            border-radius: 25px; cursor: pointer; box-shadow: 0 8px 25px rgba(255,0,51,0.4);
         }
+        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
 
-        .status-badge { 
-            background: var(--accent); 
-            color: #000;
-            padding: 5px 12px; 
-            border-radius: 30px; 
-            font-size: 10px; 
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
+        #frenzyAlert { display: none; background: linear-gradient(90deg, #ffd700, #ff0033); color: #000; font-weight: 900; padding: 10px; border-radius: 12px; text-align: center; margin-bottom: 12px; }
 
-        /* Tombol Dino Smooth & Bounce */
-        #game-container { 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; }
+        .btn-up:disabled { opacity: 0.2; }
 
-        #consumeBtn { 
-            width: 200px; 
-            height: 200px; 
-            border-radius: 50%; 
-            border: 6px solid var(--accent);
-            background: url('https://cdn-icons-png.flaticon.com/512/2972/2972215.png') center/75% no-repeat #24344d;
-            cursor: pointer; 
-            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-        }
+        .hp-container { width: 100%; background: #222; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: 0.3s; }
 
-        #consumeBtn:active { 
-            transform: scale(0.9); 
-            box-shadow: 0 0 50px rgba(56, 189, 248, 0.4);
-        }
-
-        /* Warning Overheat Overlay */
-        #staminaWarn { 
-            display: none; 
-            position: fixed; 
-            inset: 0;
-            background: rgba(10, 10, 10, 0.98);
-            z-index: 10000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: var(--danger);
-            text-align: center;
-        }
-
-        #score {
-            font-size: 2rem;
-            font-weight: 800;
-            text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-        }
-
-        .bonus-notif {
-            position: fixed;
-            color: var(--aurum);
-            font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 1.5s forwards;
-            z-index: 1000;
-        }
-
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
+        .chat-box { height: 100px; overflow-y: auto; background: #fff; color: #000; padding: 10px; border-radius: 12px; font-size: 0.8rem; }
+        .bgm-ctrl { position: fixed; top: 10px; right: 10px; z-index: 10001; background: rgba(0,0,0,0.6); border: 1px solid var(--neon); padding: 5px 10px; border-radius: 15px; font-size: 0.6rem; cursor: pointer; }
     </style>
 </head>
-<body onload="checkBan()">
+<body>
 
-    <canvas id="cometCanvas"></canvas>
+<canvas id="starCanvas"></canvas>
+<div class="space-bg"></div>
+<div class="bgm-ctrl" onclick="toggleBGM()">🎵 MUSIC: <span id="bgmStatus">OFF</span></div>
 
-    <div id="main-wrapper">
-        <div id="profile-box">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span id="statusBadge" class="status-badge">NORMAL</span>
-                <div style="font-size: 11px; opacity: 0.5;">
-                    MUSIC <input type="checkbox" id="bgmToggle">
-                </div>
-            </div>
-            <h2 style="margin: 0; font-size: 1.4rem; letter-spacing: -0.5px;">Elite Player</h2>
-            <div id="score">0</div>
-            <p style="margin: 5px 0 0; opacity: 0.6; font-size: 14px;">Rank: <span id="rank">Newbie</span></p>
-        </div>
+<div class="container">
+    <div id="frenzyAlert">🔥 FRENZY MODE: 2X POWER! 🔥</div>
 
-        <div id="game-container">
-            <button id="consumeBtn"></button>
-            <p style="margin-top: 25px; font-size: 12px; opacity: 0.4; letter-spacing: 2px;">PRESS TO HARVEST</p>
+    <div style="font-size: 0.7rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span>PREDATOR: <b id="uiName">---</b></span>
+        <span id="connState" style="color: yellow;">SYNCING...</span>
+    </div>
+
+    <div class="stats-box">
+        <small style="color:#666; letter-spacing: 2px; font-size: 0.55rem;">POPULATION STATUS</small>
+        <span id="population">LOADING...</span>
+        <div class="hp-container"><div id="hpBar"></div></div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
+            <span>💰 <b id="money">0</b></span>
+            <span>🌍 <b id="planet">0</b></span>
+            <span style="color:var(--neon)">🎯 <b id="clickCount">0</b>/10k</span>
         </div>
     </div>
 
-    <div id="staminaWarn">
-        <h1 style="font-size: 2.5rem; margin:0; letter-spacing: -1px;">SYSTEM LOCK</h1>
-        <p id="warnTimer" style="font-size: 1.2rem; font-family: monospace; color: white; margin: 20px 0;">SANKSI: 00:00:00</p>
-        <p style="opacity: 0.5; font-size: 14px;">Cooling down system components...</p>
+    <button class="btn-main" id="biteBtn" disabled>CONNECTING...</button>
+
+    <div class="action-card">
+        <button class="btn-up" id="upGigi" disabled>🧬 MUTATE TEETH | 💰 <span id="gCost">--</span></button>
+        <button class="btn-up" id="upVirus" disabled>🦠 GALAXY VIRUS | 💰 <span id="vCost">--</span></button>
     </div>
 
-    <audio id="sfxClick" src="click.mp3"></audio>
-    <audio id="bgmMusic" src="bgm.mp3" loop></audio>
+    <div class="chat-room">
+        <div id="chatBox" class="chat-box">GalaxNet online...</div>
+        <div style="display:flex; gap:5px; margin-top: 8px;">
+            <input type="text" id="chatInput" style="flex:1; padding:8px; border-radius:8px; border:none;" placeholder="Chat..." maxlength="30">
+            <button id="sendChat" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:0 12px;">></button>
+        </div>
+    </div>
 
-    <script>
-        // Data & Storage
-        let score = parseInt(localStorage.getItem('total_score')) || 0;
-        let tapCounterForBonus = parseInt(localStorage.getItem('tap_bonus_cnt')) || 0;
-        let spamCounter = 0;
-        let isExhausted = false;
-        let overheatCount = parseInt(localStorage.getItem('oh_count')) || 0;
-        let banEndTime = parseInt(localStorage.getItem('ban_time')) || 0;
+    <div class="leaderboard">
+        <h3 style="margin:0 0 10px 0; font-size:0.9rem; color:var(--neon); text-align:center;">🏆 TOP RANK</h3>
+        <div id="rankList"></div>
+    </div>
+</div>
 
-        const scoreEl = document.getElementById('score');
-        const statusBadge = document.getElementById('statusBadge');
-        const sfx = document.getElementById('sfxClick');
-        const bgm = document.getElementById('bgmMusic');
+<audio id="sfxBite" src="https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3"></audio>
+<audio id="bgm" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" loop></audio>
 
-        // Init View
-        scoreEl.innerText = score.toLocaleString();
-        updateRank();
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-        // Music
-        document.getElementById('bgmToggle').onchange = (e) => {
-            e.target.checked ? bgm.play() : bgm.pause();
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyD3tna4rUSr_FH0eb08aI3AX3Z-fVcqaj8",
+        authDomain: "fruitsmasmaster.firebaseapp.com",
+        projectId: "fruitsmasmaster",
+        storageBucket: "fruitsmasmaster.firebasestorage.app",
+        messagingSenderId: "673530855742",
+        appId: "1:673530855742:web:ac1395bda6c68f764cac6f"
+    };
 
-        // Komet Animasi
-        const canvas = document.getElementById('cometCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.onresize = resize; resize();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        class Comet {
-            constructor() { this.reset(); }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = -50;
-                this.speed = 3 + Math.random() * 4;
-                this.size = 1 + Math.random() * 2;
-            }
-            draw() {
-                this.y += this.speed; this.x -= 1;
-                if (this.y > canvas.height) this.reset();
-                ctx.fillStyle = "rgba(56, 189, 248, 0.4)";
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-            }
-        }
-        for(let i=0; i<25; i++) particles.push(new Comet());
-        function animate() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            particles.forEach(p => p.draw());
-            requestAnimationFrame(animate);
-        }
-        animate();
+    let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
+    let data = null;
+    let isDataLoaded = false;
+    const MAX_POP = 8000000000;
 
-        // Game Logic
-        document.getElementById('consumeBtn').onclick = (e) => {
-            if (isExhausted) return;
-            
-            // Effect
-            sfx.currentTime = 0; sfx.play();
-            
-            score++;
-            tapCounterForBonus++;
-            spamCounter++;
-
-            // Fitur Bonus 10k tiap 1000 Tap
-            if (tapCounterForBonus >= 1000) {
-                score += 10000;
-                tapCounterForBonus = 0;
-                showBonusNotif();
-            }
-
-            // Save & Display
-            scoreEl.innerText = score.toLocaleString();
-            localStorage.setItem('total_score', score);
-            localStorage.setItem('tap_bonus_cnt', tapCounterForBonus);
-            updateRank();
-
-            // Anti-Spam Detection
-            if (spamCounter > 40) {
-                statusBadge.innerText = "CRITICAL";
-                statusBadge.style.background = "var(--danger)";
-                if (spamCounter > 90) {
-                    handleOverheat();
-                }
-            }
-        };
-
-        function updateRank() {
-            let r = "Newbie", c = "#f8fafc";
-            if(score > 1000) r = "Pro";
-            if(score > 5000) { r = "Aurum"; c = "var(--aurum)"; } // Rank Emas Gak Mencolok
-            if(score > 20000) r = "Mythic";
-            const rankEl = document.getElementById('rank');
-            rankEl.innerText = r;
-            rankEl.style.color = c;
-        }
-
-        function handleOverheat() {
-            overheatCount++;
-            localStorage.setItem('oh_count', overheatCount);
-            let duration = 60;
-            if (overheatCount === 2) duration = 300;
-            if (overheatCount >= 3) {
-                duration = 86400;
-                localStorage.setItem('ban_time', Date.now() + (86400 * 1000));
-            }
-            startBanTimer(duration);
-        }
-
-        function startBanTimer(seconds) {
-            isExhausted = true;
-            const overlay = document.getElementById('staminaWarn');
-            overlay.style.display = 'flex';
-            
-            let t = seconds;
-            const timer = setInterval(() => {
-                let h = Math.floor(t / 3600).toString().padStart(2, '0');
-                let m = Math.floor((t % 3600) / 60).toString().padStart(2, '0');
-                let s = (t % 60).toString().padStart(2, '0');
-                document.getElementById('warnTimer').innerText = `SANKSI: ${h}:${m}:${s}`;
-                t--;
-                if (t < 0) {
-                    clearInterval(timer);
-                    localStorage.setItem('oh_count', 0);
-                    localStorage.setItem('ban_time', 0);
-                    location.reload();
-                }
-            }, 1000);
-        }
-
-        function checkBan() {
-            const now = Date.now();
-            if (now < banEndTime) {
-                startBanTimer(Math.ceil((banEndTime - now) / 1000));
+    async function init() {
+        if(!myId) {
+            let n = prompt("ENTER PREDATOR NAME:");
+            myId = "user_" + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('predator_uid_v2', myId);
+            data = { name: n || "Predator", tag: "#"+Math.floor(1000+Math.random()*9000), population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0 };
+            await setDoc(doc(db, "players", myId), data);
+            isDataLoaded = true;
+        } else {
+            const snap = await getDoc(doc(db, "players", myId));
+            if(snap.exists()) {
+                data = snap.data();
+                isDataLoaded = true;
+            } else {
+                myId = null; init(); return;
             }
         }
 
-        function showBonusNotif() {
-            const n = document.createElement('div');
-            n.className = 'bonus-notif';
-            n.innerText = "+10,000 AURUM BONUS!";
-            n.style.left = "50%"; n.style.transform = "translateX(-50%)";
-            document.body.appendChild(n);
-            setTimeout(() => n.remove(), 1500);
-        }
+        document.getElementById('biteBtn').disabled = false;
+        document.getElementById('biteBtn').innerText = "ATTACK!";
+        document.getElementById('connState').innerText = "LIVE";
+        document.getElementById('connState').style.color = "#00f2ff";
+        document.getElementById('uiName').innerText = data.name;
 
-        // Reset spam counter kalo diem
+        updateUI(); initChat(); initRank(); animateStars();
+
         setInterval(() => {
-            if (!isExhausted) {
-                spamCounter = 0;
-                statusBadge.innerText = "NORMAL";
-                statusBadge.style.background = "var(--accent)";
+            if(isDataLoaded && data && myId) {
+                updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
             }
-        }, 2500);
-    </script>
+        }, 7000);
+
+        setInterval(() => {
+            if(isDataLoaded && data) {
+                if(data.afkPower > 0) {
+                    data.population = Math.max(0, data.population - data.afkPower);
+                    data.consumed += data.afkPower;
+                    updateUI();
+                }
+                document.getElementById('frenzyAlert').style.display = (Date.now() < data.frenzyUntil) ? 'block' : 'none';
+            }
+        }, 1000);
+    }
+
+    document.getElementById('biteBtn').onclick = (e) => {
+        if(!isDataLoaded) return;
+        document.getElementById('sfxBite').currentTime = 0; document.getElementById('sfxBite').play();
+        let pwr = data.clickPower;
+        if(Date.now() < data.frenzyUntil) pwr *= 2;
+        data.population = Math.max(0, data.population - pwr);
+        data.consumed += pwr;
+        data.manualClicks++;
+        if(data.manualClicks >= 10000) { data.manualClicks = 0; data.frenzyUntil = Date.now() + 30000; }
+        if(data.population <= 0) { data.planetsCleared++; data.population = MAX_POP; }
+        updateUI();
+    };
+
+    function updateUI() {
+        if(!data) return;
+        document.getElementById('population').innerText = Math.floor(data.population).toLocaleString();
+        document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
+        document.getElementById('planet').innerText = data.planetsCleared;
+        document.getElementById('clickCount').innerText = data.manualClicks.toLocaleString();
+        document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
+        document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
+        document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
+        document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
+        document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
+    }
+
+    const canvas = document.getElementById('starCanvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    function animateStars() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        if(Math.random() < 0.04) stars.push({ x: Math.random()*canvas.width, y: -20, s: 4+Math.random()*8 });
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255,255,255,0.6)"; ctx.lineWidth = 2;
+        stars.forEach((s, i) => {
+            ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x-s.s*2, s.y+s.s*2); ctx.stroke();
+            s.x -= s.s; s.y += s.s; if(s.y > canvas.height) stars.splice(i, 1);
+        });
+        requestAnimationFrame(animateStars);
+    }
+
+    window.toggleBGM = () => {
+        const b = document.getElementById('bgm');
+        if(b.paused) { b.play(); document.getElementById('bgmStatus').innerText = "ON"; }
+        else { b.pause(); document.getElementById('bgmStatus').innerText = "OFF"; }
+    };
+
+    function initRank() {
+        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(10)), (s) => {
+            let h = ""; s.forEach(d => {
+                const p = d.data();
+                h += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222; font-size:0.75rem;">
+                    <span><b>${p.name}</b></span>
+                    <span style="color:var(--accent)">💰 ${Math.floor(p.consumed).toLocaleString()}</span>
+                </div>`;
+            });
+            document.getElementById('rankList').innerHTML = h;
+        });
+    }
+
+    function initChat() {
+        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(6)), (s) => {
+            let h = ""; s.docs.reverse().forEach(d => {
+                h += `<div style="margin-bottom:4px;"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
+            });
+            document.getElementById('chatBox').innerHTML = h;
+        });
+    }
+
+    document.getElementById('sendChat').onclick = async () => {
+        const i = document.getElementById('chatInput');
+        if(i.value.trim() && data) {
+            await addDoc(collection(db, "messages"), { sender: data.name, text: i.value, createdAt: serverTimestamp() });
+            i.value = "";
+        }
+    };
+
+    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); } };
+    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); } };
+
+    init();
+</script>
 </body>
 </html>
