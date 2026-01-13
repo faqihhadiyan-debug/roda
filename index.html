@@ -147,6 +147,21 @@
 /* Tambahan agar font Orbitron masuk */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
 
+        /* --- UI PROFIL MODAL --- */
+#profileModal {
+    display: none;
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 380px;
+    background: rgba(10, 10, 10, 0.95);
+    border: 2px solid var(--neon);
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+    border-radius: 20px; padding: 25px; z-index: 9999;
+    backdrop-filter: blur(15px); text-align: center;
+    animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+@keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity:0;} 100% { transform: translate(-50%, -50%) scale(1); opacity:1;} }
+
+.prof-badge { background: #222; padding: 8px; border-radius: 8px; margin: 5px; display: inline-block; font-size: 0.8rem; border: 1px solid #444; }
     </style>
 </head>
 <body>
@@ -160,6 +175,20 @@
         <span>PREDATOR: <b id="pId">---</b></span>
         <span id="connState">SINKRONISASI...</span>
     </div>
+
+<div id="profileModal">
+    <div id="profHeader" style="padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #fff;">
+        <h2 id="profName" style="margin:0; font-family:'Orbitron'; text-shadow:0 0 10px white;">NAME</h2>
+        <span id="profAge" style="font-size:0.8rem; opacity:0.8;">Age: --</span>
+    </div>
+    <div id="profBio" style="font-style:italic; color:#ddd; margin:15px 0; font-size: 0.9rem;">"Loading..."</div>
+    <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:5px; margin-bottom:20px;">
+        <div class="prof-badge" id="statPlanet">🌍 0 Planet</div>
+        <div class="prof-badge" id="statGigi">🧬 0 Power</div>
+        <div class="prof-badge" id="statVirus">🦠 0/s Idle</div>
+    </div>
+    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">TUTUP</button>
+</div>
 
     <div class="stats-box" id="planetBox">
         <small style="color:#888; letter-spacing: 3px; font-size: 0.6rem;">PLANETARY POPULATION</small>
@@ -175,16 +204,21 @@
     <button class="btn-main" id="biteBtn">DESTROY!</button>
 
 
-    <div class="action-card">
-        <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
-        <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
-        <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
+   <div class="action-card">
+    <button class="btn-up" id="upGigi">🧬 MUTASI GIGI (+1) | 💰 <span id="gCost">15</span></button>
+    <button class="btn-up" id="upVirus">🦠 VIRUS GALAXY (-2/s) | 💰 <span id="vCost">50</span></button>
+    <button class="btn-up" onclick="transferKoin()" style="border-color: #ffd700; color: #ffd700;">💎 TRANSFER ASSET</button>
+    
+    <button class="btn-up" onclick="window.editMyProfile()" style="border-color: #ff00ea; color: #ff00ea; margin-top: 10px;">
+        🎨 DEKORASI PROFIL
+    </button>
+
     <a href="indx.html" target="_blank" style="text-decoration: none;">
         <button class="btn-up" style="background: linear-gradient(90deg, #1e3c72, #2a5298); border-color: #00d2ff; color: #fff; margin-top: 15px;">
-            🥔
+            🥔 KEMBALI
         </button>
     </a>
-    </div>
+</div>
 
     <div class="chat-room">
         <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
@@ -227,53 +261,71 @@
     let isTransitioning = false;
 
     async function init() {
-        if(!id) {
-            let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
-            if(!n || n.length < 3) return init();
-            id = n.toUpperCase().replace(/\s/g, "_");
-            localStorage.setItem('solo_uid', id);
-            await setDoc(doc(db, "players", id), data);
-        }
+    // 1. Cek ID di LocalStorage
+    if(!id) {
+        let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
+        if(!n || n.length < 3) return init();
+        id = n.toUpperCase().replace(/\s/g, "_");
+        localStorage.setItem('solo_uid', id);
+    }
+    
+    document.getElementById('pId').innerText = id;
+    const playerRef = doc(db, "players", id);
+    const snap = await getDoc(playerRef);
+    
+    if(snap.exists()) {
+        // DATA LAMA DITEMUKAN: Ambil data dari server
+        const dbData = snap.data();
         
-        document.getElementById('pId').innerText = id;
-        const snap = await getDoc(doc(db, "players", id));
-        
-        if(snap.exists()) {
-            const dbData = snap.data();
+        // Cek apakah pemain lama belum punya data Umur/Bio
+        if(!dbData.age || !dbData.bio) {
+            alert("Halo Predator Senior! Lengkapi profil barumu dulu ya.");
+            let age = prompt("Konfirmasi Umur kamu:", dbData.age || "");
+            let bio = prompt("Tulis bio/semboyan kamu:", dbData.bio || "Misi: Menghancurkan Bumi");
             
-            // --- LOGIKA AFK OFFLINE ---
-            if (dbData.lastActive && dbData.afkPower > 0) {
-                const sekarang = Date.now();
-                const selisihDetik = Math.floor((sekarang - dbData.lastActive) / 1000);
-                const waktuDihitung = Math.min(selisihDetik, 86400); // Max 24 jam
-                const koinDihasilkan = waktuDihitung * dbData.afkPower;
-
-                if (koinDihasilkan > 10) {
-                    dbData.consumed = (dbData.consumed || 0) + koinDihasilkan;
-                    dbData.population = (dbData.population || MAX_POP) - koinDihasilkan;
-                    setTimeout(() => {
-                        alert(`🚀 WELCOME BACK!\nVirus kamu dapet: 💰 ${Math.floor(koinDihasilkan).toLocaleString()} koin saat kamu offline!`);
-                        updateUI();
-                    }, 1000);
-                }
-            }
-            data = { ...data, ...dbData };
+            // Masukkan data baru tanpa menghapus koin/planet lama
+            dbData.age = age || "??";
+            dbData.bio = bio || "Misi: Menghancurkan Bumi";
+            dbData.themeColor = dbData.themeColor || "#00f2ff";
+            
+            await updateDoc(playerRef, dbData);
         }
-
-        initChat(); 
-        initRank(); 
-        updateUI();
-
-        // Jalanin virus tiap detik
-        setInterval(() => { 
-            if(data.afkPower > 0) processHit(data.afkPower, false); 
-            updateUI(); 
-        }, 1000);
-
-        // PENTING: Simpan data tiap 15 detik agar waktu offline tercatat
-        setInterval(save, 15000);
+        
+        // Gabungkan data lama dengan variabel lokal
+        data = { ...data, ...dbData };
+        
+        // Logika AFK Offline tetap jalan
+        if (dbData.lastActive && dbData.afkPower > 0) {
+            const sekarang = Date.now();
+            const selisihDetik = Math.floor((sekarang - dbData.lastActive) / 1000);
+            const waktuDihitung = Math.min(selisihDetik, 86400); 
+            const koinDihasilkan = waktuDihitung * dbData.afkPower;
+            if (koinDihasilkan > 10) {
+                data.consumed += koinDihasilkan;
+                data.population -= koinDihasilkan;
+                setTimeout(() => alert(`🚀 WELCOME BACK!\nVirus kamu dapet: 💰 ${Math.floor(koinDihasilkan).toLocaleString()} koin!`), 1000);
+            }
+        }
+    } else {
+        // PEMAIN BARU: Buat data dari nol
+        let age = prompt("MASUKKAN UMUR KAMU:");
+        data.age = age || "??";
+        data.bio = "Predator Baru di Galaksi";
+        data.themeColor = "#00f2ff";
+        await setDoc(playerRef, data);
     }
 
+    initChat(); 
+    initRank(); 
+    updateUI();
+
+    setInterval(() => { 
+        if(data.afkPower > 0) processHit(data.afkPower, false); 
+        updateUI(); 
+    }, 1000);
+
+    setInterval(save, 15000);
+}
     const save = async () => { 
     if(id && !isTransitioning) { 
         try {
@@ -367,26 +419,118 @@
         });
     }
 
-    document.getElementById('sendChat').onclick = async () => {
-        const i = document.getElementById('chatInput');
-        if(i.value.trim()) {
-            await addDoc(collection(db, "messages"), { sender: id, text: i.value, createdAt: serverTimestamp() });
-            i.value = "";
+// 1. FUNGSI INIT BARU (Aman buat data lama)
+    async function init() {
+        if(!id) {
+            let n = prompt("DAFTARKAN KODE PREDATOR (ID):");
+            if(!n || n.length < 3) return init();
+            id = n.toUpperCase().replace(/\s/g, "_");
+            localStorage.setItem('solo_uid', id);
+        }
+        
+        document.getElementById('pId').innerText = id;
+        const playerRef = doc(db, "players", id);
+        const snap = await getDoc(playerRef);
+        
+        if(snap.exists()) {
+            const dbData = snap.data();
+            
+            // CEK DATA LAMA: Kalau belum ada bio/umur, minta isi (sekali aja)
+            if(!dbData.bio) {
+                alert("⚠️ FITUR BARU: Silahkan lengkapi Profil kamu!");
+                let age = prompt("Umur:", "18");
+                let bio = prompt("Bio/Semboyan:", "Misi: Hancurkan Bumi");
+                // Simpan data profil TANPA mereset koin
+                await updateDoc(playerRef, { 
+                    age: age || "??", 
+                    bio: bio || "New Predator", 
+                    themeColor: "#00f2ff" 
+                });
+                dbData.age = age; dbData.bio = bio; dbData.themeColor = "#00f2ff";
+            }
+            
+            data = { ...data, ...dbData }; // Gabung data
+            
+            // Hitung AFK Offline
+            if (dbData.lastActive && dbData.afkPower > 0) {
+                const diff = Math.min(Math.floor((Date.now() - dbData.lastActive)/1000), 86400);
+                const gain = diff * dbData.afkPower;
+                if (gain > 10) {
+                    data.consumed += gain;
+                    data.population -= gain;
+                    alert(`🚀 WELCOME BACK!\nDapat 💰 ${Math.floor(gain).toLocaleString()} koin hasil virus!`);
+                }
+            }
+        } else {
+            // PEMAIN BARU
+            let age = prompt("MASUKKAN UMUR:");
+            data.age = age || "??";
+            data.bio = "Predator Baru";
+            data.themeColor = "#00f2ff";
+            await setDoc(playerRef, data);
+        }
+
+        initChat(); 
+        initRank(); // Panggil fungsi rank yang baru
+        updateUI();
+        setInterval(() => { if(data.afkPower > 0) processHit(data.afkPower, false); updateUI(); }, 1000);
+        setInterval(save, 15000);
+    }
+
+    // 2. FUNGSI MENAMPILKAN PROFIL ORANG LAIN
+    window.showProfile = async (targetId) => {
+        const snap = await getDoc(doc(db, "players", targetId));
+        if (snap.exists()) {
+            const p = snap.data();
+            const header = document.getElementById('profHeader');
+            
+            // Set Warna Dekorasi punya orang itu
+            header.style.background = p.themeColor || '#222';
+            header.style.borderColor = p.themeColor || '#fff';
+            header.style.boxShadow = `0 0 20px ${p.themeColor || '#000'}`;
+
+            document.getElementById('profName').innerText = targetId;
+            document.getElementById('profAge').innerText = "Umur: " + (p.age || "??");
+            document.getElementById('profBio').innerText = `"${p.bio || '...'}"`;
+            
+            document.getElementById('statPlanet').innerText = `🌍 ${p.planetsCleared || 0} Planet`;
+            document.getElementById('statGigi').innerText = `🧬 Lv.${p.clickPower} Gigi`;
+            document.getElementById('statVirus').innerText = `🦠 ${p.afkPower}/detik`;
+
+            document.getElementById('profileModal').style.display = 'block';
         }
     };
 
+    // 3. FUNGSI EDIT PROFIL SENDIRI
+    window.editMyProfile = async () => {
+        let newBio = prompt("Ganti Bio (Max 30 huruf):", data.bio);
+        let newColor = prompt("Ganti Warna Neon (Merah/Blue/#00ff00):", data.themeColor);
+        
+        if(newBio) data.bio = newBio.substring(0, 30);
+        if(newColor) data.themeColor = newColor;
+        
+        save(); // Simpan ke database
+        alert("✅ Profil Diperbarui!");
+    };
+
+    // 4. FUNGSI RANKING (Biar bisa diklik)
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
             let h1 = ""; let count = 0; const now = Date.now();
             snap.forEach(d => {
                 count++; const p = d.data();
                 const isOn = p.lastActive && (now - p.lastActive) < 60000;
-                h1 += `<div class="entry-max">
+                
+                // Perhatikan bagian onclick="window.showProfile(...)"
+                h1 += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer;">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%;"></span>
-                        <div><b>${count}. ${d.id}</b><br><small>💰 ${Math.floor(p.consumed).toLocaleString()}</small></div>
+                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%; box-shadow:${isOn?'0 0 5px #0f0':'none'}"></span>
+                        <div>
+                            <b style="color:${d.id === id ? 'var(--neon)' : '#fff'}">${count}. ${d.id}</b>
+                            <br><small style="color:#888">💰 ${Math.floor(p.consumed).toLocaleString()}</small>
+                        </div>
                     </div>
-                    <div class="planet-badge">🌍 ${p.planetsCleared || 0}</div>
+                    <div class="planet-badge" style="border-color:${p.themeColor || '#444'}">🌍 ${p.planetsCleared || 0}</div>
                 </div>`;
             });
             document.getElementById('rankList').innerHTML = h1;
