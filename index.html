@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EARTH PREDATOR - ULTIMATE EDITION</title>
+    <title>EARTH PREDATOR - TRUE PERSISTENCE</title>
     <style>
         :root { --primary: #ff0033; --accent: #ffd700; --neon: #00f2ff; --glass: rgba(0, 0, 0, 0.85); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -51,7 +51,6 @@
         }
         .btn-up:disabled { opacity: 0.2; border-color: #444; color: #444; }
 
-        /* FRENZY ALERT */
         #frenzyBox {
             display: none; background: linear-gradient(90deg, #ffd700, #ff0033);
             color: #000; font-weight: 900; padding: 10px; border-radius: 15px;
@@ -60,39 +59,32 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
         .hp-container { width: 100%; background: #222; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; border: 1px solid #444; }
-        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: width 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        #hpBar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0033, #00f2ff); transition: width 0.3s; }
 
-        /* DAMAGE ANIMATION */
         .floating-damage {
             position: absolute; pointer-events: none; font-weight: 900; font-size: 1.5rem;
-            font-family: 'Orbitron', sans-serif; z-index: 1000; color: #ff0033;
-            animation: floatDmg 0.7s ease-out forwards;
-            text-shadow: 0 0 10px rgba(255,0,0,0.8);
+            color: #ff0033; animation: floatDmg 0.7s ease-out forwards;
+            text-shadow: 0 0 10px rgba(255,0,0,0.8); z-index: 1000;
         }
         @keyframes floatDmg { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
-        /* LEADERBOARD & PROFILE */
         .entry-max {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 15px; background: rgba(255, 255, 255, 0.03);
             border-radius: 15px; margin-bottom: 8px; border: 1px solid rgba(0, 242, 255, 0.1);
         }
-        .planet-badge {
-            background: #111; padding: 4px 10px; border-radius: 10px; border: 1px solid #444; 
-            font-size: 0.75rem; font-weight: bold;
-        }
+        .planet-badge { background: #111; padding: 4px 10px; border-radius: 10px; border: 1px solid #444; font-size: 0.75rem; font-weight: bold; }
 
         #profileModal {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 90%; max-width: 380px; background: rgba(10, 10, 10, 0.98);
             border: 2px solid var(--neon); border-radius: 25px; padding: 25px; z-index: 9999;
-            backdrop-filter: blur(20px); text-align: center;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
+            backdrop-filter: blur(20px); text-align: center; box-shadow: 0 0 50px rgba(0,0,0,1);
         }
         .prof-badge { background: #222; padding: 10px; border-radius: 12px; margin: 5px; flex: 1; font-size: 0.75rem; border: 1px solid #333; }
 
         .chat-box { height: 140px; overflow-y: auto; background: rgba(255,255,255,0.95); color: #000; padding: 12px; border-radius: 15px; font-family: sans-serif; font-size: 0.85rem; }
-        .chat-msg { margin-bottom: 6px; border-left: 4px solid var(--primary); padding-left: 8px; }
+        .chat-msg { margin-bottom: 6px; border-left: 4px solid var(--primary); padding-left: 8px; text-align: left; }
 
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
     </style>
@@ -102,15 +94,15 @@
 <div class="space-bg"></div>
 
 <div class="container">
-    <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL DAMAGE ☢️</div>
+    <div id="frenzyBox">☢️ FRENZY MODE: 2X CRITICAL ☢️</div>
 
     <div style="font-size: 0.75rem; color: var(--neon); display: flex; justify-content: space-between; margin-bottom: 15px;">
         <span>PREDATOR: <b id="uiName">---</b> <span id="uiTag" style="color:var(--accent)"></span></span>
-        <span id="connState">SYNCING...</span>
+        <span id="connState">CONNECTED</span>
     </div>
 
     <div class="stats-box">
-        <small style="color:#666; letter-spacing: 3px; font-size: 0.6rem;">TARGET POPULATION</small>
+        <small style="color:#666; letter-spacing: 3px; font-size: 0.6rem;">REMAINING POPULATION</small>
         <span id="population">8.000.000.000</span>
         <div class="hp-container"><div id="hpBar"></div></div>
         <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem;">
@@ -129,23 +121,23 @@
     </div>
 
     <div class="chat-room">
-        <div id="chatBox" class="chat-box">Connecting to GalaxNet...</div>
+        <div id="chatBox" class="chat-box">GalaxNet online...</div>
         <div style="display:flex; gap:8px; margin-top: 10px;">
-            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:none;" placeholder="Broadcast message..." maxlength="30">
+            <input type="text" id="chatInput" style="flex:1; padding:12px; border-radius:12px; border:none;" placeholder="Message..." maxlength="30">
             <button id="sendChat" style="background:var(--primary); color:#fff; border:none; padding:0 15px; border-radius:12px; font-weight:900;">></button>
         </div>
     </div>
 
     <div class="leaderboard">
-        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center;">🏆 RANKING</h3>
+        <h3 style="margin:0 0 15px 0; font-size:1.1rem; color:var(--neon); text-align:center;">🏆 TOP RANKING</h3>
         <div id="rankList"></div>
     </div>
 </div>
 
 <div id="profileModal">
     <div id="profHeader" style="padding:20px; border-radius:20px; margin-bottom:15px; border: 1px solid #fff;">
-        <h2 style="margin:0; font-family:'Orbitron';"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
-        <span id="pAge" style="font-size:0.8rem; opacity:0.8;">Age: --</span>
+        <h2 style="margin:0;"><span id="pName">NAME</span> <span id="pTag" style="font-size:0.7rem; opacity:0.6;">#000</span></h2>
+        <span id="pAge" style="font-size:0.8rem;">Age: --</span>
     </div>
     <p id="pBio" style="font-style:italic; color:#ddd; margin:15px 0; font-size: 0.9rem;">"..."</p>
     <div style="display:flex; justify-content:space-between; gap:5px; margin-bottom:20px;">
@@ -153,7 +145,7 @@
         <div class="prof-badge"><div style="font-size:1.2rem;">🧬</div><b id="sGigi">0</b><br>Power</div>
         <div class="prof-badge"><div style="font-size:1.2rem;">🦠</div><b id="sVirus">0</b><br>Idle/s</div>
     </div>
-    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:15px; font-weight:bold; cursor:pointer;">CLOSE SYSTEM</button>
+    <button onclick="document.getElementById('profileModal').style.display='none'" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:15px; font-weight:bold;">CLOSE</button>
 </div>
 
 <script type="module">
@@ -173,20 +165,21 @@
     const db = getFirestore(app);
     const sfxBite = new Audio('https://assets.mixkit.co/active_storage/sfx/2296/2296-preview.mp3');
 
-    // LOGIKA PENYELAMAT DATA (Cek semua key lama)
-    let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
+    // MENCARI ID DARI SEMUA VERSI LAMA
+    let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid') || localStorage.getItem('predator_uid');
     const MAX_POP = 8000000000;
     
+    // Default Data (Hanya untuk pemain yang BENAR-BENAR baru)
     let data = { 
         name: "Unknown", tag: "#" + Math.floor(1000 + Math.random() * 9000), 
         population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, 
         afkPower: 0, afkCost: 50, planetsCleared: 0, manualClicks: 0, frenzyUntil: 0,
-        lastActive: Date.now(), age: "18", bio: "Earth Destroyer", themeColor: "#00f2ff"
+        lastActive: Date.now(), age: "18", bio: "Earth Predator", themeColor: "#00f2ff"
     };
 
     async function init() {
         if(!myId) {
-            let n = prompt("ENTER YOUR PREDATOR NAME:");
+            let n = prompt("ENTER PREDATOR NAME:");
             myId = "user_" + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('predator_uid_v2', myId);
             data.name = n || "Predator";
@@ -196,71 +189,44 @@
         const snap = await getDoc(doc(db, "players", myId));
         if(snap.exists()) {
             const dbData = snap.data();
-            // Migrasi nama jika kosong
-            if(!dbData.name || dbData.name === "Unknown") dbData.name = myId.split('_')[1] || "Predator";
+            // POINT PENTING: Data dari DB menimpa default (Populasi tidak akan balik ke 8M)
             data = { ...data, ...dbData };
-
-            // Logic Offline Earning
+            
+            // Hitung Offline Earning
             const diff = Math.floor((Date.now() - (data.lastActive || Date.now())) / 1000);
             if(diff > 10 && data.afkPower > 0) {
-                const gain = Math.min(diff * data.afkPower, 5000000); 
+                const gain = Math.min(diff * data.afkPower, 10000000); 
                 data.consumed += gain; data.population -= gain;
-                alert(`OFFLINE PROFIT: 💰 ${Math.floor(gain).toLocaleString()}`);
             }
-        } else {
-            data.name = myId;
-            await setDoc(doc(db, "players", myId), data);
         }
 
         document.getElementById('uiName').innerText = data.name;
         document.getElementById('uiTag').innerText = data.tag;
         
         initChat(); initRank(); updateUI();
+        
+        // Loop Game
         setInterval(() => { 
             if(data.afkPower > 0) { processHit(data.afkPower, false); updateUI(); }
             if(Date.now() < data.frenzyUntil) { document.getElementById('frenzyBox').style.display = 'block'; }
             else { document.getElementById('frenzyBox').style.display = 'none'; }
         }, 1000);
-        setInterval(() => { if(myId) updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); }, 15000);
+
+        // Auto Save
+        setInterval(() => { 
+            if(myId) updateDoc(doc(db, "players", myId), { ...data, lastActive: Date.now() }); 
+        }, 10000);
     }
-
-    window.showProfile = async (targetId) => {
-        const snap = await getDoc(doc(db, "players", targetId));
-        if(snap.exists()) {
-            const p = snap.data();
-            const modal = document.getElementById('profileModal');
-            document.getElementById('profHeader').style.background = p.themeColor || '#222';
-            document.getElementById('pName').innerText = p.name;
-            document.getElementById('pTag').innerText = p.tag || "";
-            document.getElementById('pAge').innerText = "Age: " + (p.age || "??");
-            document.getElementById('pBio').innerText = `"${p.bio || 'Destroying stars...'}"`;
-            document.getElementById('sPlanet').innerText = p.planetsCleared || 0;
-            document.getElementById('sGigi').innerText = p.clickPower || 1;
-            document.getElementById('sVirus').innerText = p.afkPower || 0;
-            modal.style.display = 'block';
-        }
-    };
-
-    window.editMyProfile = async () => {
-        let nName = prompt("New Name:", data.name);
-        let nAge = prompt("Age:", data.age);
-        let nBio = prompt("New Bio (max 30):", data.bio);
-        let nColor = prompt("Neon Color (hex/name):", data.themeColor);
-        if(nName) data.name = nName.substring(0,12);
-        if(nAge) data.age = nAge;
-        if(nBio) data.bio = nBio.substring(0,30);
-        if(nColor) data.themeColor = nColor;
-        document.getElementById('uiName').innerText = data.name;
-        save();
-    };
 
     function processHit(amt, isManual) {
         let p = amt;
         if(isManual && Date.now() < data.frenzyUntil) p *= 2;
-        data.population -= p; data.consumed += p;
+        data.population = Math.max(0, data.population - p);
+        data.consumed += p;
+        
         if(data.population <= 0) {
             data.planetsCleared++; data.population = MAX_POP;
-            alert("PLANET CRUSHED! TARGETING NEXT...");
+            alert("PLANET DESTROYED!");
         }
         return p;
     }
@@ -279,7 +245,7 @@
     };
 
     function updateUI() {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString();
+        document.getElementById('population').innerText = Math.floor(data.population).toLocaleString();
         document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
         document.getElementById('planet').innerText = data.planetsCleared;
         document.getElementById('clickTask').innerText = data.manualClicks;
@@ -290,12 +256,41 @@
         document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
     }
 
+    window.showProfile = async (targetId) => {
+        const snap = await getDoc(doc(db, "players", targetId));
+        if(snap.exists()) {
+            const p = snap.data();
+            document.getElementById('profHeader').style.background = p.themeColor || '#222';
+            document.getElementById('pName').innerText = p.name;
+            document.getElementById('pTag').innerText = p.tag || "";
+            document.getElementById('pAge').innerText = "Age: " + (p.age || "??");
+            document.getElementById('pBio').innerText = `"${p.bio || 'Destroying Earth...'}"`;
+            document.getElementById('sPlanet').innerText = p.planetsCleared || 0;
+            document.getElementById('sGigi').innerText = p.clickPower || 1;
+            document.getElementById('sVirus').innerText = p.afkPower || 0;
+            document.getElementById('profileModal').style.display = 'block';
+        }
+    };
+
+    window.editMyProfile = async () => {
+        let nName = prompt("New Name:", data.name);
+        let nAge = prompt("Age:", data.age);
+        let nBio = prompt("Bio:", data.bio);
+        let nColor = prompt("Neon Color (hex/name):", data.themeColor);
+        if(nName) data.name = nName;
+        if(nAge) data.age = nAge;
+        if(nBio) data.bio = nBio;
+        if(nColor) data.themeColor = nColor;
+        document.getElementById('uiName').innerText = data.name;
+        updateDoc(doc(db, "players", myId), data);
+    };
+
     function initRank() {
-        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
+        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(15)), (snap) => {
             let h = ""; let c = 0;
             snap.forEach(d => {
                 c++; const p = d.data();
-                h += `<div class="entry-max" onclick="window.showProfile('${d.id}')" style="cursor:pointer">
+                h += `<div class="entry-max" onclick="window.showProfile('${d.id}')">
                     <span>#${c} <b>${p.name}</b> <small style="opacity:0.5">${p.tag || ''}</small></span>
                     <div class="planet-badge" style="border-color:${p.themeColor}">🌍 ${p.planetsCleared || 0}</div>
                 </div>`;
@@ -305,7 +300,7 @@
     }
 
     function initChat() {
-        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(12)), (s) => {
+        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(10)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
                 h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
             });
@@ -321,9 +316,8 @@
         }
     };
 
-    const save = () => { if(myId) updateDoc(doc(db, "players", myId), data); };
-    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); save(); } };
-    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); save(); } };
+    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); } };
+    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); } };
 
     init();
 </script>
