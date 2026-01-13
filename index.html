@@ -1,89 +1,3 @@
-rn power;
-    }
-
-    document.getElementById('biteBtn').onclick = (e) => {
-        sfxBite.currentTime = 0; sfxBite.play();
-        const p = processHit(data.clickPower, true);
-        const d = document.createElement('div');
-        d.className = 'floating-damage';
-        d.innerText = `-${Math.floor(p)}`;
-        d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
-        document.body.appendChild(d);
-        setTimeout(() => d.remove(), 700);
-        updateUI();
-    };
-
-    document.getElementById('upGigi').onclick = () => {
-        if(data.consumed >= data.clickCost) {
-            data.consumed -= data.clickCost;
-            data.clickPower += 1;
-            data.clickCost = Math.floor(data.clickCost * 1.5);
-            updateUI(); save();
-        }
-    };
-
-    document.getElementById('upVirus').onclick = () => {
-        if(data.consumed >= data.afkCost) {
-            data.consumed -= data.afkCost;
-            data.afkPower += 2;
-            data.afkCost = Math.floor(data.afkCost * 1.6);
-            updateUI(); save();
-        }
-    };
-
-    function updateUI() {
-        document.getElementById('population').innerText = Math.max(0, Math.floor(data.population)).toLocaleString('id-ID');
-        document.getElementById('money').innerText = Math.floor(data.consumed).toLocaleString();
-        document.getElementById('planet').innerText = data.planetsCleared;
-        document.getElementById('clickTask').innerText = data.manualClicks;
-        document.getElementById('gCost').innerText = data.clickCost.toLocaleString();
-        document.getElementById('vCost').innerText = data.afkCost.toLocaleString();
-        document.getElementById('hpBar').style.width = (data.population/MAX_POP*100) + "%";
-        document.getElementById('upGigi').disabled = data.consumed < data.clickCost;
-        document.getElementById('upVirus').disabled = data.consumed < data.afkCost;
-    }
-
-    function initChat() {
-        onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(15)), (s) => {
-            let h = ""; s.docs.reverse().forEach(d => {
-                h += `<div class="chat-msg"><b>${d.data().sender}:</b> ${d.data().text}</div>`;
-            });
-            document.getElementById('chatBox').innerHTML = h;
-            document.getElementById('chatBox').scrollTop = 999;
-        });
-    }
-
-    document.getElementById('sendChat').onclick = async () => {
-        const i = document.getElementById('chatInput');
-        if(i.value.trim()) {
-            await addDoc(collection(db, "messages"), { sender: id, text: i.value, createdAt: serverTimestamp() });
-            i.value = "";
-        }
-    };
-
-    function initRank() {
-        onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(20)), (snap) => {
-            let h1 = ""; let count = 0; const now = Date.now();
-            snap.forEach(d => {
-                count++; const p = d.data();
-                const isOn = p.lastActive && (now - p.lastActive) < 60000;
-                h1 += `<div class="entry-max">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <span style="width:8px; height:8px; background:${isOn?'#0f0':'#444'}; border-radius:50%;"></span>
-                        <div><b>${count}. ${d.id}</b><br><small>💰 ${Math.floor(p.consumed).toLocaleString()}</small></div>
-                    </div>
-                    <div class="planet-badge">🌍 ${p.planetsCleared || 0}</div>
-                </div>`;
-            });
-            document.getElementById('rankList').innerHTML = h1;
-        });
-    }
-
-    init();
-
-</script>
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,7 +35,7 @@ rn power;
             background: linear-gradient(45deg, #ff0033, #660000); border: 2px solid rgba(255,255,255,0.2); 
             border-radius: 25px; cursor: pointer; box-shadow: 0 8px 25px rgba(255,0,51,0.4);
         }
-        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+        .btn-main:disabled { filter: grayscale(1); opacity: 0.5; }
 
         .btn-up { width: 100%; padding: 12px; margin-top: 8px; background: rgba(0,242,255,0.05); color: var(--neon); border: 1px solid var(--neon); border-radius: 12px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .btn-up:disabled { opacity: 0.2; }
@@ -147,7 +61,7 @@ rn power;
 
     <div class="stats-box">
         <small style="color:#666; letter-spacing: 2px; font-size: 0.55rem;">WORLD POPULATION</small>
-        <span id="population">CONNECTING...</span>
+        <span id="population">CONNECTING</span>
         <div class="hp-container"><div id="hpBar"></div></div>
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
             <span>💰 <b id="money">0</b></span>
@@ -195,7 +109,7 @@ rn power;
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-       // BALIK KE PENYIMPANAN LAMA LO
+    // PENYIMPANAN ASLI LO
     let myId = localStorage.getItem('predator_uid_v2') || localStorage.getItem('solo_uid');
     let data = null;
     let isDataLoaded = false;
@@ -203,64 +117,45 @@ rn power;
 
     async function init() {
         if(!myId) {
-            // USER BARU BANGET
-            let n = prompt("ENTER PREDATOR NAME:");
+            let n = prompt("NAME:");
             myId = "user_" + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('predator_uid_v2', myId); // Simpan pakai kunci lama
-            
-            data = { 
-                name: n || "Predator", 
-                population: MAX_POP, 
-                consumed: 0, 
-                clickPower: 1, 
-                clickCost: 15, 
-                afkPower: 0, 
-                afkCost: 50, 
-                planetsCleared: 0 
-            };
+            localStorage.setItem('predator_uid_v2', myId);
+            data = { name: n || "Predator", population: MAX_POP, consumed: 0, clickPower: 1, clickCost: 15, afkPower: 0, afkCost: 50, planetsCleared: 0 };
             await setDoc(doc(db, "players", myId), data);
             isDataLoaded = true;
         } else {
-            // USER LAMA - CARI DI FOLDER 'players'
+            // TARIK DATA DARI 'players'
             const snap = await getDoc(doc(db, "players", myId));
-            
             if(snap.exists()) {
-                // DATA LAMA KETEMU! Langsung pake, jangan bikin baru.
                 data = snap.data();
                 isDataLoaded = true;
-                console.log("Data lama berhasil dipulihkan!");
             } else {
-                // Kalo ID di local ada tapi di database ilang
-                myId = null;
-                init();
-                return;
+                myId = null; init(); return;
             }
         }
 
-        // BUKA KUNCI GAME HANYA KALAU DATA SUDAH LOADED
-        if (isDataLoaded) {
-            document.getElementById('biteBtn').disabled = false;
-            document.getElementById('biteBtn').innerText = "ATTACK!";
-            updateUI();
-            
-            // AUTOSAVE LAMA: Tetap 7 detik
-            setInterval(() => {
-                if(isDataLoaded && data && myId) {
-                    updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Gagal sinkron"));
-                }
-            }, 7000);
-            
-            
+        document.getElementById('biteBtn').disabled = false;
+        document.getElementById('biteBtn').innerText = "ATTACK!";
+        document.getElementById('connState').innerText = "LIVE";
+        document.getElementById('connState').style.color = "#00f2ff";
+        document.getElementById('uiName').innerText = data.name;
 
-            // Income tiap detik
-            setInterval(() => {
-                if(isDataLoaded && data && data.afkPower > 0) {
-                    data.population = Math.max(0, data.population - data.afkPower);
-                    data.consumed += data.afkPower;
-                    updateUI();
-                }
-            }, 1000);
-        }
+        updateUI(); initChat(); initRank(); animateStars();
+
+        // Autosave 7 detik (Hanya jika data sudah ditarik)
+        setInterval(() => {
+            if(isDataLoaded && data && myId) {
+                updateDoc(doc(db, "players", myId), data).catch(e => console.warn("Sync error"));
+            }
+        }, 7000);
+
+        setInterval(() => {
+            if(isDataLoaded && data && data.afkPower > 0) {
+                data.population = Math.max(0, data.population - data.afkPower);
+                data.consumed += data.afkPower;
+                updateUI();
+            }
+        }, 1000);
     }
 
     document.getElementById('biteBtn').onclick = () => {
@@ -285,6 +180,7 @@ rn power;
         document.getElementById('upVirus').disabled = data.consumed < (data.afkCost || 50);
     }
 
+    // --- Visual ---
     const canvas = document.getElementById('starCanvas');
     const ctx = canvas.getContext('2d');
     let stars = [];
@@ -299,13 +195,11 @@ rn power;
         });
         requestAnimationFrame(animateStars);
     }
-
     window.toggleBGM = () => {
         const b = document.getElementById('bgm');
         if(b.paused) { b.play(); document.getElementById('bgmStatus').innerText = "ON"; }
         else { b.pause(); document.getElementById('bgmStatus').innerText = "OFF"; }
     };
-
     function initRank() {
         onSnapshot(query(collection(db, "players"), orderBy("consumed", "desc"), limit(10)), (s) => {
             let h = ""; s.forEach(d => {
@@ -318,7 +212,6 @@ rn power;
             document.getElementById('rankList').innerHTML = h;
         });
     }
-
     function initChat() {
         onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(6)), (s) => {
             let h = ""; s.docs.reverse().forEach(d => {
@@ -327,7 +220,6 @@ rn power;
             document.getElementById('chatBox').innerHTML = h;
         });
     }
-
     document.getElementById('sendChat').onclick = async () => {
         const i = document.getElementById('chatInput');
         if(i.value.trim() && data) {
@@ -335,20 +227,8 @@ rn power;
             i.value = "";
         }
     };
-
-    document.getElementById('upGigi').onclick = () => { 
-        if(data.consumed >= data.clickCost) { 
-            data.consumed -= data.clickCost; data.clickPower++; 
-            data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); 
-        } 
-    };
-    document.getElementById('upVirus').onclick = () => { 
-        if(data.consumed >= data.afkCost) { 
-            data.consumed -= data.afkCost; data.afkPower += 2; 
-            data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); 
-        } 
-    };
-
+    document.getElementById('upGigi').onclick = () => { if(data.consumed >= data.clickCost) { data.consumed -= data.clickCost; data.clickPower++; data.clickCost = Math.floor(data.clickCost * 1.6); updateUI(); } };
+    document.getElementById('upVirus').onclick = () => { if(data.consumed >= data.afkCost) { data.consumed -= data.afkCost; data.afkPower += 2; data.afkCost = Math.floor(data.afkCost * 1.7); updateUI(); } };
     init();
 </script>
 </body>
